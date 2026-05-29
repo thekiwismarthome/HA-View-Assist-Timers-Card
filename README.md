@@ -38,10 +38,14 @@ All options can be configured through the built-in card editor — click the pen
 | `display_mode` | `bar` | `bar` — list rows with a linear progress bar. `horseshoe` — tile grid with a circular arc. |
 | `columns` | `2` | Tiles per row in horseshoe mode. |
 | `max_height` | `0` | Maximum card body height in px before it scrolls. `0` = no limit. |
-| `hide_when_empty` | `false` | Collapse the card entirely when there are no active timers/alarms/reminders. |
+| `hide_when_empty` | `false` | Collapse the card in-place when there are no active timers/alarms/reminders. |
+| `float_when_active` | `false` | Hide the card in the dashboard entirely; float it as a screen overlay when alarms are active. |
+| `float_position` | `bottom-right` | Where the float card appears: `bottom-right`, `bottom-left`, `top-right`, `top-left`. |
 | `show_ringing_popup` | `true` | Show a floating popup overlay when an alarm is ringing. |
 | `popup_movable` | `true` | Allow the ringing popup to be dragged around the screen. |
 | `snooze_options` | `[5, 10]` | Snooze durations (minutes) offered in the ringing popup and on ringing rows. |
+| `show_add_button` | `false` | Show a `+` button in the header to manually create a timer, alarm, or reminder. |
+| `create_service` | `set_timer` | The View Assist service called when creating a new timer. Adjust if your VA version uses a different name. |
 | `refresh_interval` | `5` | Seconds between API polls. |
 
 ### Example YAML
@@ -90,7 +94,13 @@ Set `max_height` to a pixel value (e.g. `300`) to cap the card body height. A th
 
 ### Hide When Empty
 
-Set `hide_when_empty: true` to collapse the card completely when there are no active timers, alarms, or reminders. The card reappears automatically as soon as one becomes active.
+Set `hide_when_empty: true` to collapse the card in-place when there are no active timers. The card reappears as soon as one becomes active.
+
+### Float When Active
+
+Set `float_when_active: true` to remove the card from the dashboard grid entirely. When any timer, alarm, or reminder becomes active the card appears as a fixed overlay at the position set by `float_position` (`bottom-right` by default). It disappears again once all alarms are cleared.
+
+This is the recommended mode for an "always-available but non-intrusive" timer display. When combined with `popup_movable: true`, the floating card can be dragged to any screen position.
 
 ### Ringing Popup
 
@@ -127,8 +137,21 @@ Ringing timers in the main card also show action buttons directly in the row/til
 
 The card uses Home Assistant CSS variables throughout (`--primary-text-color`, `--secondary-text-color`, `--primary-color`, `--divider-color`, `--secondary-background-color`, `--ha-card-background`) so it adapts automatically to light and dark themes.
 
+### Add Timer Button
+
+Enable `show_add_button: true` to show a `+` icon in the card header. Clicking it opens an inline panel with:
+
+- **Type tabs** — Timer, Alarm, or Reminder
+- **Label** — optional name for the timer
+- **Duration** (timer type) — hours, minutes, seconds fields
+- **Time picker** (alarm/reminder type) — standard HH:MM picker
+- **Set** button — calls `view_assist.<create_service>` with the entered values
+
+The panel stays open across data-poll re-renders so you can type without interruption. The `create_service` config option lets you match the exact service name your View Assist version exposes.
+
 ---
 
 ## Planned
 
-- Button to manually create a timer, alarm, or reminder from within the card.
+- Confirmation feedback when a new timer is successfully created.
+- Editable timer/alarm from the detail view.
