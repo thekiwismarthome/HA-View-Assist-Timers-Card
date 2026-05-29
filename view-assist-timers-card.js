@@ -44,6 +44,10 @@ class ViewAssistTimersCard extends HTMLElement {
     this._popupRingingIds = null; // comma-joined sorted IDs currently shown in popup
   }
 
+  static getConfigElement() {
+    return document.createElement('view-assist-timers-card-editor');
+  }
+
   static getStubConfig() {
     return { title: 'Timers, Alarms & Reminders', display_mode: 'bar' };
   }
@@ -708,8 +712,284 @@ class ViewAssistTimersCard extends HTMLElement {
   }
 }
 
+// ── Visual config editor ───────────────────────────────────────────────────
+
+class ViewAssistTimersCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this._config = {};
+  }
+
+  // Called by HA when the user opens the card editor
+  setConfig(config) {
+    this._config = {
+      title: 'Timers, Alarms & Reminders',
+      display_mode: 'bar',
+      columns: 2,
+      max_height: 0,
+      hide_when_empty: false,
+      show_ringing_popup: true,
+      popup_movable: true,
+      snooze_options: [5, 10],
+      refresh_interval: 5,
+      show_types: ['timer', 'alarm', 'reminder'],
+      ...config,
+    };
+    this._render();
+  }
+
+  // HA passes hass to editors; we don't need it but must accept it
+  set hass(_) {}
+
+  _fire() {
+    this.dispatchEvent(new CustomEvent('config-changed', {
+      detail: { config: { ...this._config } },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  _render() {
+    const c  = this._config;
+    const st = c.show_types || ['timer', 'alarm', 'reminder'];
+    const isHorseshoe = c.display_mode === 'horseshoe';
+    const showPopup   = c.show_ringing_popup !== false;
+
+    this.shadowRoot.innerHTML = `
+      <style>${this._css()}</style>
+      <div class="editor">
+
+        <div class="section-title">General</div>
+
+        <div class="field">
+          <label>Card title (blank to hide)</label>
+          <input type="text" name="title" value="${this._esc(c.title ?? 'Timers, Alarms &amp; Reminders')}">
+        </div>
+        <div class="field">
+          <label>Refresh interval (seconds)</label>
+          <input type="number" name="refresh_interval" min="1" max="120" value="${c.refresh_interval ?? 5}">
+        </div>
+
+        <div class="section-title">Display</div>
+
+        <div class="field">
+          <label>Display mode</label>
+          <select name="display_mode">
+            <option value="bar"       ${!isHorseshoe ? 'selected' : ''}>Progress Bar</option>
+            <option value="horseshoe" ${ isHorseshoe ? 'selected' : ''}>Horseshoe</option>
+          </select>
+        </div>
+        <div class="field row-columns" style="display:${isHorseshoe ? '' : 'none'}">
+          <label>Tiles per row (horseshoe mode)</label>
+          <input type="number" name="columns" min="1" max="8" value="${c.columns ?? 2}">
+        </div>
+        <div class="field">
+          <label>Max card height px (0 = unlimited / no scroll)</label>
+          <input type="number" name="max_height" min="0" max="2000" step="50" value="${c.max_height ?? 0}">
+        </div>
+
+        <div class="section-title">Show Types</div>
+        <div class="checkboxes">
+          <label class="checkbox-item">
+            <input type="checkbox" name="show_timer"    ${st.includes('timer')    ? 'checked' : ''}> Timers
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="show_alarm"    ${st.includes('alarm')    ? 'checked' : ''}> Alarms
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="show_reminder" ${st.includes('reminder') ? 'checked' : ''}> Reminders
+          </label>
+        </div>
+
+        <div class="section-title">Behaviour</div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Hide card when no alarms</span>
+          <label class="toggle-switch">
+            <input type="checkbox" name="hide_when_empty" ${c.hide_when_empty ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Show popup when alarm rings</span>
+          <label class="toggle-switch">
+            <input type="checkbox" name="show_ringing_popup" ${showPopup ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row row-popup-movable" style="display:${showPopup ? '' : 'none'}">
+          <span class="toggle-label">Allow ringing popup to be dragged</span>
+          <label class="toggle-switch">
+            <input type="checkbox" name="popup_movable" ${c.popup_movable !== false ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="section-title">Snooze</div>
+        <div class="field">
+          <label>Snooze options — minutes, comma-separated (e.g. 5, 10, 15)</label>
+          <input type="text" name="snooze_options" value="${(c.snooze_options || [5, 10]).join(', ')}">
+        </div>
+
+      </div>`;
+
+    this._attachListeners();
+  }
+
+  _attachListeners() {
+    const root = this.shadowRoot;
+
+    root.querySelector('[name=title]').addEventListener('input', e => {
+      this._config = { ...this._config, title: e.target.value };
+      this._fire();
+    });
+
+    root.querySelector('[name=refresh_interval]').addEventListener('change', e => {
+      this._config = { ...this._config, refresh_interval: Math.max(1, parseFloat(e.target.value) || 5) };
+      this._fire();
+    });
+
+    root.querySelector('[name=max_height]').addEventListener('change', e => {
+      this._config = { ...this._config, max_height: Math.max(0, parseInt(e.target.value) || 0) };
+      this._fire();
+    });
+
+    root.querySelector('[name=columns]').addEventListener('change', e => {
+      this._config = { ...this._config, columns: Math.max(1, parseInt(e.target.value) || 2) };
+      this._fire();
+    });
+
+    root.querySelector('[name=display_mode]').addEventListener('change', e => {
+      this._config = { ...this._config, display_mode: e.target.value };
+      root.querySelector('.row-columns').style.display = e.target.value === 'horseshoe' ? '' : 'none';
+      this._fire();
+    });
+
+    ['timer', 'alarm', 'reminder'].forEach(type => {
+      root.querySelector(`[name=show_${type}]`).addEventListener('change', () => {
+        const types = ['timer', 'alarm', 'reminder'].filter(
+          t => root.querySelector(`[name=show_${t}]`).checked
+        );
+        // Always keep at least one type active
+        this._config = { ...this._config, show_types: types.length ? types : ['timer', 'alarm', 'reminder'] };
+        this._fire();
+      });
+    });
+
+    root.querySelector('[name=hide_when_empty]').addEventListener('change', e => {
+      this._config = { ...this._config, hide_when_empty: e.target.checked };
+      this._fire();
+    });
+
+    root.querySelector('[name=show_ringing_popup]').addEventListener('change', e => {
+      this._config = { ...this._config, show_ringing_popup: e.target.checked };
+      root.querySelector('.row-popup-movable').style.display = e.target.checked ? '' : 'none';
+      this._fire();
+    });
+
+    root.querySelector('[name=popup_movable]').addEventListener('change', e => {
+      this._config = { ...this._config, popup_movable: e.target.checked };
+      this._fire();
+    });
+
+    root.querySelector('[name=snooze_options]').addEventListener('change', e => {
+      const opts = e.target.value.split(',')
+        .map(s => parseInt(s.trim()))
+        .filter(n => !isNaN(n) && n > 0);
+      this._config = { ...this._config, snooze_options: opts.length ? opts : [5, 10] };
+      this._fire();
+    });
+  }
+
+  _esc(str) {
+    return String(str ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  _css() {
+    return `
+      :host { display: block; }
+      .editor { padding: 2px 0 8px; }
+
+      .section-title {
+        font-size: .7em; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .08em; color: var(--secondary-text-color);
+        margin: 18px 0 10px; padding-bottom: 5px;
+        border-bottom: 1px solid var(--divider-color, rgba(0,0,0,.1));
+      }
+      .section-title:first-child { margin-top: 4px; }
+
+      .field { margin-bottom: 12px; }
+      .field label {
+        display: block; font-size: .82em;
+        color: var(--secondary-text-color); margin-bottom: 5px;
+      }
+      .field input[type=text],
+      .field input[type=number],
+      .field select {
+        width: 100%; box-sizing: border-box;
+        padding: 8px 10px;
+        background: var(--input-fill-color, var(--secondary-background-color, rgba(0,0,0,.05)));
+        border: 1px solid var(--input-ink-color, var(--divider-color, rgba(0,0,0,.2)));
+        border-radius: 6px;
+        color: var(--primary-text-color);
+        font-size: .9em; font-family: inherit;
+        outline: none; transition: border-color .15s;
+      }
+      .field input:focus,
+      .field select:focus { border-color: var(--primary-color, #03a9f4); }
+      .field select { cursor: pointer; }
+
+      .checkboxes {
+        display: flex; gap: 16px; flex-wrap: wrap;
+        padding: 4px 0 14px;
+      }
+      .checkbox-item {
+        display: flex; align-items: center; gap: 6px;
+        font-size: .88em; color: var(--primary-text-color); cursor: pointer;
+      }
+      .checkbox-item input[type=checkbox] {
+        accent-color: var(--primary-color); width: 16px; height: 16px; cursor: pointer;
+      }
+
+      .toggle-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--divider-color, rgba(0,0,0,.06));
+      }
+      .toggle-row:last-of-type { border-bottom: none; }
+      .toggle-label { font-size: .88em; color: var(--primary-text-color); }
+
+      .toggle-switch {
+        position: relative; display: inline-block;
+        width: 38px; height: 22px; flex-shrink: 0; margin-left: 12px;
+      }
+      .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+      .toggle-slider {
+        position: absolute; inset: 0;
+        background: var(--disabled-text-color, #bdbdbd);
+        border-radius: 11px; cursor: pointer; transition: background .2s;
+      }
+      .toggle-switch input:checked + .toggle-slider { background: var(--primary-color, #03a9f4); }
+      .toggle-slider::before {
+        content: ''; position: absolute;
+        width: 16px; height: 16px; left: 3px; top: 3px;
+        background: #fff; border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        transition: transform .2s;
+      }
+      .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
+    `;
+  }
+}
+
+// ── Registration ───────────────────────────────────────────────────────────
+
 if (!customElements.get('view-assist-timers-card')) {
   customElements.define('view-assist-timers-card', ViewAssistTimersCard);
+}
+if (!customElements.get('view-assist-timers-card-editor')) {
+  customElements.define('view-assist-timers-card-editor', ViewAssistTimersCardEditor);
 }
 
 window.customCards = window.customCards || [];
