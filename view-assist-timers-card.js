@@ -2,19 +2,29 @@
  * View Assist Timers Card
  * Shows all active timers, alarms, and reminders from the View Assist integration.
  *
- * Usage in Lovelace YAML:
+ * Configuration (Lovelace YAML):
  *   type: custom:view-assist-timers-card
- *   title: Timers, Alarms & Reminders   # optional, set to '' to hide
- *   show_types:                          # optional, default: all three
+ *   title: "Timers, Alarms & Reminders"   # set to '' to hide header
+ *   show_types:                            # default: all three
  *     - timer
  *     - alarm
  *     - reminder
- *   refresh_interval: 5                  # seconds between API polls, default 5
- *   snooze_time: "10 minutes"            # snooze duration, default "10 minutes"
+ *   display_mode: bar                      # 'bar' (default) or 'horseshoe'
+ *   columns: 2                             # tiles per row in horseshoe mode (default 2)
+ *   max_height: 300                        # px — enables scrolling; 0 = no limit (default)
+ *   hide_when_empty: false                 # hide card entirely when no active alarms (default false)
+ *   show_ringing_popup: true               # floating popup when an alarm rings (default true)
+ *   popup_movable: true                    # allow popup to be dragged (default true)
+ *   snooze_options: [5, 10]               # snooze minutes offered in ringing popup (default [5,10])
+ *   refresh_interval: 5                    # seconds between API polls (default 5)
+ *   snooze_time: "10 minutes"             # fallback snooze used by main-card snooze button
  *
  * Installation: copy to config/www/ and add to Lovelace resources:
  *   url: /local/view-assist-timers-card.js
  *   type: module
+ *
+ * TODO (future): add a button to manually create a timer, alarm, or reminder
+ *   via the view_assist/create_timer (or equivalent) service call.
  */
 
 class ViewAssistTimersCard extends HTMLElement {
@@ -29,18 +39,28 @@ class ViewAssistTimersCard extends HTMLElement {
     this._refreshInterval = null;
     this._tickInterval = null;
     this._finishTimes = {};
+    this._totalSeconds = {};      // id → total duration in seconds (for progress bars)
+    this._popupEl = null;         // ringing popup DOM element (appended to document.body)
+    this._popupRingingIds = null; // comma-joined sorted IDs currently shown in popup
   }
 
   static getStubConfig() {
-    return { title: 'Timers, Alarms & Reminders' };
+    return { title: 'Timers, Alarms & Reminders', display_mode: 'bar' };
   }
 
   setConfig(config) {
     this._config = {
-      title: 'title' in config ? config.title : 'Timers, Alarms & Reminders',
-      show_types: config.show_types || ['timer', 'alarm', 'reminder'],
-      refresh_interval: (config.refresh_interval ?? 5) * 1000,
-      snooze_time: config.snooze_time || '10 minutes',
+      title:             'title' in config ? config.title : 'Timers, Alarms & Reminders',
+      show_types:        config.show_types || ['timer', 'alarm', 'reminder'],
+      refresh_interval:  (config.refresh_interval ?? 5) * 1000,
+      display_mode:      config.display_mode || 'bar',
+      columns:           Math.max(1, config.columns || 2),
+      max_height:        config.max_height || 0,
+      hide_when_empty:   config.hide_when_empty ?? false,
+      show_ringing_popup: config.show_ringing_popup ?? true,
+      popup_movable:     config.popup_movable ?? true,
+      snooze_options:    config.snooze_options || [5, 10],
+      snooze_time:       config.snooze_time || '10 minutes',
     };
   }
 
@@ -50,7 +70,7 @@ class ViewAssistTimersCard extends HTMLElement {
     if (first) {
       this._fetchTimers();
       this._refreshInterval = setInterval(() => this._fetchTimers(), this._config.refresh_interval);
-      this._tickInterval = setInterval(() => this._tickCountdowns(), 1000);
+      this._tickInterval    = setInterval(() => this._tickCountdowns(), 1000);
     }
   }
 
@@ -58,8 +78,13 @@ class ViewAssistTimersCard extends HTMLElement {
     clearInterval(this._refreshInterval);
     clearInterval(this._tickInterval);
     this._refreshInterval = null;
-    this._tickInterval = null;
+    this._tickInterval    = null;
+    this._hideRingingPopup();
   }
+
+  // Horseshoe geometry for r=38: circumference ≈ 238.76, 270° arc ≈ 179.07
+  static get _HS_C()   { return 238.76; }
+  static get _HS_ARC() { return 179.07; }
 
   // ── Data fetching ──────────────────────────────────────────────────────────
 
@@ -74,48 +99,64 @@ class ViewAssistTimersCard extends HTMLElement {
         return_response: true,
       });
       const fetchedAt = Date.now();
-      // VA returns result at response.result; fall back to result directly
       const raw = wsResult?.response?.result ?? wsResult?.result ?? wsResult ?? [];
-      this._timers = Array.isArray(raw) ? raw : [];
+      this._timers  = Array.isArray(raw) ? raw : [];
       this._loading = false;
-      this._error = null;
+      this._error   = null;
       this._updateFinishTimes(fetchedAt);
+      this._updateTotalSeconds();
     } catch (err) {
       this._loading = false;
-      this._error = 'View Assist unavailable';
+      this._error   = 'View Assist unavailable';
       console.error('[view-assist-timers-card]', err);
     }
     this._render();
   }
 
   _updateFinishTimes(fetchedAt) {
-    // Remove stale entries for timers no longer in the list
     const activeIds = new Set(this._timers.map(t => t.id));
     Object.keys(this._finishTimes).forEach(id => {
       if (!activeIds.has(id)) delete this._finishTimes[id];
     });
-    // Refresh finish time for every active timer on each fetch
     this._timers.forEach(t => {
       const ft = this._parseFinishTime(t, fetchedAt);
       if (ft) this._finishTimes[t.id] = ft;
     });
   }
 
+  _updateTotalSeconds() {
+    const activeIds = new Set(this._timers.map(t => t.id));
+    Object.keys(this._totalSeconds).forEach(id => {
+      if (!activeIds.has(id)) delete this._totalSeconds[id];
+    });
+    this._timers.forEach(t => {
+      if (this._totalSeconds[t.id]) return;
+      // Prefer an explicit numeric duration field
+      for (const key of ['duration', 'total_duration', 'original_duration']) {
+        const n = Number(t[key]);
+        if (!isNaN(n) && n > 0) { this._totalSeconds[t.id] = n; return; }
+      }
+      // Fall back to first-observed seconds_remaining as proxy for total
+      for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining']) {
+        if (t[key] != null) { this._totalSeconds[t.id] = Number(t[key]); return; }
+      }
+      if (t.expiry?.seconds_remaining != null) {
+        this._totalSeconds[t.id] = Number(t.expiry.seconds_remaining);
+      }
+    });
+  }
+
   _parseFinishTime(timer, fetchedAt) {
-    // Absolute timestamp fields (ISO string or epoch seconds/ms)
     for (const key of ['finish_time', 'end_time', 'expiry_time', 'due_time']) {
       const val = timer[key];
       if (val == null) continue;
-      const ts = typeof val === 'number'
-        ? (val > 1e10 ? val : val * 1000)   // epoch seconds vs ms
-        : new Date(val).getTime();
+      const ts = typeof val === 'number' ? (val > 1e10 ? val : val * 1000) : new Date(val).getTime();
       if (!isNaN(ts)) return ts;
     }
     if (timer.expiry?.timestamp) {
       const ts = new Date(timer.expiry.timestamp).getTime();
       if (!isNaN(ts)) return ts;
     }
-    // Relative seconds-remaining fields
     for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining']) {
       if (timer[key] != null) return fetchedAt + Number(timer[key]) * 1000;
     }
@@ -125,7 +166,7 @@ class ViewAssistTimersCard extends HTMLElement {
     return null;
   }
 
-  // ── Countdown ──────────────────────────────────────────────────────────────
+  // ── Countdown & progress ───────────────────────────────────────────────────
 
   _getCountdown(timer) {
     const ft = this._finishTimes[timer.id];
@@ -134,21 +175,56 @@ class ViewAssistTimersCard extends HTMLElement {
       const h = Math.floor(secs / 3600);
       const m = Math.floor((secs % 3600) / 60);
       const s = secs % 60;
-      if (h > 0) {
-        return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      }
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
-    // Fall back to the text the API provides
     return timer.expiry?.text || timer.duration || '—';
   }
 
+  _getProgress(timerId) {
+    const ft    = this._finishTimes[timerId];
+    const total = this._totalSeconds[timerId];
+    if (!ft || !total) return 0;
+    const remaining = Math.max(0, (ft - Date.now()) / 1000);
+    return Math.min(1, Math.max(0, 1 - remaining / total));
+  }
+
+  // ── Tick loop ──────────────────────────────────────────────────────────────
+
   _tickCountdowns() {
-    if (!this.shadowRoot || this._timers.length === 0) return;
+    if (!this.shadowRoot) return;
+
+    // Countdown text (works for both bar rows and horseshoe SVG text)
     this.shadowRoot.querySelectorAll('[data-timer-id]').forEach(el => {
-      const timer = this._timers.find(t => t.id === el.dataset.timerId);
-      if (timer) el.textContent = this._getCountdown(timer);
+      const t = this._timers.find(t => t.id === el.dataset.timerId);
+      if (t) el.textContent = this._getCountdown(t);
     });
+
+    // Linear progress bar fills
+    this.shadowRoot.querySelectorAll('[data-progress-id]').forEach(el => {
+      const t = this._timers.find(t => t.id === el.dataset.progressId);
+      if (t && t.status !== 'ringing') {
+        el.style.width = `${this._getProgress(t.id) * 100}%`;
+      }
+    });
+
+    // Horseshoe SVG arc lengths
+    const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
+    this.shadowRoot.querySelectorAll('[data-horseshoe-id]').forEach(el => {
+      const t = this._timers.find(t => t.id === el.dataset.horseshoeId);
+      if (!t || t.status === 'ringing') return;
+      const arcLen = this._getProgress(t.id) * ARC;
+      el.setAttribute('stroke-dasharray', `${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}`);
+    });
+
+    // Ringing popup
+    if (this._config.show_ringing_popup) {
+      const ringing = this._timers.filter(
+        t => t.status === 'ringing' && this._config.show_types.includes(t.timer_class)
+      );
+      if (ringing.length > 0) this._showRingingPopup(ringing);
+      else this._hideRingingPopup();
+    }
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -160,37 +236,33 @@ class ViewAssistTimersCard extends HTMLElement {
       console.error('[view-assist-timers-card] cancel_timer failed', e);
     }
     delete this._finishTimes[id];
+    delete this._totalSeconds[id];
     setTimeout(() => this._fetchTimers(), 700);
   }
 
-  async _snoozeTimer(id) {
+  async _snoozeTimer(id, minutes) {
+    const time = minutes ? `${minutes} minutes` : this._config.snooze_time;
     try {
-      await this._hass.callService('view_assist', 'snooze_timer', {
-        timer_id: id,
-        time: this._config.snooze_time,
-      });
+      await this._hass.callService('view_assist', 'snooze_timer', { timer_id: id, time });
     } catch (e) {
       console.error('[view-assist-timers-card] snooze_timer failed', e);
     }
     setTimeout(() => this._fetchTimers(), 700);
   }
 
-  // ── Rendering ──────────────────────────────────────────────────────────────
+  // ── Main card rendering ────────────────────────────────────────────────────
 
   _render() {
     if (!this.shadowRoot) return;
 
-    const { show_types, title } = this._config;
+    const { show_types, title, display_mode, max_height, hide_when_empty } = this._config;
 
     const active = this._timers.filter(
       t => show_types.includes(t.timer_class) && t.status !== 'expired'
     );
 
-    const groups = {
-      timer:    active.filter(t => t.timer_class === 'timer'),
-      alarm:    active.filter(t => t.timer_class === 'alarm'),
-      reminder: active.filter(t => t.timer_class === 'reminder'),
-    };
+    // Collapse entire card when empty (option 6)
+    this.style.display = (hide_when_empty && active.length === 0) ? 'none' : '';
 
     const META = {
       timer:    { icon: 'mdi:timer-outline', label: 'Timers',    color: '#039be5' },
@@ -198,17 +270,22 @@ class ViewAssistTimersCard extends HTMLElement {
       reminder: { icon: 'mdi:reminder',      label: 'Reminders', color: '#fb8c00' },
     };
 
+    const groups = {
+      timer:    active.filter(t => t.timer_class === 'timer'),
+      alarm:    active.filter(t => t.timer_class === 'alarm'),
+      reminder: active.filter(t => t.timer_class === 'reminder'),
+    };
+
+    const bodyStyle = max_height > 0
+      ? `style="max-height:${max_height}px;overflow-y:auto"`
+      : '';
+
     const bodyHtml = (() => {
       if (this._loading) {
-        return `<div class="state-msg">
-          <ha-circular-progress active indeterminate></ha-circular-progress>
-        </div>`;
+        return `<div class="state-msg"><ha-circular-progress active indeterminate></ha-circular-progress></div>`;
       }
       if (this._error) {
-        return `<div class="state-msg error">
-          <ha-icon icon="mdi:alert-circle-outline"></ha-icon>
-          ${this._error}
-        </div>`;
+        return `<div class="state-msg error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>${this._error}</div>`;
       }
       if (active.length === 0) {
         return `<div class="state-msg muted">
@@ -216,6 +293,13 @@ class ViewAssistTimersCard extends HTMLElement {
           No active timers, alarms, or reminders
         </div>`;
       }
+
+      if (display_mode === 'horseshoe') {
+        const tiles = active.map(t => this._tileHtml(t, META[t.timer_class])).join('');
+        return `<div class="tile-grid" style="grid-template-columns:repeat(${this._config.columns},1fr)">${tiles}</div>`;
+      }
+
+      // Bar mode: grouped sections with linear progress bars
       return Object.entries(groups)
         .filter(([cls, items]) => items.length > 0 && show_types.includes(cls))
         .map(([cls, items]) => {
@@ -239,25 +323,30 @@ class ViewAssistTimersCard extends HTMLElement {
                <span>${title}</span>
              </div>`
           : ''}
-        <div class="card-body">${bodyHtml}</div>
+        <div class="card-body" ${bodyStyle}>${bodyHtml}</div>
       </ha-card>`;
 
     this.shadowRoot.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', e => {
-        const { action, id } = e.currentTarget.dataset;
+        const { action, id, minutes } = e.currentTarget.dataset;
         if (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
-        else if (action === 'snooze') this._snoozeTimer(id);
+        else if (action === 'snooze') this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
       });
     });
   }
 
+  // ── Bar-mode row (with linear progress bar) ────────────────────────────────
+
   _rowHtml(timer, meta) {
     const isRinging = timer.status === 'ringing';
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
+    const pct  = isRinging ? 100 : this._getProgress(timer.id) * 100;
 
     const actions = isRinging
-      ? `<button class="btn btn-snooze" data-action="snooze" data-id="${timer.id}">Snooze</button>
-         <button class="btn btn-dismiss" data-action="dismiss" data-id="${timer.id}">Dismiss</button>`
+      ? this._config.snooze_options.map(m =>
+          `<button class="btn btn-snooze" data-action="snooze" data-id="${timer.id}" data-minutes="${m}">+${m}m</button>`
+        ).join('') +
+        `<button class="btn btn-dismiss" data-action="dismiss" data-id="${timer.id}">Stop</button>`
       : `<button class="btn btn-cancel" data-action="cancel" data-id="${timer.id}" title="Cancel">
            <ha-icon icon="mdi:close"></ha-icon>
          </button>`;
@@ -272,10 +361,210 @@ class ViewAssistTimersCard extends HTMLElement {
           <div class="timer-countdown" style="color:${meta.color}" data-timer-id="${timer.id}">
             ${this._getCountdown(timer)}
           </div>
+          <div class="progress-track">
+            <div class="progress-fill${isRinging ? ' progress-ringing' : ''}"
+              data-progress-id="${timer.id}"
+              style="width:${pct}%;background:${meta.color}">
+            </div>
+          </div>
         </div>
         <div class="timer-actions">${actions}</div>
       </div>`;
   }
+
+  // ── Horseshoe tile (SVG arc + countdown centred inside) ────────────────────
+
+  _tileHtml(timer, meta) {
+    const isRinging = timer.status === 'ringing';
+    const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
+    const shortName = name.length > 14 ? name.slice(0, 13) + '…' : name;
+    const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
+    const arcLen = (isRinging ? 1 : this._getProgress(timer.id)) * ARC;
+
+    const actions = isRinging
+      ? this._config.snooze_options.map(m =>
+          `<button class="btn btn-snooze btn-sm" data-action="snooze" data-id="${timer.id}" data-minutes="${m}">+${m}m</button>`
+        ).join('') +
+        `<button class="btn btn-dismiss btn-sm" data-action="dismiss" data-id="${timer.id}">Stop</button>`
+      : `<button class="btn btn-cancel btn-sm" data-action="cancel" data-id="${timer.id}" title="Cancel">
+           <ha-icon icon="mdi:close"></ha-icon>
+         </button>`;
+
+    return `
+      <div class="tile${isRinging ? ' ringing' : ''}">
+        <div class="tile-type-icon" style="color:${meta.color}">
+          <ha-icon icon="${meta.icon}"></ha-icon>
+        </div>
+        <svg class="horseshoe-svg" viewBox="0 0 100 100">
+          <!-- Background horseshoe (270°, gap at bottom) -->
+          <circle cx="50" cy="50" r="38" fill="none"
+            stroke="${meta.color}33" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="${ARC.toFixed(2)} ${(C - ARC).toFixed(2)}"
+            transform="rotate(135 50 50)" />
+          <!-- Progress arc — updated by _tickCountdowns -->
+          <circle cx="50" cy="50" r="38" fill="none"
+            stroke="${meta.color}" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}"
+            transform="rotate(135 50 50)"
+            data-horseshoe-id="${timer.id}" />
+          <!-- Countdown centred inside the arc -->
+          <text x="50" y="50" class="hs-countdown" data-timer-id="${timer.id}">
+            ${this._getCountdown(timer)}
+          </text>
+        </svg>
+        <div class="tile-name" style="color:${meta.color}" title="${name}">${shortName}</div>
+        <div class="tile-actions">${actions}</div>
+      </div>`;
+  }
+
+  // ── Ringing popup ──────────────────────────────────────────────────────────
+
+  _ensurePopupStyles() {
+    if (document.getElementById('vatc-popup-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'vatc-popup-styles';
+    s.textContent = `
+      .vatc-popup {
+        position: fixed;
+        bottom: 24px; right: 24px;
+        z-index: 9999;
+        background: var(--ha-card-background, var(--card-background-color, #fff));
+        border: 1px solid var(--divider-color, rgba(0,0,0,.15));
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0,0,0,.25), 0 2px 8px rgba(0,0,0,.12);
+        padding: 16px 20px;
+        min-width: 280px; max-width: 380px;
+        color: var(--primary-text-color, #212121);
+        font-family: var(--mdc-typography-body1-font-family, Roboto, sans-serif);
+        user-select: none;
+      }
+      .vatc-popup.vatc-movable { cursor: grab; }
+      .vatc-popup.vatc-movable:active { cursor: grabbing; }
+      .vatc-popup-header {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 6px;
+        font-size: 1em; font-weight: 700; color: #e53935;
+      }
+      .vatc-bell {
+        display: inline-block;
+        animation: vatc-ring .45s ease-in-out infinite alternate;
+      }
+      @keyframes vatc-ring {
+        0%   { transform: rotate(-18deg); }
+        100% { transform: rotate(18deg);  }
+      }
+      .vatc-alarm-row {
+        padding: 10px 0;
+        border-top: 1px solid var(--divider-color, rgba(0,0,0,.1));
+      }
+      .vatc-alarm-name {
+        font-size: .95em; font-weight: 600; margin-bottom: 8px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        text-transform: capitalize;
+      }
+      .vatc-alarm-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+      .vatc-btn {
+        border: none; border-radius: 8px; padding: 7px 16px;
+        font-size: .82em; font-weight: 600; cursor: pointer;
+        font-family: inherit; transition: filter .15s;
+      }
+      .vatc-btn:hover  { filter: brightness(1.12); }
+      .vatc-btn:active { filter: brightness(.90);  }
+      .vatc-btn-snooze { background: #fb8c00; color: #fff; }
+      .vatc-btn-stop   { background: #e53935; color: #fff; }
+    `;
+    document.head.appendChild(s);
+  }
+
+  _showRingingPopup(ringingTimers) {
+    // Skip re-render if the same set of timers is already showing
+    const ids = ringingTimers.map(t => t.id).sort().join(',');
+    if (this._popupEl && this._popupRingingIds === ids) return;
+    this._popupRingingIds = ids;
+
+    this._ensurePopupStyles();
+
+    if (!this._popupEl) {
+      this._popupEl = document.createElement('div');
+      this._popupEl.className = `vatc-popup${this._config.popup_movable ? ' vatc-movable' : ''}`;
+      document.body.appendChild(this._popupEl);
+      if (this._config.popup_movable) this._makePopupDraggable(this._popupEl);
+    }
+
+    const META_COLOR = { timer: '#039be5', alarm: '#e53935', reminder: '#fb8c00' };
+    const rows = ringingTimers.map(t => {
+      const name  = t.name || t.extra_info?.sentence || t.duration || t.timer_class;
+      const color = META_COLOR[t.timer_class] || '#e53935';
+      const snooze = this._config.snooze_options.map(m =>
+        `<button class="vatc-btn vatc-btn-snooze" data-action="snooze" data-id="${t.id}" data-minutes="${m}">Snooze ${m}m</button>`
+      ).join('');
+      return `<div class="vatc-alarm-row">
+        <div class="vatc-alarm-name" style="color:${color}">${name}</div>
+        <div class="vatc-alarm-btns">
+          ${snooze}
+          <button class="vatc-btn vatc-btn-stop" data-action="stop" data-id="${t.id}">Stop</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    this._popupEl.innerHTML = `
+      <div class="vatc-popup-header">
+        <span class="vatc-bell">🔔</span>
+        <span>${ringingTimers.length > 1 ? `${ringingTimers.length} Alarms` : 'Alarm'} going off!</span>
+      </div>
+      ${rows}`;
+
+    this._popupEl.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const { action, id, minutes } = e.currentTarget.dataset;
+        if (action === 'snooze') this._snoozeTimer(id, parseInt(minutes));
+        else if (action === 'stop') this._cancelTimer(id);
+      });
+    });
+  }
+
+  _hideRingingPopup() {
+    if (this._popupEl) {
+      this._popupEl.remove();
+      this._popupEl        = null;
+      this._popupRingingIds = null;
+    }
+  }
+
+  _makePopupDraggable(el) {
+    let startX = 0, startY = 0, initLeft = 0, initTop = 0;
+    const onMove = e => {
+      e.preventDefault();
+      const pt = e.touches ? e.touches[0] : e;
+      el.style.left   = `${initLeft + pt.clientX - startX}px`;
+      el.style.top    = `${initTop  + pt.clientY - startY}px`;
+      el.style.right  = 'auto';
+      el.style.bottom = 'auto';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend',  onUp);
+    };
+    const onDown = e => {
+      if (e.target.closest('[data-action]')) return; // don't drag when clicking buttons
+      e.preventDefault();
+      const pt   = e.touches ? e.touches[0] : e;
+      const rect = el.getBoundingClientRect();
+      startX = pt.clientX; startY = pt.clientY;
+      initLeft = rect.left; initTop = rect.top;
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup',   onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend',  onUp);
+    };
+    el.addEventListener('mousedown',  onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+  }
+
+  // ── CSS ────────────────────────────────────────────────────────────────────
 
   _css() {
     return `
@@ -283,136 +572,138 @@ class ViewAssistTimersCard extends HTMLElement {
       ha-card { overflow: hidden; }
 
       .card-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        display: flex; align-items: center; gap: 8px;
         padding: 14px 16px 10px;
-        font-size: 1.05em;
-        font-weight: 500;
+        font-size: 1.05em; font-weight: 500;
         color: var(--primary-text-color);
         border-bottom: 1px solid var(--divider-color, rgba(0,0,0,.12));
       }
-      .card-header ha-icon {
-        color: var(--primary-color);
-        --mdc-icon-size: 20px;
-      }
+      .card-header ha-icon { color: var(--primary-color); --mdc-icon-size: 20px; }
 
       .card-body { padding: 6px 0 8px; }
+      .card-body::-webkit-scrollbar { width: 4px; }
+      .card-body::-webkit-scrollbar-thumb {
+        background: var(--divider-color, rgba(0,0,0,.2)); border-radius: 4px;
+      }
 
       .section { padding: 2px 0; }
-
       .section-header {
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        display: flex; align-items: center; gap: 5px;
         padding: 6px 16px 3px;
-        font-size: 0.7em;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.09em;
+        font-size: .7em; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .09em;
       }
       .section-header ha-icon { --mdc-icon-size: 13px; }
 
+      /* ── Bar mode ───────────────────────────────────────────────────────── */
       .timer-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 7px 12px;
-        margin: 1px 6px;
-        border-radius: 8px;
-        transition: background 0.15s;
+        display: flex; align-items: center; gap: 12px;
+        padding: 7px 12px 6px; margin: 1px 6px;
+        border-radius: 8px; transition: background .15s;
       }
       .timer-row:hover { background: var(--secondary-background-color); }
 
-      .ringing { animation: pulse 1.2s ease-in-out infinite; }
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: 0.5; }
-      }
-
       .timer-icon {
-        flex-shrink: 0;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
       }
       .timer-icon ha-icon { --mdc-icon-size: 20px; }
 
-      .timer-info {
-        flex: 1;
-        min-width: 0;
-      }
+      .timer-info { flex: 1; min-width: 0; }
       .timer-name {
-        font-size: 0.85em;
-        color: var(--secondary-text-color);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.3;
-        text-transform: capitalize;
+        font-size: .85em; color: var(--secondary-text-color);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        line-height: 1.3; text-transform: capitalize;
       }
       .timer-countdown {
-        font-size: 1.3em;
-        font-weight: 700;
+        font-size: 1.3em; font-weight: 700;
+        font-variant-numeric: tabular-nums; line-height: 1.25;
+      }
+
+      .progress-track {
+        height: 3px; margin-top: 5px;
+        background: var(--divider-color, rgba(0,0,0,.1));
+        border-radius: 3px; overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%; border-radius: 3px;
+        transition: width .9s linear;
+      }
+      .progress-ringing {
+        animation: progress-flash .6s ease-in-out infinite alternate;
+      }
+      @keyframes progress-flash { 0%{opacity:1} 100%{opacity:.2} }
+
+      .timer-actions { flex-shrink: 0; display: flex; gap: 5px; align-items: center; }
+
+      /* ── Horseshoe tile mode ────────────────────────────────────────────── */
+      .tile-grid { display: grid; gap: 8px; padding: 8px 10px; }
+      .tile {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        padding: 8px 4px 6px; border-radius: 10px; transition: background .15s;
+        position: relative;
+      }
+      .tile:hover { background: var(--secondary-background-color); }
+
+      .tile-type-icon {
+        position: absolute; top: 5px; left: 5px;
+        --mdc-icon-size: 14px; opacity: .7;
+      }
+
+      .horseshoe-svg { width: 90px; height: 90px; overflow: visible; }
+
+      .hs-countdown {
+        fill: var(--primary-text-color);
+        font-size: 16px; font-weight: 700;
+        font-family: var(--mdc-typography-body1-font-family, Roboto, sans-serif);
         font-variant-numeric: tabular-nums;
-        line-height: 1.25;
+        dominant-baseline: middle; text-anchor: middle;
       }
 
-      .timer-actions {
-        flex-shrink: 0;
-        display: flex;
-        gap: 5px;
-        align-items: center;
+      .tile-name {
+        font-size: .75em; font-weight: 600; text-align: center;
+        max-width: 90px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        text-transform: capitalize;
+        margin-top: 1px;
+      }
+      .tile-actions {
+        display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;
+        margin-top: 2px;
       }
 
+      /* ── Buttons ────────────────────────────────────────────────────────── */
       .btn {
-        border: none;
-        border-radius: 6px;
-        padding: 5px 12px;
-        font-size: 0.78em;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: filter 0.15s;
-        font-family: inherit;
+        border: none; border-radius: 6px; padding: 5px 12px;
+        font-size: .78em; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: filter .15s; font-family: inherit;
       }
-      .btn:hover { filter: brightness(1.12); }
-      .btn:active { filter: brightness(0.92); }
+      .btn:hover  { filter: brightness(1.12); }
+      .btn:active { filter: brightness(.92);  }
+      .btn-sm { padding: 3px 8px; font-size: .72em; }
 
       .btn-cancel {
         background: var(--secondary-background-color, rgba(0,0,0,.06));
-        color: var(--secondary-text-color);
-        padding: 5px 7px;
+        color: var(--secondary-text-color); padding: 5px 7px;
       }
       .btn-cancel ha-icon { --mdc-icon-size: 17px; }
+      .btn-dismiss { background: #e53935; color: #fff; }
+      .btn-snooze  { background: #fb8c00; color: #fff; }
 
-      .btn-dismiss {
-        background: #e53935;
-        color: #fff;
-      }
-      .btn-snooze {
-        background: #fb8c00;
-        color: #fff;
-      }
-
+      /* ── State messages ─────────────────────────────────────────────────── */
       .state-msg {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        padding: 28px 16px;
-        text-align: center;
-        font-size: 0.9em;
-        color: var(--secondary-text-color);
+        display: flex; flex-direction: column; align-items: center;
+        gap: 8px; padding: 28px 16px; text-align: center;
+        font-size: .9em; color: var(--secondary-text-color);
       }
-      .state-msg ha-icon { --mdc-icon-size: 32px; opacity: 0.5; }
-      .state-msg.error { color: var(--error-color, #e53935); }
-      .state-msg.error ha-icon { opacity: 0.8; }
+      .state-msg ha-icon { --mdc-icon-size: 32px; opacity: .5; }
+      .state-msg.error   { color: var(--error-color, #e53935); }
+      .state-msg.error ha-icon { opacity: .8; }
+
+      /* ── Ringing pulse ──────────────────────────────────────────────────── */
+      .ringing { animation: pulse 1.2s ease-in-out infinite; }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
     `;
   }
 }
