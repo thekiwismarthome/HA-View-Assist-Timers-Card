@@ -69,6 +69,7 @@ class ViewAssistTimersCard extends HTMLElement {
       snooze_time:        config.snooze_time || '10 minutes',
       show_add_button:    config.show_add_button ?? false,
       create_service:     config.create_service || 'set_timer',
+      va_entity_id:       config.va_entity_id || '',
     };
   }
 
@@ -167,10 +168,9 @@ class ViewAssistTimersCard extends HTMLElement {
     return raw != null ? String(raw) : '';
   }
 
-  // Check ringing state — View Assist may use different status strings
+  // In View Assist, a fired alarm/timer has status 'expired' — that IS the ringing state
   _isRinging(t) {
-    const s = String(t.status ?? '').toLowerCase();
-    return s === 'ringing' || s === 'firing' || s === 'alerting' || s === 'alarm';
+    return String(t.status ?? '').toLowerCase() === 'expired';
   }
 
   _updateFinishTimes(fetchedAt) {
@@ -313,27 +313,29 @@ class ViewAssistTimersCard extends HTMLElement {
     const serviceData = {};
     if (name) serviceData.name = name;
 
+    // All types use view_assist.set_timer; the 'type' field differentiates them
+    serviceData.type = type;
+    // entity_id or device_id is required by the View Assist set_timer service
+    if (this._config.va_entity_id) serviceData.entity_id = this._config.va_entity_id;
+
     if (type === 'timer') {
       const h = parseInt(root.querySelector('.add-h')?.value) || 0;
       const m = parseInt(root.querySelector('.add-m')?.value) || 0;
       const s = parseInt(root.querySelector('.add-s')?.value) || 0;
       if (h + m + s === 0) return;
-      if (h > 0) serviceData.hours   = h;
-      if (m > 0) serviceData.minutes = m;
-      if (s > 0) serviceData.seconds = s;
+      const parts = [];
+      if (h > 0) parts.push(`${h} hour${h !== 1 ? 's' : ''}`);
+      if (m > 0) parts.push(`${m} minute${m !== 1 ? 's' : ''}`);
+      if (s > 0) parts.push(`${s} second${s !== 1 ? 's' : ''}`);
+      serviceData.time = parts.join(' ');
     } else {
-      const timeVal = root.querySelector('.add-time')?.value;
+      const timeVal = root.querySelector('.add-time')?.value; // HH:MM
       if (!timeVal) return;
       serviceData.time = timeVal;
     }
 
-    // Each type maps to its own View Assist service — no timer_class parameter needed
-    const serviceName = type === 'timer' ? this._config.create_service
-      : type === 'alarm'    ? 'set_alarm'
-      : /* reminder */        'set_reminder';
-
     try {
-      await this._hass.callService('view_assist', serviceName, serviceData);
+      await this._hass.callService('view_assist', this._config.create_service, serviceData);
     } catch (e) {
       console.error('[view-assist-timers-card] create timer failed', e);
     }
@@ -350,9 +352,8 @@ class ViewAssistTimersCard extends HTMLElement {
     const { show_types, title, display_mode, max_height,
             hide_when_empty, float_when_active, show_add_button } = this._config;
 
-    const active = this._timers.filter(
-      t => show_types.includes(t.timer_class) && t.status !== 'expired'
-    );
+    // Include expired timers — 'expired' IS the fired/ringing state in View Assist
+    const active = this._timers.filter(t => show_types.includes(t.timer_class));
 
     // ── Float mode: card lives as a body overlay, not in the dashboard grid ──
     if (float_when_active) {
@@ -941,6 +942,7 @@ class ViewAssistTimersCardEditor extends HTMLElement {
       show_types: ['timer', 'alarm', 'reminder'],
       show_add_button: false,
       create_service: 'set_timer',
+      va_entity_id: '',
       ...config,
     };
     this._render();
@@ -1054,6 +1056,10 @@ class ViewAssistTimersCardEditor extends HTMLElement {
         </div>
 
         <div class="section-title">Add Timer Button</div>
+        <div class="field">
+          <label>View Assist entity ID (required to create timers — e.g. view_assist.living_room)</label>
+          <input type="text" name="va_entity_id" value="${this._esc(c.va_entity_id || '')}" placeholder="view_assist.your_device">
+        </div>
         <div class="toggle-row">
           <span class="toggle-label">Show + button to create timers/alarms</span>
           <label class="toggle-switch">
@@ -1062,7 +1068,7 @@ class ViewAssistTimersCardEditor extends HTMLElement {
           </label>
         </div>
         <div class="field row-create-svc" style="display:${showAddSvc ? '' : 'none'}">
-          <label>View Assist create service name</label>
+          <label>View Assist create service name (default: set_timer)</label>
           <input type="text" name="create_service" value="${this._esc(c.create_service || 'set_timer')}">
         </div>
 
@@ -1140,6 +1146,10 @@ class ViewAssistTimersCardEditor extends HTMLElement {
     });
     root.querySelector('[name=create_service]').addEventListener('change', e => {
       this._config = { ...this._config, create_service: e.target.value.trim() || 'set_timer' };
+      this._fire();
+    });
+    root.querySelector('[name=va_entity_id]').addEventListener('change', e => {
+      this._config = { ...this._config, va_entity_id: e.target.value.trim() };
       this._fire();
     });
   }

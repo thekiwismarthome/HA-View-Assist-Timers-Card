@@ -44,6 +44,7 @@ All options can be configured through the built-in card editor — click the pen
 | `show_ringing_popup` | `true` | Show a floating popup overlay when an alarm is ringing. |
 | `popup_movable` | `true` | Allow the ringing popup to be dragged around the screen. |
 | `snooze_options` | `[5, 10]` | Snooze durations (minutes) offered in the ringing popup and on ringing rows. |
+| `va_entity_id` | `''` | Your View Assist satellite entity ID (e.g. `view_assist.living_room`). Required when using the `+` button to create timers — the VA `set_timer` service needs this to associate the new timer with a device. |
 | `show_add_button` | `false` | Show a `+` button in the header to manually create a timer, alarm, or reminder. |
 | `create_service` | `set_timer` | The View Assist service called when creating a new timer. Adjust if your VA version uses a different name. |
 | `refresh_interval` | `5` | Seconds between API polls. |
