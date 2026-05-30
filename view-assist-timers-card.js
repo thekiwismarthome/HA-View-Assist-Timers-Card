@@ -69,7 +69,10 @@ class ViewAssistTimersCard extends HTMLElement {
       snooze_time:        config.snooze_time || '10 minutes',
       show_add_button:    config.show_add_button ?? false,
       create_service:     config.create_service || 'set_timer',
-      va_entity_id:       config.va_entity_id || '',
+      // va_entity_ids: array of VA satellite entity IDs to show/create timers for.
+      // Empty = show all devices. Migrates legacy va_entity_id string automatically.
+      va_entity_ids: config.va_entity_ids
+        || (config.va_entity_id ? [config.va_entity_id] : []),
     };
   }
 
@@ -315,8 +318,10 @@ class ViewAssistTimersCard extends HTMLElement {
 
     // All types use view_assist.set_timer; the 'type' field differentiates them
     serviceData.type = type;
-    // entity_id or device_id is required by the View Assist set_timer service
-    if (this._config.va_entity_id) serviceData.entity_id = this._config.va_entity_id;
+    // entity_id is required by the View Assist set_timer service.
+    // Always use the first (primary) entity in va_entity_ids.
+    const primaryEntity = this._config.va_entity_ids[0] || '';
+    if (primaryEntity) serviceData.entity_id = primaryEntity;
 
     if (type === 'timer') {
       const h = parseInt(root.querySelector('.add-h')?.value) || 0;
@@ -350,10 +355,24 @@ class ViewAssistTimersCard extends HTMLElement {
     if (!this.shadowRoot) return;
 
     const { show_types, title, display_mode, max_height,
-            hide_when_empty, float_when_active, show_add_button } = this._config;
+            hide_when_empty, float_when_active, show_add_button, va_entity_ids } = this._config;
 
-    // Include expired timers — 'expired' IS the fired/ringing state in View Assist
-    const active = this._timers.filter(t => show_types.includes(t.timer_class));
+    // Include expired timers — 'expired' IS the fired/ringing state in View Assist.
+    // If specific VA entities are configured, filter to those; otherwise show all.
+    const active = this._timers.filter(t =>
+      show_types.includes(t.timer_class) &&
+      (va_entity_ids.length === 0 || va_entity_ids.includes(t.entity_id))
+    );
+
+    // Build friendly-name lookup for device badges (shown when timers span multiple devices)
+    const deviceLabel = {};
+    active.forEach(t => {
+      if (t.entity_id && !(t.entity_id in deviceLabel)) {
+        const friendly = this._hass?.states?.[t.entity_id]?.attributes?.friendly_name;
+        deviceLabel[t.entity_id] = friendly || t.entity_id;
+      }
+    });
+    const multiDevice = Object.keys(deviceLabel).length > 1;
 
     // ── Float mode: card lives as a body overlay, not in the dashboard grid ──
     if (float_when_active) {
@@ -446,7 +465,7 @@ class ViewAssistTimersCard extends HTMLElement {
         </div>`;
       }
       if (display_mode === 'horseshoe') {
-        const tiles = active.map(t => this._tileHtml(t, META[t.timer_class])).join('');
+        const tiles = active.map(t => this._tileHtml(t, META[t.timer_class], multiDevice ? deviceLabel[t.entity_id] : null)).join('');
         return `<div class="tile-grid" style="grid-template-columns:repeat(${this._config.columns},1fr)">${tiles}</div>`;
       }
       return Object.entries(groups)
@@ -458,7 +477,7 @@ class ViewAssistTimersCard extends HTMLElement {
               <ha-icon icon="${meta.icon}" style="color:${meta.color}"></ha-icon>
               <span>${meta.label}</span>
             </div>
-            ${items.map(t => this._rowHtml(t, meta)).join('')}
+            ${items.map(t => this._rowHtml(t, meta, multiDevice ? deviceLabel[t.entity_id] : null)).join('')}
           </div>`;
         }).join('');
     })();
@@ -523,7 +542,7 @@ class ViewAssistTimersCard extends HTMLElement {
 
   // ── Bar-mode row ───────────────────────────────────────────────────────────
 
-  _rowHtml(timer, meta) {
+  _rowHtml(timer, meta, deviceName = null) {
     const isRinging = this._isRinging(timer);
     const id   = this._id(timer);
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
@@ -544,6 +563,7 @@ class ViewAssistTimersCard extends HTMLElement {
           <ha-icon icon="${meta.icon}" style="color:${meta.color}"></ha-icon>
         </div>
         <div class="timer-info">
+          ${deviceName ? `<div class="timer-device">${deviceName}</div>` : ''}
           <div class="timer-name" title="${name}">${name}</div>
           <div class="timer-countdown" style="color:${meta.color}" data-timer-id="${id}">
             ${this._getCountdown(timer)}
@@ -561,7 +581,7 @@ class ViewAssistTimersCard extends HTMLElement {
 
   // ── Horseshoe tile ─────────────────────────────────────────────────────────
 
-  _tileHtml(timer, meta) {
+  _tileHtml(timer, meta, deviceName = null) {
     const isRinging = this._isRinging(timer);
     const id   = this._id(timer);
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
@@ -598,6 +618,7 @@ class ViewAssistTimersCard extends HTMLElement {
           </text>
         </svg>
         <div class="tile-name" style="color:${meta.color}" title="${name}">${shortName}</div>
+        ${deviceName ? `<div class="tile-device">${deviceName}</div>` : ''}
         <div class="tile-actions">${actions}</div>
       </div>`;
   }
@@ -840,6 +861,11 @@ class ViewAssistTimersCard extends HTMLElement {
       .timer-icon ha-icon { --mdc-icon-size: 20px; }
 
       .timer-info { flex: 1; min-width: 0; }
+      .timer-device {
+        font-size: .68em; color: var(--secondary-text-color); opacity: .7;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        line-height: 1.2; margin-bottom: 1px;
+      }
       .timer-name {
         font-size: .85em; color: var(--secondary-text-color);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -879,6 +905,11 @@ class ViewAssistTimersCard extends HTMLElement {
         font-size: .75em; font-weight: 600; text-align: center; max-width: 90px;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         text-transform: capitalize; margin-top: 1px;
+      }
+      .tile-device {
+        font-size: .62em; color: var(--secondary-text-color); opacity: .7;
+        text-align: center; max-width: 90px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       .tile-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
 
@@ -942,13 +973,36 @@ class ViewAssistTimersCardEditor extends HTMLElement {
       show_types: ['timer', 'alarm', 'reminder'],
       show_add_button: false,
       create_service: 'set_timer',
-      va_entity_id: '',
+      va_entity_ids: [],
       ...config,
+      // migrate legacy single-value field
+      va_entity_ids: config.va_entity_ids
+        || (config.va_entity_id ? [config.va_entity_id] : []),
     };
     this._render();
   }
 
-  set hass(_) {}
+  set hass(h) {
+    const first = !this._hass;
+    this._hass = h;
+    if (first) this._render(); // re-render once hass arrives so entity list populates
+  }
+
+  _getVAEntities() {
+    if (!this._hass) return [];
+    return Object.entries(this._hass.states)
+      .filter(([id, state]) => {
+        if (!id.startsWith('sensor.')) return false;
+        const t = state.attributes?.type;
+        return t === 'view_audio' || t === 'vaca' || t === 'audio_only'
+          || state.attributes?.mediaplayer_device !== undefined;
+      })
+      .map(([id, state]) => ({
+        id,
+        name: state.attributes.friendly_name || id,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
 
   _fire() {
     this.dispatchEvent(new CustomEvent('config-changed', {
@@ -1055,11 +1109,25 @@ class ViewAssistTimersCardEditor extends HTMLElement {
           <input type="text" name="snooze_options" value="${(c.snooze_options || [5, 10]).join(', ')}">
         </div>
 
+        <div class="section-title">View Assist Devices</div>
+        ${(() => {
+          const entities = this._getVAEntities();
+          const sel = c.va_entity_ids || [];
+          if (entities.length === 0) {
+            return `<p class="field-hint">No View Assist entities detected yet. Make sure the View Assist integration is installed and a satellite is configured.</p>`;
+          }
+          return `
+          <p class="field-hint">Tick the devices to show timers for. Leave all unticked to show timers from every device. The <strong>first ticked device</strong> is the primary — new timers created with the + button are always assigned to it.</p>
+          <div class="checkboxes va-entities">
+            ${entities.map(e => `
+              <label class="checkbox-item">
+                <input type="checkbox" class="va-entity-cb" data-id="${e.id}" ${sel.includes(e.id) ? 'checked' : ''}>
+                ${e.name}
+              </label>`).join('')}
+          </div>`;
+        })()}
+
         <div class="section-title">Add Timer Button</div>
-        <div class="field">
-          <label>View Assist entity ID (required to create timers — e.g. view_assist.living_room)</label>
-          <input type="text" name="va_entity_id" value="${this._esc(c.va_entity_id || '')}" placeholder="view_assist.your_device">
-        </div>
         <div class="toggle-row">
           <span class="toggle-label">Show + button to create timers/alarms</span>
           <label class="toggle-switch">
@@ -1148,9 +1216,12 @@ class ViewAssistTimersCardEditor extends HTMLElement {
       this._config = { ...this._config, create_service: e.target.value.trim() || 'set_timer' };
       this._fire();
     });
-    root.querySelector('[name=va_entity_id]').addEventListener('change', e => {
-      this._config = { ...this._config, va_entity_id: e.target.value.trim() };
-      this._fire();
+    root.querySelectorAll('.va-entity-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const ids = [...root.querySelectorAll('.va-entity-cb:checked')].map(el => el.dataset.id);
+        this._config = { ...this._config, va_entity_ids: ids };
+        this._fire();
+      });
     });
   }
 
@@ -1188,7 +1259,12 @@ class ViewAssistTimersCardEditor extends HTMLElement {
       .field input:focus, .field select:focus { border-color: var(--primary-color, #03a9f4); }
       .field select { cursor: pointer; }
 
+      .field-hint {
+        font-size: .82em; color: var(--secondary-text-color);
+        margin: 0 0 10px; line-height: 1.4;
+      }
       .checkboxes { display: flex; gap: 16px; flex-wrap: wrap; padding: 4px 0 14px; }
+      .va-entities { flex-direction: column; gap: 8px; }
       .checkbox-item {
         display: flex; align-items: center; gap: 6px;
         font-size: .88em; color: var(--primary-text-color); cursor: pointer;
