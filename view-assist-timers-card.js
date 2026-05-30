@@ -318,11 +318,9 @@ class ViewAssistTimersCard extends HTMLElement {
       const m = parseInt(root.querySelector('.add-m')?.value) || 0;
       const s = parseInt(root.querySelector('.add-s')?.value) || 0;
       if (h + m + s === 0) return;
-      const parts = [];
-      if (h > 0) parts.push(`${h} hour${h !== 1 ? 's' : ''}`);
-      if (m > 0) parts.push(`${m} minute${m !== 1 ? 's' : ''}`);
-      if (s > 0) parts.push(`${s} second${s !== 1 ? 's' : ''}`);
-      serviceData.duration = parts.join(' ');
+      if (h > 0) serviceData.hours   = h;
+      if (m > 0) serviceData.minutes = m;
+      if (s > 0) serviceData.seconds = s;
     } else {
       const timeVal = root.querySelector('.add-time')?.value;
       if (!timeVal) return;
