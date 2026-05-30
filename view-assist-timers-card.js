@@ -1012,6 +1012,30 @@ class ViewAssistTimersCardEditor extends HTMLElement {
     }));
   }
 
+  _vaEntityRowsHtml() {
+    const entities = this._getVAEntities();
+    if (entities.length === 0) {
+      return `<p class="field-hint" style="margin:0">No View Assist entities detected — make sure the integration is installed.</p>`;
+    }
+    const selected = this._config.va_entity_ids || [];
+    // Show one row per selected entity plus one empty "add" row (unless all are already selected)
+    const rows = selected.length < entities.length ? [...selected, ''] : [...selected];
+    return rows.map((val, i) => {
+      const isAdd = val === '';
+      // Each dropdown lists entities not already chosen elsewhere, plus the current row's value
+      const opts = entities.filter(e => !selected.includes(e.id) || e.id === val);
+      return `
+        <div class="va-row">
+          <span class="va-row-label">${i === 0 ? 'Primary' : `+${i}`}</span>
+          <select class="va-sel" data-index="${i}">
+            <option value="">— ${i === 0 ? 'Select primary device' : 'Add a device'} —</option>
+            ${opts.map(e => `<option value="${e.id}" ${e.id === val ? 'selected' : ''}>${e.name}</option>`).join('')}
+          </select>
+          ${!isAdd ? `<button class="va-remove-btn" data-index="${i}" title="Remove">✕</button>` : ''}
+        </div>`;
+    }).join('');
+  }
+
   _render() {
     const c  = this._config;
     const st = c.show_types || ['timer', 'alarm', 'reminder'];
@@ -1110,22 +1134,8 @@ class ViewAssistTimersCardEditor extends HTMLElement {
         </div>
 
         <div class="section-title">View Assist Devices</div>
-        ${(() => {
-          const entities = this._getVAEntities();
-          const sel = c.va_entity_ids || [];
-          if (entities.length === 0) {
-            return `<p class="field-hint">No View Assist entities detected yet. Make sure the View Assist integration is installed and a satellite is configured.</p>`;
-          }
-          return `
-          <p class="field-hint">Tick the devices to show timers for. Leave all unticked to show timers from every device. The <strong>first ticked device</strong> is the primary — new timers created with the + button are always assigned to it.</p>
-          <div class="checkboxes va-entities">
-            ${entities.map(e => `
-              <label class="checkbox-item">
-                <input type="checkbox" class="va-entity-cb" data-id="${e.id}" ${sel.includes(e.id) ? 'checked' : ''}>
-                ${e.name}
-              </label>`).join('')}
-          </div>`;
-        })()}
+        <p class="field-hint">The <strong>first device</strong> is primary — new timers are always created for it. Add more to display and control their timers too. Leave empty to show timers from all devices.</p>
+        <div class="va-rows">${this._vaEntityRowsHtml()}</div>
 
         <div class="section-title">Add Timer Button</div>
         <div class="toggle-row">
@@ -1216,11 +1226,25 @@ class ViewAssistTimersCardEditor extends HTMLElement {
       this._config = { ...this._config, create_service: e.target.value.trim() || 'set_timer' };
       this._fire();
     });
-    root.querySelectorAll('.va-entity-cb').forEach(cb => {
-      cb.addEventListener('change', () => {
-        const ids = [...root.querySelectorAll('.va-entity-cb:checked')].map(el => el.dataset.id);
+    root.querySelectorAll('.va-sel').forEach(sel => {
+      sel.addEventListener('change', e => {
+        const idx = parseInt(e.target.dataset.index);
+        const val = e.target.value;
+        const ids = [...(this._config.va_entity_ids || [])];
+        if (val) { ids[idx] = val; } else { ids.splice(idx, 1); }
+        this._config = { ...this._config, va_entity_ids: ids.filter(Boolean) };
+        this._fire();
+        this._render();
+      });
+    });
+    root.querySelectorAll('.va-remove-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = parseInt(e.currentTarget.dataset.index);
+        const ids = [...(this._config.va_entity_ids || [])];
+        ids.splice(idx, 1);
         this._config = { ...this._config, va_entity_ids: ids };
         this._fire();
+        this._render();
       });
     });
   }
@@ -1264,7 +1288,29 @@ class ViewAssistTimersCardEditor extends HTMLElement {
         margin: 0 0 10px; line-height: 1.4;
       }
       .checkboxes { display: flex; gap: 16px; flex-wrap: wrap; padding: 4px 0 14px; }
-      .va-entities { flex-direction: column; gap: 8px; }
+
+      .va-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+      .va-row { display: flex; align-items: center; gap: 7px; }
+      .va-row-label {
+        font-size: .72em; font-weight: 700; color: var(--secondary-text-color);
+        min-width: 46px; text-align: right; flex-shrink: 0;
+      }
+      .va-sel {
+        flex: 1; padding: 7px 8px; cursor: pointer;
+        background: var(--input-fill-color, var(--secondary-background-color, rgba(0,0,0,.05)));
+        border: 1px solid var(--input-ink-color, var(--divider-color, rgba(0,0,0,.2)));
+        border-radius: 6px; color: var(--primary-text-color);
+        font-size: .88em; font-family: inherit; outline: none; transition: border-color .15s;
+      }
+      .va-sel:focus { border-color: var(--primary-color, #03a9f4); }
+      .va-remove-btn {
+        flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+        border: none; background: var(--secondary-background-color, rgba(0,0,0,.06));
+        color: var(--secondary-text-color); cursor: pointer;
+        font-size: .85em; line-height: 1; display: flex; align-items: center; justify-content: center;
+        transition: background .15s;
+      }
+      .va-remove-btn:hover { background: var(--error-color, #e53935); color: #fff; }
       .checkbox-item {
         display: flex; align-items: center; gap: 6px;
         font-size: .88em; color: var(--primary-text-color); cursor: pointer;
