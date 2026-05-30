@@ -343,6 +343,7 @@ class ViewAssistTimersCard extends HTMLElement {
     }
 
     const root = this._getCardRoot();
+    const isFloating = float_when_active && !!this._floatingHost;
 
     // Save add-panel input values so they survive re-renders caused by data polls
     const savedName = root.querySelector('.add-name')?.value;
@@ -437,13 +438,16 @@ class ViewAssistTimersCard extends HTMLElement {
         }).join('');
     })();
 
+    const wrapOpen  = isFloating ? '<div class="fc-wrap">' : '<ha-card>';
+    const wrapClose = isFloating ? '</div>'               : '</ha-card>';
+
     root.innerHTML = `
       <style>${this._css()}</style>
-      <ha-card>
+      ${wrapOpen}
         ${headerHtml}
         ${addPanelHtml}
         <div class="card-body" ${bodyStyle}>${listHtml}</div>
-      </ha-card>`;
+      ${wrapClose}`;
 
     // Restore add panel inputs so a data-poll refresh doesn't wipe what the user typed
     if (this._showAddPanel) {
@@ -481,6 +485,15 @@ class ViewAssistTimersCard extends HTMLElement {
         root.querySelector('.add-panel').dataset.type = type;
       });
     });
+
+    // Trigger ringing popup check immediately rather than waiting for next 1-second tick
+    if (this._config.show_ringing_popup) {
+      const ringing = this._timers.filter(
+        t => t.status === 'ringing' && this._config.show_types.includes(t.timer_class)
+      );
+      if (ringing.length > 0) this._showRingingPopup(ringing);
+      else this._hideRingingPopup();
+    }
   }
 
   // ── Bar-mode row ───────────────────────────────────────────────────────────
@@ -674,7 +687,9 @@ class ViewAssistTimersCard extends HTMLElement {
       document.removeEventListener('touchend',  onUp);
     };
     const onDown = e => {
-      if (e.target.closest('[data-action]')) return;
+      // composedPath() sees through shadow DOM boundaries; plain .target is retargeted at shadow hosts
+      const path = e.composedPath ? e.composedPath() : [e.target];
+      if (path.some(n => n.dataset?.action)) return;
       e.preventDefault();
       const pt = e.touches ? e.touches[0] : e;
       const rect = el.getBoundingClientRect();
@@ -695,6 +710,13 @@ class ViewAssistTimersCard extends HTMLElement {
     return `
       :host { display: block; }
       ha-card { overflow: hidden; }
+      .fc-wrap {
+        overflow: hidden;
+        border-radius: var(--ha-card-border-radius, 12px);
+        background: var(--ha-card-background, var(--card-background-color, #1c1c1e));
+        box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.15);
+        color: var(--primary-text-color, #e1e1e1);
+      }
 
       .card-header {
         display: flex; align-items: center; gap: 8px;
