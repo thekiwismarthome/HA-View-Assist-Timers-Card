@@ -141,10 +141,16 @@ class ViewAssistTimersCard extends HTMLElement {
         return_response: true,
       });
       const fetchedAt = Date.now();
-      const raw = wsResult?.response?.result ?? wsResult?.result ?? wsResult ?? [];
+      const raw = wsResult?.response?.result ?? wsResult?.response?.timers
+               ?? wsResult?.result ?? wsResult?.timers ?? wsResult ?? [];
       this._timers  = Array.isArray(raw) ? raw : [];
       this._loading = false;
       this._error   = null;
+      // Debug: log raw timer data so field names are visible in the browser console
+      if (this._timers.length > 0) {
+        console.log('[VATC] timer data sample:', JSON.stringify(this._timers[0]));
+        console.log('[VATC] all statuses:', [...new Set(this._timers.map(t => t.status))]);
+      }
       this._updateFinishTimes(fetchedAt);
       this._updateTotalSeconds();
     } catch (err) {
@@ -155,39 +161,54 @@ class ViewAssistTimersCard extends HTMLElement {
     this._render();
   }
 
+  // Normalize the timer ID to a string regardless of field name used by the API
+  _id(t) {
+    const raw = t.id ?? t.timer_id ?? t.uuid ?? t.entity_id;
+    return raw != null ? String(raw) : '';
+  }
+
+  // Check ringing state — View Assist may use different status strings
+  _isRinging(t) {
+    const s = String(t.status ?? '').toLowerCase();
+    return s === 'ringing' || s === 'firing' || s === 'alerting' || s === 'alarm';
+  }
+
   _updateFinishTimes(fetchedAt) {
-    const activeIds = new Set(this._timers.map(t => t.id));
+    const activeIds = new Set(this._timers.map(t => this._id(t)));
     Object.keys(this._finishTimes).forEach(id => {
       if (!activeIds.has(id)) delete this._finishTimes[id];
     });
     this._timers.forEach(t => {
+      const id = this._id(t);
+      if (!id) return;
       const ft = this._parseFinishTime(t, fetchedAt);
-      if (ft) this._finishTimes[t.id] = ft;
+      if (ft) this._finishTimes[id] = ft;
     });
   }
 
   _updateTotalSeconds() {
-    const activeIds = new Set(this._timers.map(t => t.id));
+    const activeIds = new Set(this._timers.map(t => this._id(t)));
     Object.keys(this._totalSeconds).forEach(id => {
       if (!activeIds.has(id)) delete this._totalSeconds[id];
     });
     this._timers.forEach(t => {
-      if (this._totalSeconds[t.id]) return;
+      const id = this._id(t);
+      if (!id || this._totalSeconds[id]) return;
       for (const key of ['duration', 'total_duration', 'original_duration']) {
         const n = Number(t[key]);
-        if (!isNaN(n) && n > 0) { this._totalSeconds[t.id] = n; return; }
+        if (!isNaN(n) && n > 0) { this._totalSeconds[id] = n; return; }
       }
-      for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining']) {
-        if (t[key] != null) { this._totalSeconds[t.id] = Number(t[key]); return; }
+      for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining', 'time_remaining', 'seconds_left']) {
+        if (t[key] != null) { this._totalSeconds[id] = Number(t[key]); return; }
       }
       if (t.expiry?.seconds_remaining != null) {
-        this._totalSeconds[t.id] = Number(t.expiry.seconds_remaining);
+        this._totalSeconds[id] = Number(t.expiry.seconds_remaining);
       }
     });
   }
 
   _parseFinishTime(timer, fetchedAt) {
-    for (const key of ['finish_time', 'end_time', 'expiry_time', 'due_time']) {
+    for (const key of ['finish_time', 'end_time', 'expiry_time', 'due_time', 'expires_at', 'fire_time', 'trigger_time', 'alarm_time']) {
       const val = timer[key];
       if (val == null) continue;
       const ts = typeof val === 'number' ? (val > 1e10 ? val : val * 1000) : new Date(val).getTime();
@@ -197,7 +218,7 @@ class ViewAssistTimersCard extends HTMLElement {
       const ts = new Date(timer.expiry.timestamp).getTime();
       if (!isNaN(ts)) return ts;
     }
-    for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining']) {
+    for (const key of ['seconds_remaining', 'remaining_seconds', 'remaining', 'time_remaining', 'seconds_left']) {
       if (timer[key] != null) return fetchedAt + Number(timer[key]) * 1000;
     }
     if (timer.expiry?.seconds_remaining != null) {
@@ -209,7 +230,7 @@ class ViewAssistTimersCard extends HTMLElement {
   // ── Countdown & progress ───────────────────────────────────────────────────
 
   _getCountdown(timer) {
-    const ft = this._finishTimes[timer.id];
+    const ft = this._finishTimes[this._id(timer)];
     if (ft != null) {
       const secs = Math.max(0, Math.floor((ft - Date.now()) / 1000));
       const h = Math.floor(secs / 3600);
@@ -236,26 +257,26 @@ class ViewAssistTimersCard extends HTMLElement {
     if (!root) return;
 
     root.querySelectorAll('[data-timer-id]').forEach(el => {
-      const t = this._timers.find(t => t.id === el.dataset.timerId);
+      const t = this._timers.find(t => this._id(t) === el.dataset.timerId);
       if (t) el.textContent = this._getCountdown(t);
     });
 
     root.querySelectorAll('[data-progress-id]').forEach(el => {
-      const t = this._timers.find(t => t.id === el.dataset.progressId);
-      if (t && t.status !== 'ringing') el.style.width = `${this._getProgress(t.id) * 100}%`;
+      const t = this._timers.find(t => this._id(t) === el.dataset.progressId);
+      if (t && !this._isRinging(t)) el.style.width = `${this._getProgress(this._id(t)) * 100}%`;
     });
 
     const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
     root.querySelectorAll('[data-horseshoe-id]').forEach(el => {
-      const t = this._timers.find(t => t.id === el.dataset.horseshoeId);
-      if (!t || t.status === 'ringing') return;
-      const arcLen = this._getProgress(t.id) * ARC;
+      const t = this._timers.find(t => this._id(t) === el.dataset.horseshoeId);
+      if (!t || this._isRinging(t)) return;
+      const arcLen = this._getProgress(this._id(t)) * ARC;
       el.setAttribute('stroke-dasharray', `${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}`);
     });
 
     if (this._config.show_ringing_popup) {
       const ringing = this._timers.filter(
-        t => t.status === 'ringing' && this._config.show_types.includes(t.timer_class)
+        t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
       );
       if (ringing.length > 0) this._showRingingPopup(ringing);
       else this._hideRingingPopup();
@@ -289,7 +310,7 @@ class ViewAssistTimersCard extends HTMLElement {
     const root = this._getCardRoot();
     const type = this._addType || 'timer';
     const name = root.querySelector('.add-name')?.value?.trim() || '';
-    const serviceData = { timer_class: type };
+    const serviceData = {};
     if (name) serviceData.name = name;
 
     if (type === 'timer') {
@@ -308,8 +329,13 @@ class ViewAssistTimersCard extends HTMLElement {
       serviceData.time = timeVal;
     }
 
+    // Each type maps to its own View Assist service — no timer_class parameter needed
+    const serviceName = type === 'timer' ? this._config.create_service
+      : type === 'alarm'    ? 'set_alarm'
+      : /* reminder */        'set_reminder';
+
     try {
-      await this._hass.callService('view_assist', this._config.create_service, serviceData);
+      await this._hass.callService('view_assist', serviceName, serviceData);
     } catch (e) {
       console.error('[view-assist-timers-card] create timer failed', e);
     }
@@ -489,7 +515,7 @@ class ViewAssistTimersCard extends HTMLElement {
     // Trigger ringing popup check immediately rather than waiting for next 1-second tick
     if (this._config.show_ringing_popup) {
       const ringing = this._timers.filter(
-        t => t.status === 'ringing' && this._config.show_types.includes(t.timer_class)
+        t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
       );
       if (ringing.length > 0) this._showRingingPopup(ringing);
       else this._hideRingingPopup();
@@ -499,16 +525,17 @@ class ViewAssistTimersCard extends HTMLElement {
   // ── Bar-mode row ───────────────────────────────────────────────────────────
 
   _rowHtml(timer, meta) {
-    const isRinging = timer.status === 'ringing';
+    const isRinging = this._isRinging(timer);
+    const id   = this._id(timer);
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
-    const pct  = isRinging ? 100 : this._getProgress(timer.id) * 100;
+    const pct  = isRinging ? 100 : this._getProgress(id) * 100;
 
     const actions = isRinging
       ? this._config.snooze_options.map(m =>
-          `<button class="btn btn-snooze" data-action="snooze" data-id="${timer.id}" data-minutes="${m}">+${m}m</button>`
+          `<button class="btn btn-snooze" data-action="snooze" data-id="${id}" data-minutes="${m}">+${m}m</button>`
         ).join('') +
-        `<button class="btn btn-dismiss" data-action="dismiss" data-id="${timer.id}">Stop</button>`
-      : `<button class="btn btn-cancel" data-action="cancel" data-id="${timer.id}" title="Cancel">
+        `<button class="btn btn-dismiss" data-action="dismiss" data-id="${id}">Stop</button>`
+      : `<button class="btn btn-cancel" data-action="cancel" data-id="${id}" title="Cancel">
            <ha-icon icon="mdi:close"></ha-icon>
          </button>`;
 
@@ -519,12 +546,12 @@ class ViewAssistTimersCard extends HTMLElement {
         </div>
         <div class="timer-info">
           <div class="timer-name" title="${name}">${name}</div>
-          <div class="timer-countdown" style="color:${meta.color}" data-timer-id="${timer.id}">
+          <div class="timer-countdown" style="color:${meta.color}" data-timer-id="${id}">
             ${this._getCountdown(timer)}
           </div>
           <div class="progress-track">
             <div class="progress-fill${isRinging ? ' progress-ringing' : ''}"
-              data-progress-id="${timer.id}"
+              data-progress-id="${id}"
               style="width:${pct}%;background:${meta.color}">
             </div>
           </div>
@@ -536,18 +563,19 @@ class ViewAssistTimersCard extends HTMLElement {
   // ── Horseshoe tile ─────────────────────────────────────────────────────────
 
   _tileHtml(timer, meta) {
-    const isRinging = timer.status === 'ringing';
+    const isRinging = this._isRinging(timer);
+    const id   = this._id(timer);
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
     const shortName = name.length > 14 ? name.slice(0, 13) + '…' : name;
     const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
-    const arcLen = (isRinging ? 1 : this._getProgress(timer.id)) * ARC;
+    const arcLen = (isRinging ? 1 : this._getProgress(id)) * ARC;
 
     const actions = isRinging
       ? this._config.snooze_options.map(m =>
-          `<button class="btn btn-snooze btn-sm" data-action="snooze" data-id="${timer.id}" data-minutes="${m}">+${m}m</button>`
+          `<button class="btn btn-snooze btn-sm" data-action="snooze" data-id="${id}" data-minutes="${m}">+${m}m</button>`
         ).join('') +
-        `<button class="btn btn-dismiss btn-sm" data-action="dismiss" data-id="${timer.id}">Stop</button>`
-      : `<button class="btn btn-cancel btn-sm" data-action="cancel" data-id="${timer.id}" title="Cancel">
+        `<button class="btn btn-dismiss btn-sm" data-action="dismiss" data-id="${id}">Stop</button>`
+      : `<button class="btn btn-cancel btn-sm" data-action="cancel" data-id="${id}" title="Cancel">
            <ha-icon icon="mdi:close"></ha-icon>
          </button>`;
 
@@ -565,8 +593,8 @@ class ViewAssistTimersCard extends HTMLElement {
             stroke="${meta.color}" stroke-width="9" stroke-linecap="round"
             stroke-dasharray="${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}"
             transform="rotate(135 50 50)"
-            data-horseshoe-id="${timer.id}" />
-          <text x="50" y="50" class="hs-countdown" data-timer-id="${timer.id}">
+            data-horseshoe-id="${id}" />
+          <text x="50" y="50" class="hs-countdown" data-timer-id="${id}">
             ${this._getCountdown(timer)}
           </text>
         </svg>
@@ -621,7 +649,7 @@ class ViewAssistTimersCard extends HTMLElement {
   }
 
   _showRingingPopup(ringingTimers) {
-    const ids = ringingTimers.map(t => t.id).sort().join(',');
+    const ids = ringingTimers.map(t => this._id(t)).sort().join(',');
     if (this._popupEl && this._popupRingingIds === ids) return;
     this._popupRingingIds = ids;
     this._ensurePopupStyles();
@@ -635,14 +663,15 @@ class ViewAssistTimersCard extends HTMLElement {
     const rows = ringingTimers.map(t => {
       const name  = t.name || t.extra_info?.sentence || t.duration || t.timer_class;
       const color = META_COLOR[t.timer_class] || '#e53935';
+      const tid    = this._id(t);
       const snooze = this._config.snooze_options.map(m =>
-        `<button class="vatc-btn vatc-btn-snooze" data-action="snooze" data-id="${t.id}" data-minutes="${m}">Snooze ${m}m</button>`
+        `<button class="vatc-btn vatc-btn-snooze" data-action="snooze" data-id="${tid}" data-minutes="${m}">Snooze ${m}m</button>`
       ).join('');
       return `<div class="vatc-alarm-row">
         <div class="vatc-alarm-name" style="color:${color}">${name}</div>
         <div class="vatc-alarm-btns">
           ${snooze}
-          <button class="vatc-btn vatc-btn-stop" data-action="stop" data-id="${t.id}">Stop</button>
+          <button class="vatc-btn vatc-btn-stop" data-action="stop" data-id="${tid}">Stop</button>
         </div>
       </div>`;
     }).join('');
