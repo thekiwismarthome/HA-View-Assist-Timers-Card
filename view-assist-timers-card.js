@@ -141,7 +141,7 @@ class ViewAssistTimersCard extends HTMLElement {
         type: 'call_service',
         domain: 'view_assist',
         service: 'get_timers',
-        service_data: {},
+        service_data: { include_expired: true },
         return_response: true,
       });
       const fetchedAt = Date.now();
@@ -277,13 +277,7 @@ class ViewAssistTimersCard extends HTMLElement {
       el.setAttribute('stroke-dasharray', `${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}`);
     });
 
-    if (this._config.show_ringing_popup) {
-      const ringing = this._timers.filter(
-        t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
-      );
-      if (ringing.length > 0) this._showRingingPopup(ringing);
-      else this._hideRingingPopup();
-    }
+    this._checkRingingPopup();
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -389,14 +383,7 @@ class ViewAssistTimersCard extends HTMLElement {
     const root = this._getCardRoot();
     const isFloating = float_when_active && !!this._floatingHost;
 
-    // Save add-panel input values so they survive re-renders caused by data polls
-    const savedName = root.querySelector('.add-name')?.value;
-    const savedH    = root.querySelector('.add-h')?.value;
-    const savedM    = root.querySelector('.add-m')?.value;
-    const savedS    = root.querySelector('.add-s')?.value;
-    const savedTime = root.querySelector('.add-time')?.value;
-
-    // ── Build HTML ────────────────────────────────────────────────────────────
+    // ── Build META / groups / list HTML (needed by both full and partial render) ──
 
     const META = {
       timer:    { icon: 'mdi:timer-outline', label: 'Timers',    color: '#039be5' },
@@ -409,6 +396,57 @@ class ViewAssistTimersCard extends HTMLElement {
       alarm:    active.filter(t => t.timer_class === 'alarm'),
       reminder: active.filter(t => t.timer_class === 'reminder'),
     };
+
+    const listHtml = (() => {
+      if (this._loading) {
+        return `<div class="state-msg"><ha-circular-progress active indeterminate></ha-circular-progress></div>`;
+      }
+      if (this._error) {
+        return `<div class="state-msg error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>${this._error}</div>`;
+      }
+      if (active.length === 0) {
+        return `<div class="state-msg muted">
+          <ha-icon icon="mdi:check-circle-outline"></ha-icon>
+          No active timers, alarms, or reminders
+        </div>`;
+      }
+      if (display_mode === 'horseshoe') {
+        const tiles = active.map(t => this._tileHtml(t, META[t.timer_class], multiDevice ? deviceLabel[t.entity_id] : null)).join('');
+        return `<div class="tile-grid" style="grid-template-columns:repeat(${this._config.columns},1fr)">${tiles}</div>`;
+      }
+      return Object.entries(groups)
+        .filter(([cls, items]) => items.length > 0 && show_types.includes(cls))
+        .map(([cls, items]) => {
+          const meta = META[cls];
+          return `<div class="section">
+            <div class="section-header" style="color:${meta.color}">
+              <ha-icon icon="${meta.icon}" style="color:${meta.color}"></ha-icon>
+              <span>${meta.label}</span>
+            </div>
+            ${items.map(t => this._rowHtml(t, meta, multiDevice ? deviceLabel[t.entity_id] : null)).join('')}
+          </div>`;
+        }).join('');
+    })();
+
+    // ── Partial render: add panel is open — only update the timer list ────────
+    // Avoids destroying focused inputs (which closes the keyboard on Android/iOS).
+    const existingBody = root.querySelector('.card-body');
+    if (this._showAddPanel && existingBody) {
+      existingBody.innerHTML = listHtml;
+      if (max_height > 0) { existingBody.style.maxHeight = `${max_height}px`; existingBody.style.overflowY = 'auto'; }
+      // Re-wire action buttons inside the replaced body (add-panel buttons keep their existing listeners)
+      existingBody.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const { action, id, minutes } = e.currentTarget.dataset;
+          if (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
+          else if (action === 'snooze') this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
+        });
+      });
+      this._checkRingingPopup();
+      return;
+    }
+
+    // ── Full render ───────────────────────────────────────────────────────────
 
     const showHeader = title !== '' || show_add_button;
     const headerHtml = showHeader ? `
@@ -451,37 +489,6 @@ class ViewAssistTimersCard extends HTMLElement {
 
     const bodyStyle = max_height > 0 ? `style="max-height:${max_height}px;overflow-y:auto"` : '';
 
-    const listHtml = (() => {
-      if (this._loading) {
-        return `<div class="state-msg"><ha-circular-progress active indeterminate></ha-circular-progress></div>`;
-      }
-      if (this._error) {
-        return `<div class="state-msg error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>${this._error}</div>`;
-      }
-      if (active.length === 0) {
-        return `<div class="state-msg muted">
-          <ha-icon icon="mdi:check-circle-outline"></ha-icon>
-          No active timers, alarms, or reminders
-        </div>`;
-      }
-      if (display_mode === 'horseshoe') {
-        const tiles = active.map(t => this._tileHtml(t, META[t.timer_class], multiDevice ? deviceLabel[t.entity_id] : null)).join('');
-        return `<div class="tile-grid" style="grid-template-columns:repeat(${this._config.columns},1fr)">${tiles}</div>`;
-      }
-      return Object.entries(groups)
-        .filter(([cls, items]) => items.length > 0 && show_types.includes(cls))
-        .map(([cls, items]) => {
-          const meta = META[cls];
-          return `<div class="section">
-            <div class="section-header" style="color:${meta.color}">
-              <ha-icon icon="${meta.icon}" style="color:${meta.color}"></ha-icon>
-              <span>${meta.label}</span>
-            </div>
-            ${items.map(t => this._rowHtml(t, meta, multiDevice ? deviceLabel[t.entity_id] : null)).join('')}
-          </div>`;
-        }).join('');
-    })();
-
     const wrapOpen  = isFloating ? '<div class="fc-wrap">' : '<ha-card>';
     const wrapClose = isFloating ? '</div>'               : '</ha-card>';
 
@@ -493,18 +500,8 @@ class ViewAssistTimersCard extends HTMLElement {
         <div class="card-body" ${bodyStyle}>${listHtml}</div>
       ${wrapClose}`;
 
-    // Restore add panel inputs so a data-poll refresh doesn't wipe what the user typed
-    if (this._showAddPanel) {
-      if (savedName != null) root.querySelector('.add-name').value = savedName;
-      if (savedH    != null) root.querySelector('.add-h').value    = savedH;
-      if (savedM    != null) root.querySelector('.add-m').value    = savedM;
-      if (savedS    != null) root.querySelector('.add-s').value    = savedS;
-      if (savedTime != null) root.querySelector('.add-time').value = savedTime;
-    }
-
     // ── Event listeners ───────────────────────────────────────────────────────
 
-    // Timer / alarm action buttons
     root.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', e => {
         const { action, id, minutes } = e.currentTarget.dataset;
@@ -514,13 +511,11 @@ class ViewAssistTimersCard extends HTMLElement {
       });
     });
 
-    // Toggle add panel open / closed
     root.querySelector('[data-action="toggle-add"]')?.addEventListener('click', () => {
       this._showAddPanel = !this._showAddPanel;
       this._render();
     });
 
-    // Add-panel type tabs (no full re-render — just swap CSS data attribute)
     root.querySelectorAll('.add-tab').forEach(tab => {
       tab.addEventListener('click', e => {
         const type = e.currentTarget.dataset.type;
@@ -530,14 +525,16 @@ class ViewAssistTimersCard extends HTMLElement {
       });
     });
 
-    // Trigger ringing popup check immediately rather than waiting for next 1-second tick
-    if (this._config.show_ringing_popup) {
-      const ringing = this._timers.filter(
-        t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
-      );
-      if (ringing.length > 0) this._showRingingPopup(ringing);
-      else this._hideRingingPopup();
-    }
+    this._checkRingingPopup();
+  }
+
+  _checkRingingPopup() {
+    if (!this._config.show_ringing_popup) return;
+    const ringing = this._timers.filter(
+      t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
+    );
+    if (ringing.length > 0) this._showRingingPopup(ringing);
+    else this._hideRingingPopup();
   }
 
   // ── Bar-mode row ───────────────────────────────────────────────────────────
