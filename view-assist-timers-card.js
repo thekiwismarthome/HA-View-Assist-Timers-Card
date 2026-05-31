@@ -42,6 +42,7 @@ class ViewAssistTimersCard extends HTMLElement {
     this._floatingHost   = null;   // card overlay element when float_when_active
     this._showAddPanel   = false;  // add-timer panel open/closed
     this._addType        = 'timer'; // selected type in add panel
+    this._localTimers    = [];     // browser-local timers (no HA service)
   }
 
   static getConfigElement() {
@@ -74,6 +75,7 @@ class ViewAssistTimersCard extends HTMLElement {
       va_entity_ids: config.va_entity_ids
         || (config.va_entity_id ? [config.va_entity_id] : []),
     };
+    this._loadLocalTimers();
   }
 
   set hass(hass) {
@@ -256,22 +258,24 @@ class ViewAssistTimersCard extends HTMLElement {
   // ── Tick loop ──────────────────────────────────────────────────────────────
 
   _tickCountdowns() {
+    this._tickLocalTimers();
     const root = this._getCardRoot();
     if (!root) return;
 
+    const allTimers = [...this._timers, ...this._localTimers];
     root.querySelectorAll('[data-timer-id]').forEach(el => {
-      const t = this._timers.find(t => this._id(t) === el.dataset.timerId);
+      const t = allTimers.find(t => this._id(t) === el.dataset.timerId);
       if (t) el.textContent = this._getCountdown(t);
     });
 
     root.querySelectorAll('[data-progress-id]').forEach(el => {
-      const t = this._timers.find(t => this._id(t) === el.dataset.progressId);
+      const t = allTimers.find(t => this._id(t) === el.dataset.progressId);
       if (t && !this._isRinging(t)) el.style.width = `${this._getProgress(this._id(t)) * 100}%`;
     });
 
     const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
     root.querySelectorAll('[data-horseshoe-id]').forEach(el => {
-      const t = this._timers.find(t => this._id(t) === el.dataset.horseshoeId);
+      const t = allTimers.find(t => this._id(t) === el.dataset.horseshoeId);
       if (!t || this._isRinging(t)) return;
       const arcLen = this._getProgress(this._id(t)) * ARC;
       el.setAttribute('stroke-dasharray', `${arcLen.toFixed(2)} ${(C - arcLen).toFixed(2)}`);
@@ -303,12 +307,126 @@ class ViewAssistTimersCard extends HTMLElement {
     setTimeout(() => this._fetchTimers(), 700);
   }
 
+  // ── Local timers (browser-only, no HA service) ────────────────────────────
+
+  _loadLocalTimers() {
+    try {
+      const raw = localStorage.getItem('vatc-local-timers');
+      this._localTimers = raw ? JSON.parse(raw) : [];
+    } catch { this._localTimers = []; }
+    this._injectLocalFinishTimes();
+  }
+
+  _saveLocalTimers() {
+    localStorage.setItem('vatc-local-timers', JSON.stringify(this._localTimers));
+  }
+
+  _injectLocalFinishTimes() {
+    this._localTimers.forEach(t => {
+      const total = t.duration_ms / 1000;
+      if (t.status === 'active' && t.end_ts) {
+        this._finishTimes[t.id]  = t.end_ts;
+        this._totalSeconds[t.id] = total;
+      } else if (t.status === 'paused' && t.paused_remaining_ms != null) {
+        this._finishTimes[t.id]  = Date.now() + t.paused_remaining_ms;
+        this._totalSeconds[t.id] = total;
+      } else if (t.status === 'expired') {
+        this._finishTimes[t.id]  = Date.now();
+        this._totalSeconds[t.id] = total;
+      }
+    });
+  }
+
+  _tickLocalTimers() {
+    const now = Date.now();
+    let changed = false;
+    this._localTimers.forEach(t => {
+      if (t.status === 'active' && t.end_ts <= now) {
+        t.status = 'expired';
+        changed = true;
+      }
+      if (t.status === 'paused' && t.paused_remaining_ms != null) {
+        this._finishTimes[t.id] = now + t.paused_remaining_ms;
+      }
+    });
+    if (changed) { this._saveLocalTimers(); this._render(); }
+  }
+
+  _createLocalTimer(name, durationMs) {
+    const now = Date.now();
+    const t = {
+      id: `local-${now}`,
+      timer_class: 'local',
+      name: name || 'Timer',
+      status: 'active',
+      duration_ms: durationMs,
+      end_ts: now + durationMs,
+      paused_remaining_ms: null,
+    };
+    this._localTimers.push(t);
+    this._finishTimes[t.id]  = t.end_ts;
+    this._totalSeconds[t.id] = durationMs / 1000;
+    this._saveLocalTimers();
+  }
+
+  _cancelLocalTimer(id) {
+    this._localTimers = this._localTimers.filter(t => t.id !== id);
+    delete this._finishTimes[id];
+    delete this._totalSeconds[id];
+    this._saveLocalTimers();
+    this._render();
+  }
+
+  _pauseLocalTimer(id) {
+    const t = this._localTimers.find(t => t.id === id);
+    if (!t || t.status !== 'active') return;
+    t.paused_remaining_ms = Math.max(0, t.end_ts - Date.now());
+    t.status = 'paused';
+    this._finishTimes[t.id] = Date.now() + t.paused_remaining_ms;
+    this._saveLocalTimers();
+    this._render();
+  }
+
+  _resumeLocalTimer(id) {
+    const t = this._localTimers.find(t => t.id === id);
+    if (!t || t.status !== 'paused') return;
+    t.end_ts = Date.now() + t.paused_remaining_ms;
+    t.paused_remaining_ms = null;
+    t.status = 'active';
+    this._finishTimes[t.id] = t.end_ts;
+    this._saveLocalTimers();
+    this._render();
+  }
+
+  _restartLocalTimer(id) {
+    const t = this._localTimers.find(t => t.id === id);
+    if (!t) return;
+    t.end_ts = Date.now() + t.duration_ms;
+    t.paused_remaining_ms = null;
+    t.status = 'active';
+    this._finishTimes[t.id] = t.end_ts;
+    this._saveLocalTimers();
+    this._render();
+  }
+
   async _createTimer() {
     const root = this._getCardRoot();
     const type = this._addType || 'timer';
     const name = root.querySelector('.add-name')?.value?.trim() || '';
     const serviceData = {};
     if (name) serviceData.name = name;
+
+    if (type === 'local') {
+      const h = parseInt(root.querySelector('.add-h')?.value) || 0;
+      const m = parseInt(root.querySelector('.add-m')?.value) || 0;
+      const s = parseInt(root.querySelector('.add-s')?.value) || 0;
+      const totalMs = (h * 3600 + m * 60 + s) * 1000;
+      if (totalMs === 0) return;
+      this._createLocalTimer(name, totalMs);
+      this._showAddPanel = false;
+      this._render();
+      return;
+    }
 
     // All types use view_assist.set_timer; the 'type' field differentiates them
     serviceData.type = type;
@@ -353,10 +471,13 @@ class ViewAssistTimersCard extends HTMLElement {
 
     // Include expired timers — 'expired' IS the fired/ringing state in View Assist.
     // If specific VA entities are configured, filter to those; otherwise show all.
-    const active = this._timers.filter(t =>
-      show_types.includes(t.timer_class) &&
-      (va_entity_ids.length === 0 || va_entity_ids.includes(t.entity_id))
-    );
+    const active = [
+      ...this._timers.filter(t =>
+        show_types.includes(t.timer_class) &&
+        (va_entity_ids.length === 0 || va_entity_ids.includes(t.entity_id))
+      ),
+      ...this._localTimers,
+    ];
 
     // Build friendly-name lookup for device badges (shown when timers span multiple devices)
     const deviceLabel = {};
@@ -386,15 +507,17 @@ class ViewAssistTimersCard extends HTMLElement {
     // ── Build META / groups / list HTML (needed by both full and partial render) ──
 
     const META = {
-      timer:    { icon: 'mdi:timer-outline', label: 'Timers',    color: '#039be5' },
-      alarm:    { icon: 'mdi:alarm',         label: 'Alarms',    color: '#e53935' },
-      reminder: { icon: 'mdi:reminder',      label: 'Reminders', color: '#fb8c00' },
+      timer:    { icon: 'mdi:timer-outline', label: 'Timers',       color: '#039be5' },
+      alarm:    { icon: 'mdi:alarm',         label: 'Alarms',       color: '#e53935' },
+      reminder: { icon: 'mdi:reminder',      label: 'Reminders',    color: '#fb8c00' },
+      local:    { icon: 'mdi:timer-sand',    label: 'Local Timers', color: '#26a69a' },
     };
 
     const groups = {
       timer:    active.filter(t => t.timer_class === 'timer'),
       alarm:    active.filter(t => t.timer_class === 'alarm'),
       reminder: active.filter(t => t.timer_class === 'reminder'),
+      local:    active.filter(t => t.timer_class === 'local'),
     };
 
     const listHtml = (() => {
@@ -415,7 +538,7 @@ class ViewAssistTimersCard extends HTMLElement {
         return `<div class="tile-grid" style="grid-template-columns:repeat(${this._config.columns},1fr)">${tiles}</div>`;
       }
       return Object.entries(groups)
-        .filter(([cls, items]) => items.length > 0 && show_types.includes(cls))
+        .filter(([cls, items]) => items.length > 0 && (show_types.includes(cls) || cls === 'local'))
         .map(([cls, items]) => {
           const meta = META[cls];
           return `<div class="section">
@@ -431,15 +554,21 @@ class ViewAssistTimersCard extends HTMLElement {
     // ── Partial render: add panel is open — only update the timer list ────────
     // Avoids destroying focused inputs (which closes the keyboard on Android/iOS).
     const existingBody = root.querySelector('.card-body');
-    if (this._showAddPanel && existingBody) {
+    const addPanelEl   = root.querySelector('.add-panel');
+    const addPanelCurrentlyVisible = addPanelEl && addPanelEl.style.display !== 'none';
+    if (this._showAddPanel && addPanelCurrentlyVisible && existingBody) {
       existingBody.innerHTML = listHtml;
       if (max_height > 0) { existingBody.style.maxHeight = `${max_height}px`; existingBody.style.overflowY = 'auto'; }
       // Re-wire action buttons inside the replaced body (add-panel buttons keep their existing listeners)
       existingBody.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', e => {
           const { action, id, minutes } = e.currentTarget.dataset;
-          if (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
-          else if (action === 'snooze') this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
+          if      (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
+          else if (action === 'snooze')        this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
+          else if (action === 'local-pause')   this._pauseLocalTimer(id);
+          else if (action === 'local-resume')  this._resumeLocalTimer(id);
+          else if (action === 'local-restart') this._restartLocalTimer(id);
+          else if (action === 'local-cancel')  this._cancelLocalTimer(id);
         });
       });
       this._checkRingingPopup();
@@ -469,6 +598,9 @@ class ViewAssistTimersCard extends HTMLElement {
           </button>
           <button class="add-tab${this._addType === 'reminder' ? ' active' : ''}" data-type="reminder">
             <ha-icon icon="mdi:reminder"></ha-icon> Reminder
+          </button>
+          <button class="add-tab${this._addType === 'local'    ? ' active' : ''}" data-type="local">
+            <ha-icon icon="mdi:timer-sand"></ha-icon> Local
           </button>
         </div>
         <input class="add-name" type="text" placeholder="Label (optional)">
@@ -505,9 +637,13 @@ class ViewAssistTimersCard extends HTMLElement {
     root.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', e => {
         const { action, id, minutes } = e.currentTarget.dataset;
-        if (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
-        else if (action === 'snooze') this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
-        else if (action === 'create-timer') this._createTimer();
+        if      (action === 'cancel' || action === 'dismiss') this._cancelTimer(id);
+        else if (action === 'snooze')        this._snoozeTimer(id, minutes ? parseInt(minutes) : null);
+        else if (action === 'create-timer')  this._createTimer();
+        else if (action === 'local-pause')   this._pauseLocalTimer(id);
+        else if (action === 'local-resume')  this._resumeLocalTimer(id);
+        else if (action === 'local-restart') this._restartLocalTimer(id);
+        else if (action === 'local-cancel')  this._cancelLocalTimer(id);
       });
     });
 
@@ -530,9 +666,9 @@ class ViewAssistTimersCard extends HTMLElement {
 
   _checkRingingPopup() {
     if (!this._config.show_ringing_popup) return;
-    const ringing = this._timers.filter(
-      t => this._isRinging(t) && this._config.show_types.includes(t.timer_class)
-    );
+    const vaRinging    = this._timers.filter(t => this._isRinging(t) && this._config.show_types.includes(t.timer_class));
+    const localRinging = this._localTimers.filter(t => t.status === 'expired');
+    const ringing      = [...vaRinging, ...localRinging];
     if (ringing.length > 0) this._showRingingPopup(ringing);
     else this._hideRingingPopup();
   }
@@ -545,14 +681,25 @@ class ViewAssistTimersCard extends HTMLElement {
     const name = timer.name || timer.extra_info?.sentence || timer.duration || timer.timer_class;
     const pct  = isRinging ? 100 : this._getProgress(id) * 100;
 
-    const actions = isRinging
-      ? this._config.snooze_options.map(m =>
+    let actions;
+    if (timer.timer_class === 'local') {
+      if (timer.status === 'active') {
+        actions = `<button class="btn btn-snooze" data-action="local-pause" data-id="${id}" title="Pause"><ha-icon icon="mdi:pause"></ha-icon></button>` +
+                  `<button class="btn btn-cancel" data-action="local-cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+      } else if (timer.status === 'paused') {
+        actions = `<button class="btn btn-set-timer" data-action="local-resume" data-id="${id}" title="Resume"><ha-icon icon="mdi:play"></ha-icon></button>` +
+                  `<button class="btn btn-cancel" data-action="local-cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+      } else {
+        actions = `<button class="btn btn-set-timer" data-action="local-restart" data-id="${id}">Restart</button>` +
+                  `<button class="btn btn-dismiss" data-action="local-cancel" data-id="${id}">Dismiss</button>`;
+      }
+    } else if (isRinging) {
+      actions = this._config.snooze_options.map(m =>
           `<button class="btn btn-snooze" data-action="snooze" data-id="${id}" data-minutes="${m}">+${m}m</button>`
-        ).join('') +
-        `<button class="btn btn-dismiss" data-action="dismiss" data-id="${id}">Stop</button>`
-      : `<button class="btn btn-cancel" data-action="cancel" data-id="${id}" title="Cancel">
-           <ha-icon icon="mdi:close"></ha-icon>
-         </button>`;
+        ).join('') + `<button class="btn btn-dismiss" data-action="dismiss" data-id="${id}">Stop</button>`;
+    } else {
+      actions = `<button class="btn btn-cancel" data-action="cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+    }
 
     return `
       <div class="timer-row${isRinging ? ' ringing' : ''}">
@@ -586,14 +733,25 @@ class ViewAssistTimersCard extends HTMLElement {
     const { _HS_C: C, _HS_ARC: ARC } = ViewAssistTimersCard;
     const arcLen = (isRinging ? 1 : this._getProgress(id)) * ARC;
 
-    const actions = isRinging
-      ? this._config.snooze_options.map(m =>
+    let actions;
+    if (timer.timer_class === 'local') {
+      if (timer.status === 'active') {
+        actions = `<button class="btn btn-snooze btn-sm" data-action="local-pause" data-id="${id}" title="Pause"><ha-icon icon="mdi:pause"></ha-icon></button>` +
+                  `<button class="btn btn-cancel btn-sm" data-action="local-cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+      } else if (timer.status === 'paused') {
+        actions = `<button class="btn btn-set-timer btn-sm" data-action="local-resume" data-id="${id}" title="Resume"><ha-icon icon="mdi:play"></ha-icon></button>` +
+                  `<button class="btn btn-cancel btn-sm" data-action="local-cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+      } else {
+        actions = `<button class="btn btn-set-timer btn-sm" data-action="local-restart" data-id="${id}">Restart</button>` +
+                  `<button class="btn btn-dismiss btn-sm" data-action="local-cancel" data-id="${id}">Dismiss</button>`;
+      }
+    } else if (isRinging) {
+      actions = this._config.snooze_options.map(m =>
           `<button class="btn btn-snooze btn-sm" data-action="snooze" data-id="${id}" data-minutes="${m}">+${m}m</button>`
-        ).join('') +
-        `<button class="btn btn-dismiss btn-sm" data-action="dismiss" data-id="${id}">Stop</button>`
-      : `<button class="btn btn-cancel btn-sm" data-action="cancel" data-id="${id}" title="Cancel">
-           <ha-icon icon="mdi:close"></ha-icon>
-         </button>`;
+        ).join('') + `<button class="btn btn-dismiss btn-sm" data-action="dismiss" data-id="${id}">Stop</button>`;
+    } else {
+      actions = `<button class="btn btn-cancel btn-sm" data-action="cancel" data-id="${id}" title="Cancel"><ha-icon icon="mdi:close"></ha-icon></button>`;
+    }
 
     return `
       <div class="tile${isRinging ? ' ringing' : ''}">
@@ -678,18 +836,20 @@ class ViewAssistTimersCard extends HTMLElement {
     }
     const META_COLOR = { timer: '#039be5', alarm: '#e53935', reminder: '#fb8c00' };
     const rows = ringingTimers.map(t => {
-      const name  = t.name || t.extra_info?.sentence || t.duration || t.timer_class;
-      const color = META_COLOR[t.timer_class] || '#e53935';
-      const tid    = this._id(t);
-      const snooze = this._config.snooze_options.map(m =>
-        `<button class="vatc-btn vatc-btn-snooze" data-action="snooze" data-id="${tid}" data-minutes="${m}">Snooze ${m}m</button>`
-      ).join('');
+      const name    = t.name || t.extra_info?.sentence || t.duration || t.timer_class;
+      const color   = META_COLOR[t.timer_class] || '#e53935';
+      const tid     = this._id(t);
+      const isLocal = t.timer_class === 'local';
+      const actionBtns = isLocal
+        ? `<button class="vatc-btn vatc-btn-snooze" data-action="local-restart" data-id="${tid}">Restart</button>
+           <button class="vatc-btn vatc-btn-stop" data-action="local-cancel" data-id="${tid}">Dismiss</button>`
+        : this._config.snooze_options.map(m =>
+            `<button class="vatc-btn vatc-btn-snooze" data-action="snooze" data-id="${tid}" data-minutes="${m}">Snooze ${m}m</button>`
+          ).join('') +
+          `<button class="vatc-btn vatc-btn-stop" data-action="stop" data-id="${tid}">Stop</button>`;
       return `<div class="vatc-alarm-row">
         <div class="vatc-alarm-name" style="color:${color}">${name}</div>
-        <div class="vatc-alarm-btns">
-          ${snooze}
-          <button class="vatc-btn vatc-btn-stop" data-action="stop" data-id="${tid}">Stop</button>
-        </div>
+        <div class="vatc-alarm-btns">${actionBtns}</div>
       </div>`;
     }).join('');
     this._popupEl.innerHTML = `
@@ -702,8 +862,10 @@ class ViewAssistTimersCard extends HTMLElement {
       btn.addEventListener('click', e => {
         e.stopPropagation();
         const { action, id, minutes } = e.currentTarget.dataset;
-        if (action === 'snooze') this._snoozeTimer(id, parseInt(minutes));
-        else if (action === 'stop') this._cancelTimer(id);
+        if      (action === 'snooze')        this._snoozeTimer(id, parseInt(minutes));
+        else if (action === 'stop')          this._cancelTimer(id);
+        else if (action === 'local-restart') this._restartLocalTimer(id);
+        else if (action === 'local-cancel')  this._cancelLocalTimer(id);
       });
     });
   }
@@ -823,6 +985,7 @@ class ViewAssistTimersCard extends HTMLElement {
 
       /* Show/hide duration row vs time picker based on selected type */
       .add-panel[data-type="timer"]    .add-time-wrap { display: none; }
+      .add-panel[data-type="local"]    .add-time-wrap { display: none; }
       .add-panel[data-type="alarm"]    .add-dur-wrap  { display: none; }
       .add-panel[data-type="reminder"] .add-dur-wrap  { display: none; }
 
@@ -925,8 +1088,10 @@ class ViewAssistTimersCard extends HTMLElement {
         color: var(--secondary-text-color); padding: 5px 7px;
       }
       .btn-cancel ha-icon { --mdc-icon-size: 17px; }
-      .btn-dismiss { background: #e53935; color: #fff; }
-      .btn-snooze  { background: #fb8c00; color: #fff; }
+      .btn-dismiss   { background: #e53935; color: #fff; }
+      .btn-snooze    { background: #fb8c00; color: #fff; }
+      .btn-set-timer { background: #26a69a; color: #fff; }
+      .btn-snooze ha-icon, .btn-cancel ha-icon, .btn-set-timer ha-icon { --mdc-icon-size: 17px; }
 
       /* ── State messages ─────────────────────────────────────────────────── */
       .state-msg {
