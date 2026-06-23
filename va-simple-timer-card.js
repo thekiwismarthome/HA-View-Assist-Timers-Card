@@ -1,0 +1,5705 @@
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const t$1=globalThis,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$5=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$5.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$5.set(s,t));}return t}toString(){return this.cssText}};const r$2=t=>new n$3("string"==typeof t?t:t+"",void 0,s$2),i$4=(t,...e)=>{const o=1===t.length?t[0]:e.reduce((e,s,o)=>e+(t=>{if(true===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1],t[0]);return new n$3(o,t,s$2)},S$1=(s,o)=>{if(e$2)s.adoptedStyleSheets=o.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const e of o){const o=document.createElement("style"),n=t$1.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$2(e)})(t):t;
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const{is:i$3,defineProperty:e$1,getOwnPropertyDescriptor:h$1,getOwnPropertyNames:r$1,getOwnPropertySymbols:o$4,getPrototypeOf:n$2}=Object,a$2=globalThis,c$1=a$2.trustedTypes,l$2=c$1?c$1.emptyScript:"",p$1=a$2.reactiveElementPolyfillSupport,d$1=(t,s)=>t,u$2={toAttribute(t,s){switch(s){case Boolean:t=t?l$2:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$1=(t,s)=>!i$3(t,s),b$1={attribute:true,type:String,converter:u$2,reflect:false,useDefault:false,hasChanged:f$1};Symbol.metadata??=Symbol("metadata"),a$2.litPropertyMetadata??=new WeakMap;let y$1 = class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b$1){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$1(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h$1(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b$1}static _$Ei(){if(this.hasOwnProperty(d$1("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d$1("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d$1("properties"))){const t=this.properties,s=[...r$1(t),...o$4(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach(t=>t.hostConnected?.());}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.());}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u$2).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u$2;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i,e=false,h){if(void 0!==t){const r=this.constructor;if(false===e&&(h=this[t]),i??=r.getPropertyOptions(t),!((i.hasChanged??f$1)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(r._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM();}updated(t){}firstUpdated(t){}};y$1.elementStyles=[],y$1.shadowRootOptions={mode:"open"},y$1[d$1("elementProperties")]=new Map,y$1[d$1("finalized")]=new Map,p$1?.({ReactiveElement:y$1}),(a$2.reactiveElementVersions??=[]).push("2.1.2");
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const t=globalThis,i$2=t=>t,s$1=t.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,h="$lit$",o$3=`lit$${Math.random().toFixed(9).slice(2)}$`,n$1="?"+o$3,r=`<${n$1}>`,l$1=document,c=()=>l$1.createComment(""),a$1=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u$1=Array.isArray,d=t=>u$1(t)||"function"==typeof t?.[Symbol.iterator],f="[ \t\n\f\r]",v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,_=/-->/g,m=/>/g,p=RegExp(`>|${f}(?:([^\\s"'>=/]+)(${f}*=${f}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),g=/'/g,$=/"/g,y=/^(?:script|style|textarea|title)$/i,x=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),b=x(1),E=Symbol.for("lit-noChange"),A=Symbol.for("lit-nothing"),C=new WeakMap,P=l$1.createTreeWalker(l$1,129);function V(t,i){if(!u$1(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==e?e.createHTML(i):i}const N=(t,i)=>{const s=t.length-1,e=[];let n,l=2===i?"<svg>":3===i?"<math>":"",c=v;for(let i=0;i<s;i++){const s=t[i];let a,u,d=-1,f=0;for(;f<s.length&&(c.lastIndex=f,u=c.exec(s),null!==u);)f=c.lastIndex,c===v?"!--"===u[1]?c=_:void 0!==u[1]?c=m:void 0!==u[2]?(y.test(u[2])&&(n=RegExp("</"+u[2],"g")),c=p):void 0!==u[3]&&(c=p):c===p?">"===u[0]?(c=n??v,d=-1):void 0===u[1]?d=-2:(d=c.lastIndex-u[2].length,a=u[1],c=void 0===u[3]?p:'"'===u[3]?$:g):c===$||c===g?c=p:c===_||c===m?c=v:(c=p,n=void 0);const x=c===p&&t[i+1].startsWith("/>")?" ":"";l+=c===v?s+r:d>=0?(e.push(a),s.slice(0,d)+h+s.slice(d)+o$3+x):s+o$3+(-2===d?i:x);}return [V(t,l+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),e]};class S{constructor({strings:t,_$litType$:i},e){let r;this.parts=[];let l=0,a=0;const u=t.length-1,d=this.parts,[f,v]=N(t,i);if(this.el=S.createElement(f,e),P.currentNode=this.el.content,2===i||3===i){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(r=P.nextNode())&&d.length<u;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(h)){const i=v[a++],s=r.getAttribute(t).split(o$3),e=/([.?@])?(.*)/.exec(i);d.push({type:1,index:l,name:e[2],strings:s,ctor:"."===e[1]?I:"?"===e[1]?L:"@"===e[1]?z:H}),r.removeAttribute(t);}else t.startsWith(o$3)&&(d.push({type:6,index:l}),r.removeAttribute(t));if(y.test(r.tagName)){const t=r.textContent.split(o$3),i=t.length-1;if(i>0){r.textContent=s$1?s$1.emptyScript:"";for(let s=0;s<i;s++)r.append(t[s],c()),P.nextNode(),d.push({type:2,index:++l});r.append(t[i],c());}}}else if(8===r.nodeType)if(r.data===n$1)d.push({type:2,index:l});else {let t=-1;for(;-1!==(t=r.data.indexOf(o$3,t+1));)d.push({type:7,index:l}),t+=o$3.length-1;}l++;}}static createElement(t,i){const s=l$1.createElement("template");return s.innerHTML=t,s}}function M(t,i,s=t,e){if(i===E)return i;let h=void 0!==e?s._$Co?.[e]:s._$Cl;const o=a$1(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(false),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s._$Co??=[])[e]=h:s._$Cl=h),void 0!==h&&(i=M(t,h._$AS(t,i.values),h,e)),i}class R{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??l$1).importNode(i,true);P.currentNode=e;let h=P.nextNode(),o=0,n=0,r=s[0];for(;void 0!==r;){if(o===r.index){let i;2===r.type?i=new k(h,h.nextSibling,this,t):1===r.type?i=new r.ctor(h,r.name,r.strings,this,t):6===r.type&&(i=new Z(h,this,t)),this._$AV.push(i),r=s[++n];}o!==r?.index&&(h=P.nextNode(),o++);}return P.currentNode=l$1,e}p(t){let i=0;for(const s of this._$AV) void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class k{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,i,s,e){this.type=2,this._$AH=A,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cv=e?.isConnected??true;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=M(this,t,i),a$1(t)?t===A||null==t||""===t?(this._$AH!==A&&this._$AR(),this._$AH=A):t!==this._$AH&&t!==E&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):d(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==A&&a$1(this._$AH)?this._$AA.nextSibling.data=t:this.T(l$1.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=S.createElement(V(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new R(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=C.get(t.strings);return void 0===i&&C.set(t.strings,i=new S(t)),i}k(t){u$1(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new k(this.O(c()),this.O(c()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,s){for(this._$AP?.(false,true,s);t!==this._$AB;){const s=i$2(t).nextSibling;i$2(t).remove(),t=s;}}setConnected(t){ void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t));}}class H{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=A,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=A;}_$AI(t,i=this,s,e){const h=this.strings;let o=false;if(void 0===h)t=M(this,t,i,0),o=!a$1(t)||t!==this._$AH&&t!==E,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=M(this,e[s+n],i,n),r===E&&(r=this._$AH[n]),o||=!a$1(r)||r!==this._$AH[n],r===A?t=A:t!==A&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===A?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class I extends H{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===A?void 0:t;}}class L extends H{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==A);}}class z extends H{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=M(this,t,i,0)??A)===E)return;const s=this._$AH,e=t===A&&s!==A||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==A&&(s===A||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class Z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){M(this,t);}}const B=t.litHtmlPolyfillSupport;B?.(S,k),(t.litHtmlVersions??=[]).push("3.3.2");const D=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new k(i.insertBefore(c(),t),t,void 0,s??{});}return h._$AI(t),h};
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const s=globalThis;let i$1 = class i extends y$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const r=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=D(r,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(true);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(false);}render(){return E}};i$1._$litElement$=true,i$1["finalized"]=true,s.litElementHydrateSupport?.({LitElement:i$1});const o$2=s.litElementPolyfillSupport;o$2?.({LitElement:i$1});(s.litElementVersions??=[]).push("4.2.2");
+
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const a=Symbol.for(""),o$1=t=>{if(t?.r===a)return t?._$litStatic$},i=(t,...r)=>({_$litStatic$:r.reduce((r,e,a)=>r+(t=>{if(void 0!==t._$litStatic$)return t._$litStatic$;throw Error(`Value passed to 'literal' function must be a 'literal' result: ${t}. Use 'unsafeStatic' to pass non-literal values, but\n            take care to ensure page security.`)})(e)+t[a+1],t[0]),r:a}),l=new Map,n=t=>(r,...e)=>{const a=e.length;let s,i;const n=[],u=[];let c,$=0,f=false;for(;$<a;){for(c=r[$];$<a&&void 0!==(i=e[$],s=o$1(i));)c+=s+r[++$],f=true;$!==a&&u.push(i),n.push(c),$++;}if($===a&&n.push(r[a]),f){const t=n.join("$$lit$$");void 0===(r=l.get(t))&&(n.raw=n,l.set(t,r=n)),e=u;}return t(r,...e)},u=n(b);
+
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const o=o=>o??A;
+
+/*
+ * Simple Timer Card
+ *
+ * A versatile and highly customizable timer card for Home Assistant Lovelace, offering multiple display styles and support for various timer sources.
+ *
+ * Author: eyalgal
+ * License: MIT
+ * Version: 2.2.4
+ * For more information, visit: https://github.com/eyalgal/simple-timer-card
+ */
+
+
+const cardVersion="2.7.0";
+
+const DAY_IN_MS = 86400000;
+const YEAR_IN_MS = 365 * DAY_IN_MS;
+const HOUR_IN_SECONDS = 3600;
+const MINUTE_IN_SECONDS = 60;
+
+function _cleanUndefined(obj) {
+  if (!obj || typeof obj !== "object") return obj;
+  for (const k of Object.keys(obj)) {
+    if (obj[k] === undefined) delete obj[k];
+  }
+  return obj;
+}
+
+function _remainingMsFromStoredTimer(t, nowTs = Date.now()) {
+  if (!t || typeof t !== "object") return 0;
+  if (t.paused) {
+    const r = Number(t.remaining_ms);
+    return Number.isFinite(r) ? Math.max(0, r) : 0;
+  }
+  const endTs = Number(t.end_ts);
+  return Number.isFinite(endTs) ? Math.max(0, endTs - nowTs) : 0;
+}
+
+function _pauseUpdatesFromTimer(timer, nowTs = Date.now()) {
+  // Compute remaining live from end_ts at the click moment. The cached
+  // timer.remaining value is up to 250 ms stale (tick interval), which can
+  // freeze the paused display one whole second higher than what the active
+  // tick would have shown next.
+  const remainingMs = _remainingMsFromStoredTimer(timer, nowTs);
+  return { paused: true, remaining_ms: remainingMs, end_ts: null, state: "paused" };
+}
+
+function _resumeUpdatesFromTimer(timer, nowTs = Date.now()) {
+  const remaining = Number(timer?.remaining);
+  const remainingMs = Number.isFinite(remaining) ? Math.max(0, remaining) : _remainingMsFromStoredTimer(timer, nowTs);
+  const durationMs = Number(timer?.duration_ms ?? timer?.duration ?? 0);
+  const elapsed = durationMs > 0 ? Math.max(0, durationMs - remainingMs) : 0;
+  const startTs = nowTs - elapsed;
+  const endTs = nowTs + remainingMs;
+  return { paused: false, start_ts: startTs, end_ts: endTs, remaining_ms: undefined, state: "active" };
+}
+
+const DAY_IN_SECONDS = 86400;
+
+const TRANSLATIONS = {
+  en: {
+    no_timers: "No Timers",
+    timer_name_optional: "Timer Name (Optional)",
+    click_to_start: "Click to start",
+    no_active_timers: "No Active Timers",
+    active_timers: "Active Timers",
+    add: "Add",
+    custom: "Custom",
+    cancel: "Cancel",
+    save: "Save",
+    start: "Start",
+    snooze: "Snooze",
+    dismiss: "Dismiss",
+    ready: "Ready",
+    paused: "Paused",
+    times_up: "Time's up!",
+    timer: "Timer",
+    hour_ago: "{n} hour ago",
+    hours_ago: "{n} hours ago",
+    minute_ago: "{n} minute ago",
+    minutes_ago: "{n} minutes ago",
+    second_ago: "{n} second ago",
+    seconds_ago: "{n} seconds ago",
+    h: "h", m: "m", s: "s", d: "d",
+    w_short: "w", mo_short: "mo", y_short: "y",
+    day: "day", days: "days", week: "week", weeks: "weeks",
+    month: "month", months: "months", year: "year", years: "years",
+    hour: "hour", hours: "hours", minute: "minute", minutes: "minutes",
+    second: "second", seconds: "seconds",
+  },
+  de: {
+    no_timers: "Keine Timer",
+    timer_name_optional: "Timer-Name (optional)",
+    click_to_start: "Zum Starten klicken",
+    no_active_timers: "Keine aktiven Timer",
+    active_timers: "Aktive Timer",
+    add: "Hinzufügen",
+    custom: "Benutzerdefiniert",
+    cancel: "Abbrechen",
+    save: "Speichern",
+    start: "Starten",
+    snooze: "Schlummern",
+    dismiss: "Verwerfen",
+    ready: "Bereit",
+    paused: "Pausiert",
+    times_up: "Zeit abgelaufen!",
+    timer: "Timer",
+    hour_ago: "vor {n} Stunde",
+    hours_ago: "vor {n} Stunden",
+    minute_ago: "vor {n} Minute",
+    minutes_ago: "vor {n} Minuten",
+    second_ago: "vor {n} Sekunde",
+    seconds_ago: "vor {n} Sekunden",
+    h: "h", m: "m", s: "s", d: "T",
+    w_short: "W", mo_short: "Mo", y_short: "J",
+    day: "Tag", days: "Tage", week: "Woche", weeks: "Wochen",
+    month: "Monat", months: "Monate", year: "Jahr", years: "Jahre",
+    hour: "Stunde", hours: "Stunden", minute: "Minute", minutes: "Minuten",
+    second: "Sekunde", seconds: "Sekunden",
+  },
+  es: {
+    no_timers: "Sin Temporizadores",
+    timer_name_optional: "Nombre del temporizador (opcional)",
+    click_to_start: "Clic para iniciar",
+    no_active_timers: "Sin Temporizadores Activos",
+    active_timers: "Temporizadores Activos",
+    add: "Añadir",
+    custom: "Personalizado",
+    cancel: "Cancelar",
+    save: "Guardar",
+    start: "Iniciar",
+    snooze: "Posponer",
+    dismiss: "Descartar",
+    ready: "Listo",
+    paused: "Pausado",
+    times_up: "¡Se acabó el tiempo!",
+    timer: "Temporizador",
+    hour_ago: "hace {n} hora",
+    hours_ago: "hace {n} horas",
+    minute_ago: "hace {n} minuto",
+    minutes_ago: "hace {n} minutos",
+    second_ago: "hace {n} segundo",
+    seconds_ago: "hace {n} segundos",
+    h: "h", m: "m", s: "s", d: "d",
+    w_short: "sem", mo_short: "mes", y_short: "a",
+    day: "día", days: "días", week: "semana", weeks: "semanas",
+    month: "mes", months: "meses", year: "año", years: "años",
+    hour: "hora", hours: "horas", minute: "minuto", minutes: "minutos",
+    second: "segundo", seconds: "segundos",
+  },
+  da: {
+    no_timers: "Ingen timere",
+    timer_name_optional: "Timernavn (valgfrit)",
+    click_to_start: "Tryk for at starte",
+    no_active_timers: "Ingen aktive timere",
+    active_timers: "Aktive Timere",
+    add: "Tilføj",
+    custom: "Tilpasset",
+    cancel: "Annuller",
+    save: "Gem",
+    start: "Start",
+    snooze: "Snooze",
+    dismiss: "Afvis",
+    ready: "Klar",
+    paused: "På pause",
+    times_up: "Tid udløbet!",
+    timer: "Timer",
+    hour_ago: "for {n} time siden",
+    hours_ago: "for {n} timer siden",
+    minute_ago: "for {n} minut siden",
+    minutes_ago: "for {n} minutter siden",
+    second_ago: "for {n} sekund siden",
+    seconds_ago: "for {n} sekunder siden",
+    h: "t", m: "m", s: "s", d: "d",
+    w_short: "u", mo_short: "må", y_short: "å",
+    day: "dag", days: "dage", week: "uge", weeks: "uger",
+    month: "måned", months: "måneder", year: "år", years: "år",
+    hour: "time", hours: "timer", minute: "minut", minutes: "minutter",
+    second: "sekund", seconds: "sekunder",
+  },
+  it: {
+    no_timers: "Nessun timer",
+    timer_name_optional: "Nome timer (facoltativo)",
+    click_to_start: "Clicca per avviare",
+    no_active_timers: "Nessun timer attivo",
+    active_timers: "Timer attivi",
+    add: "Aggiungi",
+    custom: "Personalizzato",
+    cancel: "Annulla",
+    save: "Salva",
+    start: "Avvia",
+    snooze: "Rimanda",
+    dismiss: "Ignora",
+    ready: "Pronto",
+    paused: "In pausa",
+    times_up: "Tempo finito!",
+    timer: "Timer",
+    hour_ago: "{n} ora fa",
+    hours_ago: "{n} ore fa",
+    minute_ago: "{n} minuto fa",
+    minutes_ago: "{n} minuti fa",
+    second_ago: "{n} secondo fa",
+    seconds_ago: "{n} secondi fa",
+    h: "h", m: "m", s: "s", d: "g",
+    w_short: "set", mo_short: "me", y_short: "a",
+    day: "giorno", days: "giorni", week: "settimana", weeks: "settimane",
+    month: "mese", months: "mesi", year: "anno", years: "anni",
+    hour: "ora", hours: "ore", minute: "minuto", minutes: "minuti",
+    second: "secondo", seconds: "secondi",
+  },
+  fr: {
+    no_timers: "Aucun minuteur",
+    timer_name_optional: "Nom du minuteur (facultatif)",
+    click_to_start: "Cliquez pour démarrer",
+    no_active_timers: "Aucun minuteur actif",
+    active_timers: "Minuteurs actifs",
+    add: "Ajouter",
+    custom: "Personnalisé",
+    cancel: "Annuler",
+    save: "Sauvegarder",
+    start: "Démarrer",
+    snooze: "Répéter",
+    dismiss: "Rejeter",
+    ready: "Prêt",
+    paused: "En pause",
+    times_up: "Le temps est écoulé !",
+    timer: "Minuteur",
+    hour_ago: "il y a {n} heure",
+    hours_ago: "il y a {n} heures",
+    minute_ago: "il y a {n} minute",
+    minutes_ago: "il y a {n} minutes",
+    second_ago: "il y a {n} seconde",
+    seconds_ago: "il y a {n} secondes",
+    h: "h", m: "m", s: "s", d: "j",
+    w_short: "sem", mo_short: "mo", y_short: "a",
+    day: "jour", days: "jours", week: "semaine", weeks: "semaines",
+    month: "mois", months: "mois", year: "année", years: "années",
+    hour: "heure", hours: "heures", minute: "minute", minutes: "minutes",
+    second: "seconde", seconds: "secondes",
+  },
+  he: {
+    no_timers: "אין טיימרים",
+    timer_name_optional: "שם הטיימר (אופציונלי)",
+    click_to_start: "לחץ להתחלה",
+    no_active_timers: "אין טיימרים פעילים",
+    active_timers: "טיימרים פעילים",
+    add: "הוסף",
+    custom: "מותאם אישית",
+    cancel: "ביטול",
+    save: "שמור",
+    start: "התחל",
+    snooze: "נודניק",
+    dismiss: "סגור",
+    ready: "מוכן",
+    paused: "מושהה",
+    times_up: "הזמן נגמר!",
+    timer: "טיימר",
+    hour_ago: "לפני {n} שעה",
+    hours_ago: "לפני {n} שעות",
+    minute_ago: "לפני {n} דקה",
+    minutes_ago: "לפני {n} דקות",
+    second_ago: "לפני {n} שנייה",
+    seconds_ago: "לפני {n} שניות",
+    h: "ש'", m: "ד'", s: "שנ'", d: "י'",
+    w_short: "שב'", mo_short: "חו'", y_short: "שנה",
+    day: "יום", days: "ימים", week: "שבוע", weeks: "שבועות",
+    month: "חודש", months: "חודשים", year: "שנה", years: "שנים",
+    hour: "שעה", hours: "שעות", minute: "דקה", minutes: "דקות",
+    second: "שנייה", seconds: "שניות",
+  },
+  pl: {
+    no_timers: "Brak minutników",
+    timer_name_optional: "Nazwa minutnika (opcjonalnie)",
+    click_to_start: "Kliknij, aby uruchomić",
+    no_active_timers: "Brak aktywnych minutników",
+    active_timers: "Aktywne minutniki",
+    add: "Dodaj",
+    custom: "Niestandardowy",
+    cancel: "Anuluj",
+    save: "Zapisz",
+    start: "Uruchom",
+    snooze: "Drzemka",
+    dismiss: "Odrzuć",
+    ready: "Gotowy",
+    paused: "Wstrzymany",
+    times_up: "Czas minął!",
+    timer: "Minutnik",
+    hour_ago: "{n} godzinę temu",
+    hours_ago: "{n} godzin temu",
+    minute_ago: "{n} minutę temu",
+    minutes_ago: "{n} minut temu",
+    second_ago: "{n} sekundę temu",
+    seconds_ago: "{n} sekund temu",
+    h: "h", m: "m", s: "s", d: "d",
+    w_short: "tyg", mo_short: "mies", y_short: "r",
+    day: "dzień", days: "dni", week: "tydzień", weeks: "tygodni",
+    month: "miesiąc", months: "miesięcy", year: "rok", years: "lat",
+    hour: "godzina", hours: "godzin", minute: "minuta", minutes: "minut",
+    second: "sekunda", seconds: "sekund",
+  },
+  nl: {
+    no_timers: "Geen timers",
+    timer_name_optional: "Timer naam (optioneel)",
+    click_to_start: "Klik om te starten",
+    no_active_timers: "Geen actieve timers",
+    active_timers: "Actieve timers",
+    add: "Toevoegen",
+    custom: "Aangepast",
+    cancel: "Annuleren",
+    save: "Opslaan",
+    start: "Starten",
+    snooze: "Snoozen",
+    dismiss: "Sluiten",
+    ready: "Klaar",
+    paused: "Gepauzeerd",
+    times_up: "Tijd is om!",
+    timer: "Timer",
+    hour_ago: "{n} uur geleden",
+    hours_ago: "{n} uur geleden",
+    minute_ago: "{n} minuut geleden",
+    minutes_ago: "{n} minuten geleden",
+    second_ago: "{n} seconde geleden",
+    seconds_ago: "{n} seconden geleden",
+    h: "u", m: "m", s: "s", d: "d",
+    w_short: "w", mo_short: "mnd", y_short: "j",
+    day: "dag", days: "dagen", week: "week", weeks: "weken",
+    month: "maand", months: "maanden", year: "jaar", years: "jaren",
+    hour: "uur", hours: "uren", minute: "minuut", minutes: "minuten",
+    second: "seconde", seconds: "seconden",
+  }
+};
+
+console.info(
+  `%c VA-SIMPLE-TIMER-CARD %c v${cardVersion} `,
+  "color: white; background: #4285f4; font-weight: 700;",
+  "color: #4285f4; background: white; font-weight: 700;"
+);
+
+class VASimpleTimerCard extends i$1 {
+  static get properties() {
+    return {
+      hass: {},
+      _config: {},
+      _timers: { state: true },
+      _ui: { state: true },
+      _customSecs: { state: true },
+      _activeSecs: { state: true },
+      _editingTimerId: { state: true },
+      _editDuration: { state: true },
+      _vaTimers: { state: true },
+    };
+  }
+
+  static getStubConfig() {
+    return { type: "custom:va-simple-timer-card" };
+  }
+
+  _sanitizeText(text) {
+    if (!text || typeof text !== "string") return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.textContent;
+  }
+
+  _localize(key) {
+    const raw = this._config?.language || this.hass?.language || "en";
+    const lang = String(raw).toLowerCase().split(/[-_]/)[0];
+    return TRANSLATIONS[lang]?.[key] || TRANSLATIONS["en"][key] || key;
+  }
+
+  _isRTL() {
+    const raw = this._config?.language || this.hass?.language || "en";
+    const lang = String(raw).toLowerCase().split(/[-_]/)[0];
+    return lang === "he" || lang === "ar" || lang === "fa" || lang === "ur";
+  }
+
+  _validateAudioUrl(url) {
+    if (!url || typeof url !== "string") return false;
+    try {
+      const parsed = new URL(url, window.location.origin);
+      return ["https:", "http:", "file:"].includes(parsed.protocol) || url.startsWith("/local/") || url.startsWith("/hacsfiles/");
+    } catch {
+      return false;
+    }
+  }
+
+  _validateStoredTimerData(data) {
+    if (!data || typeof data !== "object") return false;
+    if (!Array.isArray(data.timers)) return false;
+    for (const timer of data.timers) {
+      if (!timer || typeof timer !== "object") return false;
+      if (!timer.id || typeof timer.id !== "string") return false;
+      if (timer.label != null && typeof timer.label !== "string") return false;
+      if (timer.duration != null && typeof timer.duration !== "number") return false;
+
+      if (timer.start_ts != null && typeof timer.start_ts !== "number") return false;
+      if (timer.end_ts != null && typeof timer.end_ts !== "number") return false;
+      if (timer.remaining_ms != null && typeof timer.remaining_ms !== "number") return false;
+      if (timer.start != null && typeof timer.start !== "number" && typeof timer.start !== "string") return false;
+      if (timer.end != null && typeof timer.end !== "number") return false;
+    }
+    return true;
+  }
+
+  _validateTimerInput(duration, label) {
+    const MAX_DURATION_MS = 24 * 60 * 60 * 1000 * 365;
+    const MAX_LABEL_LENGTH = 100;
+    if (duration && (typeof duration !== "number" || duration <= 0 || duration > MAX_DURATION_MS)) return { valid: false, error: "Invalid duration" };
+    if (label && (typeof label !== "string" || label.length > MAX_LABEL_LENGTH)) return { valid: false, error: "Invalid label" };
+    return { valid: true };
+  }
+
+  constructor() {
+    super();
+    this._timers = [];
+    this._timerInterval = null;
+    this._dismissed = new Set();
+    this._ringingTimers = new Set();
+    this._activeAudioInstances = new Map();
+    this._lastActionTime = new Map();
+    this._expirationTimes = new Map();
+    this._lastCleanupTime = 0;
+    this._mqttShadow = null;
+    this._ui = {
+      noTimerHorizontalOpen: false,
+      noTimerVerticalOpen: false,
+      activeFillOpen: false,
+      activeBarOpen: false,
+    };
+    this._customSecs = { horizontal: 15 * 60, vertical: 15 * 60 };
+    this._activeSecs = { fill: 10 * 60, bar: 10 * 60 };
+    this._showingCustomName = {};
+    this._lastSelectedName = {};
+    this._storageNamespace = "default";
+    this._cardInstanceKey = Math.random().toString(36).slice(2, 10);
+    this._editingTimerId = null;
+    this._editDuration = { h: 0, m: 0, s: 0 };
+    this._audioUnlocked = false;
+    this._unlockAudioHandler = this._unlockAudio.bind(this);
+    this._vaTimers = [];
+    this._vaRawTimers = [];
+    this._vaFetchInterval = null;
+    this._vaFinishTimes = {};
+    this._vaTotalSeconds = {};
+  }
+
+  _isActionThrottled(actionType, timerId = "global", throttleMs = 1000) {
+    const key = `${actionType}-${timerId}`;
+    const now = Date.now();
+    const lastTime = this._lastActionTime.get(key) || 0;
+    if (now - lastTime < throttleMs) return true;
+    this._lastActionTime.set(key, now);
+    return false;
+  }
+  _normalizeStringList(value, fallback = []) {
+    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
+    return fallback;
+  }
+
+  _normalizeNumberList(value, fallback = []) {
+    if (Array.isArray(value)) {
+      return value.map(v => (typeof v === "number" ? v : parseFloat(String(v).trim()))).filter(v => Number.isFinite(v));
+    }
+    if (typeof value === "string") {
+      return value.split(",").map(v => parseFloat(v.trim())).filter(v => Number.isFinite(v));
+    }
+    if (typeof value === "number" && Number.isFinite(value)) return [value];
+    return fallback;
+  }
+
+  _normalizePresetList(value) {
+    const raw = Array.isArray(value) ? value : (typeof value === "string" ? value.split(",") : (typeof value === "number" ? [value] : []));
+    const out = [];
+    for (const item of raw) {
+      if (item === null || item === undefined) continue;
+      if (typeof item === "number" && Number.isFinite(item)) { out.push(item); continue; }
+      const s = String(item).trim();
+      if (!s) continue;
+      const n = Number(s);
+      if (Number.isFinite(n) && /^-?\d+(?:\.\d+)?$/.test(s)) out.push(n);
+      else out.push(s);
+    }
+    return out;
+  }
+
+  _normalizeConfigTypes(cfg) {
+    const c = { ...(cfg || {}) };
+
+    if (typeof c.entities === "string") c.entities = [c.entities];
+    if (!Array.isArray(c.entities)) c.entities = [];
+
+    c.timer_name_presets = this._normalizeStringList(c.timer_name_presets, Array.isArray(c.timer_name_presets) ? c.timer_name_presets : []);
+    c.timer_presets = this._normalizePresetList(c.timer_presets);
+    c.minute_buttons = this._normalizePresetList(c.minute_buttons);
+    c.time_format_units = this._normalizeStringList(c.time_format_units, Array.isArray(c.time_format_units) ? c.time_format_units : []);
+    if (!Array.isArray(c.pinned_timers)) c.pinned_timers = [];
+	delete c.alexa_audio_enabled;
+    delete c.alexa_audio_file_url;
+    delete c.alexa_audio_repeat_count;
+    delete c.alexa_audio_play_until_dismissed;
+	return c;
+  }
+
+  setConfig(config) {
+    config = this._normalizeConfigTypes(config);
+    const compat = (config.compatibility_mode || config.compat_mode || "2.1.1");
+    config.compatibility_mode = compat;
+    const requestedStorage = (config.storage || "").toLowerCase();
+    const legacyMqttSensorEntity =
+      typeof config.default_timer_entity === "string" &&
+      config.default_timer_entity.startsWith("sensor.");
+    const hasExplicitMqttConfig = !!(
+      config.mqtt &&
+      (config.mqtt.topic || config.mqtt.sensor_entity || config.mqtt.state_topic || config.mqtt.events_topic)
+    );
+    const legacyWantsMqtt =
+      legacyMqttSensorEntity &&
+      !requestedStorage &&
+      !(config.mqtt && config.mqtt.sensor_entity) &&
+      !hasExplicitMqttConfig;
+    const isMqtt = requestedStorage === "mqtt" || hasExplicitMqttConfig || legacyWantsMqtt;
+    const autoStorage =
+      requestedStorage === "local" || requestedStorage === "mqtt"
+        ? requestedStorage
+        : (isMqtt ? "mqtt" : "local");
+    const mqttConfig = {
+      topic: "simple_timer_card/timers",
+      state_topic: "simple_timer_card/timers/state",
+      events_topic: "simple_timer_card/events",
+      sensor_entity: legacyWantsMqtt ? config.default_timer_entity : null,
+      ...config.mqtt,
+    };
+    const layout = (config.layout || "horizontal").toLowerCase() === "vertical" ? "vertical" : "horizontal";
+    const validStyles = ["fill_vertical", "fill_horizontal", "bar_vertical", "bar_horizontal", "circle"];
+    const style = validStyles.includes((config.style || "").toLowerCase()) ? (config.style || "").toLowerCase() : "bar_horizontal";
+    const progressModeOptions = ["drain", "fill", "milestones"];
+    const progressMode = progressModeOptions.includes(config.progress_mode) ? config.progress_mode : "drain";
+    const firstEntityFromList = Array.isArray(config.entities) && config.entities.length
+      ? (typeof config.entities[0] === "string" ? config.entities[0] : config.entities[0]?.entity)
+      : null;
+    this._storageNamespace =
+      config.storage_namespace ||
+      config.default_timer_entity ||
+      firstEntityFromList ||
+      `instance-${this._cardInstanceKey}`;
+    const defaultUnits = ["days", "hours", "minutes", "seconds"];
+    let timeUnits = defaultUnits;
+    if (Array.isArray(config.time_format_units)) {
+      timeUnits = config.time_format_units.map((u) => String(u).toLowerCase()).filter((u) => ["years","months","weeks","days","hours","minutes","seconds"].includes(u));
+      if (timeUnits.length === 0) timeUnits = defaultUnits;
+    } else if (typeof config.time_format_units === "string") {
+      timeUnits = config.time_format_units.split(",").map((u) => u.trim().toLowerCase()).filter((u) => ["years","months","weeks","days","hours","minutes","seconds"].includes(u));
+      if (timeUnits.length === 0) timeUnits = defaultUnits;
+    }
+    this._config = {
+      layout,
+      style,
+      snooze_duration: 5,
+      timer_presets: [5, 15, 30],
+      timer_name_presets: [],
+      pinned_timers: [],
+      pinned_timers_position: "inline",
+      sort_by: "time_left",
+      sort_order: "asc",
+      show_timer_presets: true,
+      show_active_header: true,
+      minute_buttons: [1, 5, 10],
+      pinned_timers_position: "inline",
+      sort_by: "time_left",
+      sort_order: "asc",
+      default_timer_icon: "mdi:timer-outline",
+      default_timer_color: "var(--primary-color)",
+      default_timer_entity: null,
+      auto_voice_pe: false,
+      expire_action: "keep",
+      expire_keep_for: 120,
+      auto_dismiss_writable: false,
+      audio_enabled: false,
+      audio_file_url: "",
+      audio_repeat_count: 1,
+      audio_play_until_dismissed: false,
+      audio_completion_delay: 4,
+	  expired_subtitle: null,
+      keep_timer_visible_when_idle: false,
+      progress_mode: progressMode,
+      default_new_timer_duration_mins: 15,
+      time_format: "hms",
+      time_format_units: timeUnits,
+      milestone_unit: "auto",
+      milestone_pulse: true,
+      // VA config
+      va_entity_ids: config.va_entity_ids || (config.va_entity_id ? [config.va_entity_id] : []),
+      va_snooze_options: config.va_snooze_options || [5, 10],
+      va_refresh_interval: config.va_refresh_interval || 5,
+      va_create_service: config.va_create_service || 'set_timer',
+      ...config,
+      entities: config.entities || [],
+      storage: autoStorage,
+      layout,
+      style,
+      mqtt: mqttConfig,
+      time_format_units: timeUnits,
+    };
+    const defaultDurationSecs = (parseInt(this._config.default_new_timer_duration_mins, 10) || 15) * 60;
+    this._customSecs = { horizontal: defaultDurationSecs, vertical: defaultDurationSecs };
+    this._activeSecs = { fill: defaultDurationSecs, bar: defaultDurationSecs };
+    if (typeof this._config.timer_name_presets === "string") {
+      this._config.timer_name_presets = this._config.timer_name_presets.split(",").map((name) => name.trim()).filter((name) => name);
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._startTimerUpdates();
+    this.addEventListener("pointerdown", this._unlockAudioHandler, { capture: true, passive: true });
+    this.addEventListener("touchend", this._unlockAudioHandler, { capture: true, passive: true });
+    this.addEventListener("click", this._unlockAudioHandler, { capture: true, passive: true });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._stopTimerUpdates();
+    if (this._vaFetchInterval) { clearInterval(this._vaFetchInterval); this._vaFetchInterval = null; }
+    this.removeEventListener("pointerdown", this._unlockAudioHandler, { capture: true });
+    this.removeEventListener("touchend", this._unlockAudioHandler, { capture: true });
+    this.removeEventListener("click", this._unlockAudioHandler, { capture: true });
+    for (const timerId of this._activeAudioInstances.keys()) this._stopAudioForTimer(timerId);
+    this._activeAudioInstances.clear();
+    this._ringingTimers.clear();
+    this._lastActionTime.clear();
+    this._expirationTimes.clear();
+    this._dismissed.clear();
+  }
+
+  _startTimerUpdates() {
+    this._stopTimerUpdates();
+    this._updateTimers();
+    this._timerInterval = setInterval(() => this._updateTimers(), 250);
+    this._fetchVATimers();
+    const vaMs = (this._config.va_refresh_interval || 5) * 1000;
+    this._vaFetchInterval = setInterval(() => this._fetchVATimers(), vaMs);
+  }
+
+  _stopTimerUpdates() {
+    if (this._timerInterval) {
+      clearInterval(this._timerInterval);
+      this._timerInterval = null;
+    }
+  }
+
+  _getStorageKey() {
+    return `va-simple-timer-card-${this._storageNamespace}`;
+  }
+  async _fetchVATimers() {
+    if (!this.hass) return;
+    const va_entity_ids = this._config?.va_entity_ids || [];
+    try {
+      const wsResult = await this.hass.callWS({
+        type: 'call_service',
+        domain: 'view_assist',
+        service: 'get_timers',
+        service_data: { include_expired: true },
+        return_response: true,
+      });
+      const raw = wsResult?.response?.result ?? wsResult?.response?.timers
+               ?? wsResult?.result ?? wsResult?.timers ?? wsResult ?? [];
+      const arr = Array.isArray(raw) ? raw : [];
+      this._vaRawTimers = arr.filter(t =>
+        va_entity_ids.length === 0 || va_entity_ids.includes(t.entity_id)
+      );
+      const fetchedAt = Date.now();
+      this._vaRawTimers.forEach(t => {
+        const id = 'va-' + (t.id ?? t.timer_id ?? t.uuid ?? t.entity_id ?? Math.random());
+        if (!this._vaFinishTimes[id]) {
+          for (const key of ['finish_time','end_time','expiry_time','expires_at','fire_time']) {
+            const val = t[key];
+            if (val == null) continue;
+            const ts = typeof val === 'number' ? (val > 1e10 ? val : val * 1000) : new Date(val).getTime();
+            if (!isNaN(ts)) { this._vaFinishTimes[id] = ts; break; }
+          }
+          if (!this._vaFinishTimes[id]) {
+            for (const key of ['seconds_remaining','remaining_seconds','remaining','time_remaining']) {
+              if (t[key] != null) { this._vaFinishTimes[id] = fetchedAt + Number(t[key]) * 1000; break; }
+            }
+          }
+        }
+        for (const key of ['duration','total_duration','original_duration']) {
+          const n = Number(t[key]);
+          if (!this._vaTotalSeconds[id] && !isNaN(n) && n > 0) { this._vaTotalSeconds[id] = n; break; }
+        }
+        if (!this._vaTotalSeconds[id]) {
+          for (const key of ['seconds_remaining','remaining_seconds','remaining']) {
+            if (t[key] != null) { this._vaTotalSeconds[id] = Number(t[key]); break; }
+          }
+        }
+      });
+      // Remove stale IDs
+      const currentIds = new Set(this._vaRawTimers.map(t => 'va-' + (t.id ?? t.timer_id ?? t.uuid ?? t.entity_id)));
+      Object.keys(this._vaFinishTimes).forEach(k => { if (!currentIds.has(k)) delete this._vaFinishTimes[k]; });
+      Object.keys(this._vaTotalSeconds).forEach(k => { if (!currentIds.has(k)) delete this._vaTotalSeconds[k]; });
+      this._vaTimers = this._vaRawTimers.map(t => this._mapVATimer(t, fetchedAt));
+    } catch (e) {
+      // View Assist not available; leave _vaTimers unchanged
+    }
+  }
+
+  _mapVATimer(t, fetchedAt = Date.now()) {
+    const rawId = t.id ?? t.timer_id ?? t.uuid ?? t.entity_id ?? String(Math.random());
+    const id = 'va-' + rawId;
+    const cls = t.timer_class || 'timer';
+    const VA_COLOR = { timer: '#039be5', alarm: '#e53935', reminder: '#fb8c00' };
+    const VA_ICON  = { timer: 'mdi:timer-outline', alarm: 'mdi:alarm', reminder: 'mdi:reminder' };
+    const isExpired = String(t.status ?? '').toLowerCase() === 'expired';
+    const ft = this._vaFinishTimes[id];
+    const totalSecs = this._vaTotalSeconds[id] || 0;
+    const remainingMs = isExpired ? 0 : (ft ? Math.max(0, ft - fetchedAt) : 0);
+    const durationMs = totalSecs * 1000;
+    const name = t.name || t.extra_info?.sentence || t.duration || cls;
+    const friendlyDevice = this.hass?.states?.[t.entity_id]?.attributes?.friendly_name || t.entity_id || '';
+    return {
+      id,
+      va_raw_id: String(rawId),
+      label: name,
+      source: 'va',
+      source_entity: t.entity_id || '',
+      va_timer_class: cls,
+      va_device: friendlyDevice,
+      color: VA_COLOR[cls] || '#039be5',
+      icon: VA_ICON[cls] || 'mdi:timer-outline',
+      duration: durationMs,
+      end_ts: ft || null,
+      remaining_ms: remainingMs,
+      remaining: remainingMs,
+      paused: false,
+      idle: false,
+      finished: false,
+      state: isExpired ? 'expired' : 'active',
+      supports: { pause: false, cancel: true, snooze: true, extend: false },
+    };
+  }
+
+
+
+  _getStorageAdapter(storage) {
+    if (storage === "mqtt") {
+      return {
+        load: () => this._loadTimersFromStorage_mqtt(),
+        save: (timers) => this._saveTimersToStorage_mqtt(timers),
+        update: (timerId, updates) => this._updateTimerInStorage_mqtt(timerId, updates),
+        remove: (timerId) => this._removeTimerFromStorage_mqtt(timerId),
+      };
+    }
+    if (storage === "local") {
+      return {
+        load: () => this._loadTimersFromStorage_local(),
+        save: (timers) => this._saveTimersToStorage_local(timers),
+        update: (timerId, updates) => this._updateTimerInStorage_local(timerId, updates),
+        remove: (timerId) => this._removeTimerFromStorage_local(timerId),
+      };
+    }
+    return null;
+  }
+
+
+  _loadTimersFromStorage_local() {
+    try {
+      const stored = localStorage.getItem(this._getStorageKey());
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (this._validateStoredTimerData(parsed)) return parsed.timers;
+        localStorage.removeItem(this._getStorageKey());
+      }
+    } catch (e) {
+      try { localStorage.removeItem(this._getStorageKey()); } catch (_) {}
+    }
+    return [];
+  }
+
+  _saveTimersToStorage_local(timers) {
+    try {
+      const data = { timers: timers || [], version: 2, lastUpdated: Date.now() };
+      localStorage.setItem(this._getStorageKey(), JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  _updateTimerInStorage_local(timerId, updates) {
+    const timers = this._loadTimersFromStorage_local();
+    const index = timers.findIndex((t) => t.id === timerId);
+    if (index !== -1) {
+      timers[index] = _cleanUndefined({ ...timers[index], ...updates });
+      this._saveTimersToStorage_local(timers);
+    }
+  }
+
+  _removeTimerFromStorage_local(timerId) {
+    const timers = this._loadTimersFromStorage_local().filter((t) => t.id !== timerId);
+    this._saveTimersToStorage_local(timers);
+  }
+
+
+  _mqttCacheKey() {
+    const topic = this._config?.mqtt?.topic || "";
+    return topic ? `simple_timer_card_mqtt_${topic}` : "simple_timer_card_mqtt";
+  }
+
+  _readMqttCache() {
+    try {
+      const raw = localStorage.getItem(this._mqttCacheKey());
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && Array.isArray(parsed.timers)) return parsed.timers;
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  _writeMqttCache(timers) {
+    try {
+      localStorage.setItem(this._mqttCacheKey(), JSON.stringify({ timers: Array.isArray(timers) ? timers : [] }));
+    } catch (e) {}
+  }
+
+  _loadTimersFromStorage_mqtt() {
+    try {
+      const cached = this._readMqttCache();
+      const sensor = this._config?.mqtt?.sensor_entity;
+      if (!sensor) return Array.isArray(this._mqttShadow?.timers) ? this._mqttShadow.timers : cached;
+      const entity = this.hass?.states?.[sensor];
+      const timers = entity?.attributes?.timers;
+
+      if (Array.isArray(timers)) {
+        this._writeMqttCache(timers);
+        if (this._mqttShadow?.lastUpdated && entity?.attributes?.lastUpdated && entity.attributes.lastUpdated >= this._mqttShadow.lastUpdated) {
+          this._mqttShadow = null;
+        } else if (this._mqttShadow?.timers) {
+          const hasAllShadow = this._mqttShadow.timers.every((t) => t?.id && timers.some((x) => x?.id === t.id));
+          if (hasAllShadow) this._mqttShadow = null;
+        }
+        return timers;
+      }
+
+      return Array.isArray(this._mqttShadow?.timers) ? this._mqttShadow.timers : cached;
+    } catch (e) {
+      const cached = this._readMqttCache();
+      return Array.isArray(this._mqttShadow?.timers) ? this._mqttShadow.timers : cached;
+    }
+  }
+
+  _saveTimersToStorage_mqtt(timers) {
+    try {
+      const timersArr = Array.isArray(timers) ? timers : [];
+      const lastUpdated = Date.now();
+      this._mqttShadow = { timers: timersArr, lastUpdated };
+      this._writeMqttCache(timersArr);
+
+      const topic = this._config?.mqtt?.topic;
+      if (topic) {
+        const compat = (this._config?.compatibility_mode || "2.1.1");
+        if (compat && compat !== "latest") {
+          const payloadObj = { timers: timersArr, version: 1, lastUpdated };
+          this.hass.callService("mqtt", "publish", {
+            topic,
+            payload: JSON.stringify(payloadObj),
+            retain: true,
+          });
+        } else {
+          this.hass.callService("mqtt", "publish", {
+            topic,
+            payload: JSON.stringify(timersArr),
+            retain: true,
+          });
+        }
+      }
+
+      const stateTopic = this._config?.mqtt?.state_topic;
+      if (stateTopic) {
+        this.hass.callService("mqtt", "publish", {
+          topic: stateTopic,
+          payload: JSON.stringify({ version: (this._config?.compatibility_mode && this._config.compatibility_mode !== "latest") ? 1 : 2, t: lastUpdated }),
+          retain: true,
+        });
+      }
+    } catch (e) {}
+  }
+
+  _updateTimerInStorage_mqtt(timerId, updates) {
+    const timers = this._loadTimersFromStorage_mqtt();
+    const index = timers.findIndex((t) => t.id === timerId);
+    if (index !== -1) {
+      timers[index] = _cleanUndefined({ ...timers[index], ...updates });
+      this._saveTimersToStorage_mqtt(timers);
+    }
+  }
+
+  _removeTimerFromStorage_mqtt(timerId) {
+    const timers = this._loadTimersFromStorage_mqtt().filter((t) => t.id !== timerId);
+    this._saveTimersToStorage_mqtt(timers);
+  }
+
+  _loadTimersFromStorage(sourceHint = null) {
+    const storage = sourceHint || this._config.storage;
+    const adapter = this._getStorageAdapter(storage);
+    const rawTimers = adapter ? adapter.load() : [];
+    if (!Array.isArray(rawTimers)) return [];
+
+    let changed = false;
+    const timers = rawTimers.map((t) => {
+      if (!t || typeof t !== "object") return t;
+      const c = { ...t };
+      const hasOtherAudioFields =
+        c.audio_file_url !== undefined ||
+        c.audio_repeat_count !== undefined ||
+        c.audio_play_until_dismissed !== undefined;
+      if (c.audio_enabled === false && !hasOtherAudioFields) {
+        delete c.audio_enabled;
+        changed = true;
+      }
+      if (typeof c.start_ts !== "number") {
+        if (typeof c.start === "number") {
+          c.start_ts = c.start;
+          changed = true;
+        } else if (typeof c.start === "string") {
+          const parsed = Date.parse(c.start);
+          if (!isNaN(parsed)) {
+            c.start_ts = parsed;
+            changed = true;
+          }
+        }
+      }
+
+      if (c.paused) {
+        if (typeof c.remaining_ms !== "number") {
+          if (typeof c.end === "number") {
+            c.remaining_ms = c.end;
+            changed = true;
+          }
+        }
+        if (c.end_ts != null) {
+          c.end_ts = null;
+          changed = true;
+        }
+      } else {
+        if (typeof c.end_ts !== "number") {
+          if (typeof c.end === "number") {
+            c.end_ts = c.end;
+            changed = true;
+          }
+        }
+        if (c.remaining_ms != null) {
+          delete c.remaining_ms;
+          changed = true;
+        }
+      }
+      if (c.start != null) { delete c.start; changed = true; }
+      if (c.end != null) { delete c.end; changed = true; }
+
+      return c;
+    });
+
+    if (changed) this._saveTimersToStorage(timers, storage);
+    return timers;
+  }
+
+  _saveTimersToStorage(timers, sourceHint = null) {
+    const storage = sourceHint || this._config.storage;
+    if (storage === "mqtt") return this._saveTimersToStorage_mqtt(timers);
+    if (storage === "local") return this._saveTimersToStorage_local(timers);
+  }
+
+  _updateTimerInStorage(timerId, updates, sourceHint = null) {
+    const storage = sourceHint || this._config.storage;
+    if (storage === "mqtt") return this._updateTimerInStorage_mqtt(timerId, updates);
+    if (storage === "local") return this._updateTimerInStorage_local(timerId, updates);
+  }
+
+  _removeTimerFromStorage(timerId, sourceHint = null) {
+    const storage = sourceHint || this._config.storage;
+    if (storage === "mqtt") return this._removeTimerFromStorage_mqtt(timerId);
+    if (storage === "local") return this._removeTimerFromStorage_local(timerId);
+  }
+
+  _addTimerToStorage(timer) {
+    const storage = timer.source || this._config.storage;
+    const timers = this._loadTimersFromStorage(storage);
+    timers.push(timer);
+    this._saveTimersToStorage(timers, storage);
+  }
+
+  _detectMode(entityId, entityState, entityConf) {
+    if (!entityState) return null;
+    if (entityId.startsWith("timer.")) return "timer";
+    if (entityId.startsWith("input_text.") || entityId.startsWith("text.")) return "helper";
+    const attrs = entityState.attributes || {};
+    if (
+      attrs.alarms_brief != null ||
+      attrs.sorted_active != null ||
+      attrs.sorted_paused != null ||
+      attrs.sorted_all != null ||
+      attrs.next_timer != null ||
+      attrs.timers != null ||
+
+      ((entityId.includes("next_timer") || entityId.endsWith("_next_timer")) &&
+        (attrs.total_active != null || attrs.total_all != null || attrs.status != null || attrs.timer != null || attrs.dismissed != null))
+    ) return "alexa";
+    if (attrs.device_class === "timestamp") return "timestamp";
+    const guessAttr = entityConf?.minutes_attr;
+    if (guessAttr && (attrs[guessAttr] ?? null) !== null) return "minutes_attr";
+    if (attrs.start_time) return "timestamp";
+    const stateVal = entityState.state;
+    if (stateVal && stateVal !== "unknown" && stateVal !== "unavailable") {
+      if (isNaN(stateVal) && !isNaN(Date.parse(stateVal))) return "timestamp";
+    }
+    return null;
+  }
+
+  _toMs(v) {
+    if (v == null) return null;
+    if (typeof v === "number") {
+      if (v < 1000) return v * 1000;
+      if (v > 1e12) return Math.max(0, v - Date.now());
+      return v;
+    }
+    if (typeof v === "string") {
+      const n = Number(v);
+      if (!Number.isNaN(n)) return this._toMs(n);
+      const m = /^P(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)$/i.exec(v.trim());
+      if (m) {
+        const h = parseInt(m[1] || "0", 10);
+        const min = parseInt(m[2] || "0", 10);
+        const s = parseInt(m[3] || "0", 10);
+        return ((h * 3600) + (min * 60) + s) * 1000;
+      }
+    }
+    return null;
+  }
+
+  _parseAlexa(entityId, entityState, entityConf) {
+    const attrs = entityState.attributes;
+
+    let active = attrs.sorted_active;
+    let paused = attrs.sorted_paused;
+    let all = attrs.sorted_all;
+
+    if ((active == null && paused == null && all == null) && attrs.timers != null) {
+      all = attrs.timers;
+    }
+    if (active == null && attrs.next_timer != null) {
+      active = [attrs.next_timer];
+    }
+
+    const safeParse = (x) => {
+      if (Array.isArray(x)) return x;
+      if (typeof x === "string") { try { return JSON.parse(x); } catch { return []; } }
+      return Array.isArray(x) ? x : [];
+    };
+
+    active = safeParse(active);
+    paused = safeParse(paused);
+    all = safeParse(all);
+
+    if (active.length === 0 && paused.length === 0 && attrs.alarms_brief) {
+      const brief = attrs.alarms_brief;
+      const briefActive = Array.isArray(brief.active) ? brief.active : [];
+
+      let anchorTime = Date.now();
+      if (attrs.process_timestamp) {
+        anchorTime = new Date(attrs.process_timestamp).getTime();
+      } else if (entityState.last_updated) {
+        anchorTime = new Date(entityState.last_updated).getTime();
+      }
+
+      return briefActive.map(t => {
+        const isPaused = (t.status === "PAUSED");
+        const remaining = t.remainingTime || 0;
+
+        const validAnchor = (attrs.process_timestamp || entityState.last_updated)
+          ? anchorTime
+          : (t.lastUpdatedDate || Date.now());
+
+        const end = isPaused ? remaining : (validAnchor + remaining);
+
+        let totalDuration = t.originalDuration;
+
+        if (!totalDuration) {
+          if (isPaused) {
+             totalDuration = remaining;
+          } else {
+             const startTime = t.lastUpdatedDate || validAnchor;
+             const elapsed = Math.max(0, validAnchor - startTime);
+             totalDuration = elapsed + remaining;
+          }
+        }
+
+        let label;
+        if (t.timerLabel) {
+          label = this._sanitizeText(t.timerLabel);
+        } else {
+          const cleanedFriendlyName = this._cleanFriendlyName(attrs.friendly_name);
+          const baseName = entityConf?.name || cleanedFriendlyName || (isPaused ? "Alexa Timer (Paused)" : "Alexa Timer");
+          label = this._sanitizeText(baseName);
+        }
+
+        return {
+          id: t.id,
+          source: "alexa",
+          source_entity: entityId,
+          label,
+          icon: entityConf?.icon || (isPaused ? "mdi:timer-pause" : "mdi:timer"),
+          color: entityConf?.color || (isPaused ? "var(--warning-color)" : "var(--primary-color)"),
+          end: end,
+          duration: totalDuration,
+          paused: isPaused,
+        };
+      });
+    }
+
+    const normDuration = (t) =>
+      (typeof t?.originalDurationInMillis === "number" && t.originalDurationInMillis) ||
+      (typeof t?.originalDurationInSeconds === "number" && t.originalDurationInSeconds * 1000) ||
+      this._toMs(t?.originalDuration) || null;
+
+    const mk = (id, t, pausedFlag) => {
+      const remainingMs = pausedFlag ? this._toMs(t?.remainingTime) : null;
+      const end = pausedFlag ? (remainingMs ?? 0) : Number(t?.triggerTime || 0);
+      let label;
+      if (t?.timerLabel) {
+        label = this._sanitizeText(t.timerLabel);
+      } else {
+        const cleanedFriendlyName = this._cleanFriendlyName(entityState.attributes.friendly_name);
+        const baseName = entityConf?.name || cleanedFriendlyName || (pausedFlag ? "Alexa Timer (Paused)" : "Alexa Timer");
+        const originalDuration = normDuration(t);
+        const displayTime = originalDuration > 0 ? this._formatDurationDisplay(originalDuration) : "0m";
+        if (baseName !== "Alexa Timer" && baseName !== "Alexa Timer (Paused)") {
+          label = this._sanitizeText(`${baseName} - ${displayTime}`);
+        } else {
+          label = this._sanitizeText(baseName);
+        }
+      }
+      const hasCustomIcon = !!entityConf?.icon;
+      const hasCustomColor = !!entityConf?.color;
+      return {
+        id,
+        source: "alexa",
+        source_entity: entityId,
+        label,
+        icon: hasCustomIcon ? entityConf.icon : (pausedFlag ? "mdi:timer-pause" : "mdi:timer"),
+        color: hasCustomColor ? entityConf.color : (pausedFlag ? "var(--warning-color)" : "var(--primary-color)"),
+        end,
+        duration: normDuration(t),
+        paused: !!pausedFlag,
+      };
+    };
+
+    const mapTimerList = (list, isPaused) => {
+      if (!Array.isArray(list)) return [];
+      return list.map(item => {
+        let id, t;
+        if (Array.isArray(item)) { [id, t] = item; }
+        else { t = item; id = t.id; }
+        return mk(id, t, isPaused);
+      });
+    };
+
+    const activeTimers = mapTimerList(active, false);
+    let pausedTimers = mapTimerList(paused, true);
+
+    if (pausedTimers.length === 0 && all.length > 0) {
+      pausedTimers = mapTimerList(all, true).filter(pt => pt && String(pt.status).toUpperCase() === "PAUSED");
+    }
+    return [...activeTimers, ...pausedTimers];
+  }
+
+  _parseHelper(entityId, entityState, entityConf) {
+    try {
+      const data = JSON.parse(entityState.state || "{}");
+      if (!this._validateStoredTimerData(data)) return [];
+      if (data?.timers?.map) {
+        return data.timers.map((timer) => ({
+          ...timer,
+          source: "helper",
+          source_entity: entityId,
+          label: this._sanitizeText(timer.label || entityConf?.name || this._localize("timer")),
+          icon: timer.icon || entityConf?.icon || "mdi:timer-outline",
+          color: timer.color || entityConf?.color || "var(--primary-color)",
+        }));
+      }
+      if (data?.timer && typeof data.timer === "object") {
+        const singleTimer = data.timer;
+        return [{
+          end: singleTimer.e,
+          duration: singleTimer.d,
+          id: `single-timer-${entityId}`,
+          label: this._sanitizeText(entityConf?.name || entityState?.attributes?.friendly_name || this._localize("timer")),
+          paused: false,
+          source: "helper",
+          source_entity: entityId,
+          icon: entityConf?.icon || "mdi:timer-outline",
+          color: entityConf?.color || "var(--primary-color)",
+        }];
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  _parseTimestamp(entityId, entityState, entityConf) {
+    const s = entityState.state;
+    if (!s || s === "unknown" || s === "unavailable") return [];
+    const endMs = Date.parse(s);
+    if (isNaN(endMs)) return [];
+    let duration = null;
+    if (entityConf?.start_time_entity) {
+      const startEntityState = this.hass.states[entityConf.start_time_entity];
+      if (startEntityState && startEntityState.state && startEntityState.state !== "unknown" && startEntityState.state !== "unavailable") {
+        const startMs = Date.parse(startEntityState.state);
+        if (!isNaN(startMs) && endMs > startMs) duration = endMs - startMs;
+      }
+    } else {
+      const startTimeAttr = entityConf?.start_time_attr || "start_time";
+      const startTimeVal = entityState.attributes[startTimeAttr];
+      if (startTimeVal) {
+        const startMs = Date.parse(startTimeVal);
+        if (!isNaN(startMs) && endMs > startMs) duration = endMs - startMs;
+      }
+    }
+    return [{
+      id: `${entityId}-${endMs}`,
+      source: "timestamp",
+      source_entity: entityId,
+      label: entityConf?.name || entityState.attributes.friendly_name || this._localize("timer"),
+      icon: entityConf?.icon || "mdi:timer-sand",
+      color: entityConf?.color || "var(--primary-color)",
+      end: endMs,
+      duration: duration
+    }];
+  }
+
+  _parseMinutesAttr(entityId, entityState, entityConf) {
+    const attrName = entityConf?.minutes_attr || "Minutes to arrival";
+    const minutes = Number(entityState?.attributes?.[attrName]);
+    if (!isFinite(minutes)) return [];
+    const endMs = Date.now() + Math.max(0, minutes) * 60000;
+    return [{
+      id:`${entityId}-eta-${Math.floor(endMs/1000)}`,
+      source:"minutes_attr",
+      source_entity:entityId,
+      label:entityConf?.name||entityState.attributes.friendly_name||"ETA",
+      icon:entityConf?.icon || "mdi:timer-outline",
+      color:entityConf?.color || "var(--primary-color)",
+      end: endMs,
+      duration: minutes * 60000
+    }];
+  }
+
+  _parseTimer(entityId, entityState, entityConf) {
+    const state = entityState.state;
+    const attrs = entityState.attributes;
+    if (!["active", "paused", "idle", "finished"].includes(state)) return [];
+    let endMs = null;
+    let duration = null;
+    let remainingMs = null;
+    if (attrs.duration) duration = this._parseHMSToMs(attrs.duration);
+    if (state === "idle") {
+      const entityIcon = attrs.icon;
+      const defaultIcon = entityIcon || "mdi:play";
+      return [{
+        id: entityId, source: "timer", source_entity: entityId,
+        label: entityConf?.name || entityState.attributes.friendly_name || this._localize("timer"),
+        icon: entityConf?.icon || defaultIcon,
+        color: entityConf?.color || "var(--primary-color)",
+        end: null, duration, paused: false, idle: true
+      }];
+    }
+    if (state === "finished") {
+      const finishedAt = attrs.finishes_at ? Date.parse(attrs.finishes_at) : Date.now();
+      const entityIcon = attrs.icon;
+      const defaultIcon = entityIcon || "mdi:timer-check";
+      return [{
+        id: entityId, source: "timer", source_entity: entityId,
+        label: entityConf?.name || entityState.attributes.friendly_name || this._localize("timer"),
+        icon: entityConf?.icon || defaultIcon,
+        color: entityConf?.color || "var(--success-color)",
+        end: finishedAt, duration, paused: false, finished: true, finishedAt
+      }];
+    }
+    if (state === "paused") {
+      if (attrs.remaining && attrs.remaining !== "0:00:00") {
+        remainingMs = this._parseHMSToMs(attrs.remaining);
+        endMs = remainingMs;
+      }
+    } else if (state === "active") {
+      if (attrs.finishes_at) endMs = Date.parse(attrs.finishes_at);
+      else if (attrs.remaining && attrs.remaining !== "0:00:00") {
+        remainingMs = this._parseHMSToMs(attrs.remaining);
+        if (remainingMs > 0) endMs = Date.now() + remainingMs;
+      }
+    }
+    if (!endMs && state !== "idle" && state !== "finished") return [];
+    const entityIcon = attrs.icon;
+    const defaultIcon = entityIcon || (state === "paused" ? "mdi:timer-pause" : "mdi:timer");
+    return [{
+      id: entityId, source: "timer", source_entity: entityId,
+      label: entityConf?.name || entityState.attributes.friendly_name || this._localize("timer"),
+      icon: entityConf?.icon || defaultIcon,
+      color: entityConf?.color || (state === "paused" ? "var(--warning-color)" : "var(--primary-color)"),
+      end: endMs, duration, paused: state === "paused", idle: state === "idle", finished: state === "finished"
+    }];
+  }
+
+  _parseVoicePE(entityId, entityState, entityConf) {
+    const state = entityState.state;
+    const attrs = entityState.attributes || {};
+    if (!["active", "paused", "idle", "finished"].includes(state)) return [];
+
+    const controlEntity = (attrs.control_entity && String(attrs.control_entity).trim()) ? String(attrs.control_entity).trim() : null;
+
+
+    const timerIdRaw =
+      attrs.timer_id ??
+      attrs.timerId ??
+      attrs.id ??
+      attrs.timer ??
+      attrs.voice_pe_timer_id ??
+      attrs.vpe_timer_id ??
+      attrs.uuid ??
+      null;
+
+    const timerId = (timerIdRaw && String(timerIdRaw).trim()) ? String(timerIdRaw).trim() : null;
+
+    const duration = attrs.duration ? this._parseHMSToMs(attrs.duration) : null;
+    const remainingFromAttrs = attrs.remaining ? this._parseHMSToMs(attrs.remaining) : null;
+
+    const isLocalControllable = !!(controlEntity && timerId);
+
+
+    const label =
+      (attrs.display_name && String(attrs.display_name).trim()) ? String(attrs.display_name).trim() :
+      (attrs.friendly_name && String(attrs.friendly_name).trim()) ? String(attrs.friendly_name).trim() :
+      (entityConf?.name && String(entityConf.name).trim()) ? String(entityConf.name).trim() :
+      this._localize("timer");
+
+
+    const base = {
+      id: timerId ? `vpe-${timerId}` : entityId,
+      source: "voice_pe",
+      source_entity: entityId,
+      label,
+      name: label,
+      duration,
+      voice_pe_timer_id: timerId,
+      control_entity: controlEntity,
+
+      supports: isLocalControllable
+        ? { pause: true, cancel: true, snooze: false, extend: false }
+        : { pause: false, cancel: false, snooze: false, extend: false },
+    };
+
+
+    if (state === "idle") {
+      const entityIcon = attrs.icon;
+      const defaultIcon = entityIcon || "mdi:play";
+      return [{
+        ...base,
+        icon: entityConf?.icon || defaultIcon,
+        color: entityConf?.color || "var(--primary-color)",
+        end: null,
+        paused: false,
+        idle: true,
+        finished: false,
+        state: "idle",
+      }];
+    }
+
+
+    if (state === "finished") {
+      const finishedAt = attrs.finishes_at ? Date.parse(attrs.finishes_at) : Date.now();
+      const entityIcon = attrs.icon;
+      const defaultIcon = entityIcon || "mdi:timer-check";
+      return [{
+        ...base,
+        icon: entityConf?.icon || defaultIcon,
+        color: entityConf?.color || "var(--success-color)",
+        end: finishedAt,
+        paused: false,
+        idle: false,
+        finished: true,
+        finishedAt,
+        state: "finished",
+      }];
+    }
+
+
+    let endMs = null;
+    let remainingMs = null;
+
+    if (state === "paused") {
+      if (remainingFromAttrs && remainingFromAttrs > 0) {
+        remainingMs = remainingFromAttrs;
+        endMs = remainingMs;
+      }
+    } else if (state === "active") {
+      if (attrs.finishes_at) {
+        endMs = Date.parse(attrs.finishes_at);
+      } else if (remainingFromAttrs && remainingFromAttrs > 0) {
+        remainingMs = remainingFromAttrs;
+        endMs = Date.now() + remainingMs;
+      }
+    }
+
+    if (!endMs) return [];
+
+    const entityIcon = attrs.icon;
+    const defaultIcon = entityIcon || (state === "paused" ? "mdi:timer-pause" : "mdi:timer");
+
+    return [{
+      ...base,
+      icon: entityConf?.icon || defaultIcon,
+      color: entityConf?.color || (state === "paused" ? "var(--warning-color)" : "var(--primary-color)"),
+      end: endMs,
+      paused: state === "paused",
+      idle: false,
+      finished: false,
+      state,
+    }];
+  }
+
+  _parseHMSToMs(timeStr) {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(":").map((p) => parseInt(p, 10));
+    if (parts.length === 3) return (parts[0]*3600 + parts[1]*60 + parts[2]) * 1000;
+    if (parts.length === 2) return (parts[0]*60 + parts[1]) * 1000;
+    return 0;
+  }
+
+
+  _isLocalVoicePETimer(timer) {
+    return timer?.source === "voice_pe"
+      && timer?.control_entity
+      && String(timer.control_entity).trim()
+      && timer?.voice_pe_timer_id
+      && String(timer.voice_pe_timer_id).trim()
+      && timer.supports?.pause === true;
+  }
+
+  async _sendVoicePECommand(controlEntity, command) {
+    if (!this.hass) return;
+    if (!controlEntity || !command) return;
+
+    const entityId = String(controlEntity).trim();
+    const domain = entityId.split(".")[0];
+    if (domain !== "text" && domain !== "input_text") {
+      this._toast("Invalid control entity for Voice PE timers.");
+      return;
+    }
+
+    await this.hass.callService(domain, "set_value", {
+      entity_id: entityId,
+      value: String(command),
+    });
+  }
+
+  _getVoicePEControlEntity(preferredTimerEntityId) {
+    try {
+      const st = preferredTimerEntityId ? this.hass?.states?.[preferredTimerEntityId] : null;
+      const fromAttr = st?.attributes?.control_entity ? String(st.attributes.control_entity).trim() : "";
+      if (fromAttr) return fromAttr;
+    } catch (_) {}
+
+    const fromCfg = this._config?.voice_pe_control_entity ? String(this._config.voice_pe_control_entity).trim() : "";
+    if (fromCfg) return fromCfg;
+
+    try {
+      const states = this.hass?.states || {};
+      const candidates = Object.keys(states)
+        .filter((id) => (id.startsWith("text.") || id.startsWith("input_text.")) && id.toLowerCase().includes("voice_pe_timer_command"))
+        .sort((a, b) => a.localeCompare(b));
+      return candidates.length ? candidates[0] : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+
+  async _sendVoicePEStart(durationMs, name, targetEntityId) {
+    const seconds = Math.max(1, Math.ceil(durationMs / 1000));
+    const controlEntity = this._getVoicePEControlEntity(targetEntityId);
+
+    if (!controlEntity) {
+      this._toast("Voice PE control entity is missing.");
+      return;
+    }
+
+    let cmd = `start:${seconds}`;
+    const cleanName = name && String(name).trim() ? String(name).trim().replace(/:/g, " ") : "";
+    if (cleanName) cmd = `${cmd}:${cleanName}`;
+
+    await this._sendVoicePECommand(controlEntity, cmd);
+  }
+
+
+  _updateTimers() {
+    if (!this.hass) return;
+    this._ensureAutoVoicePEEntities();
+    const collected = [];
+    for (const entityConfig of this._config.entities) {
+      const entityId = typeof entityConfig === "string" ? entityConfig : entityConfig.entity;
+      const conf = typeof entityConfig === "string" ? {} : entityConfig;
+      const st = this.hass.states[entityId];
+      if (!st) continue;
+      let mode = conf.mode;
+      if (!mode || mode === "auto") {
+        mode = this._detectMode(entityId, st, conf);
+        if (!mode) continue;
+      }
+      try {
+        if (mode === "alexa") collected.push(...this._parseAlexa(entityId, st, conf));
+        else if (mode === "helper") collected.push(...this._parseHelper(entityId, st, conf));
+        else if (mode === "timer") collected.push(...this._parseTimer(entityId, st, conf));
+        else if (mode === "voice_pe") collected.push(...this._parseVoicePE(entityId, st, conf));
+        else if (mode === "minutes_attr") collected.push(...this._parseMinutesAttr(entityId, st, conf));
+        else if (mode === "timestamp") collected.push(...this._parseTimestamp(entityId, st, conf));
+      } catch (e) {}
+    }
+
+    const defaultEntity = this._config.default_timer_entity;
+    if (defaultEntity && (defaultEntity.startsWith("input_text.") || defaultEntity.startsWith("text."))) {
+      const stDefault = this.hass.states[defaultEntity];
+      if (stDefault) {
+        try { collected.push(...this._parseHelper(defaultEntity, stDefault, { mode: "helper" })); } catch (e) {}
+      }
+    }
+    if (this._config.storage === "local" || this._config.storage === "mqtt") {
+      collected.push(...this._loadTimersFromStorage());
+    }
+    // View Assist timers (pre-mapped, fetched async every va_refresh_interval)
+    if (Array.isArray(this._vaTimers)) {
+      const now0 = Date.now();
+      this._vaTimers = this._vaTimers.map(t => {
+        if (t.source !== 'va' || t.state === 'expired') return t;
+        const ft = this._vaFinishTimes[t.id];
+        const remainingMs = ft ? Math.max(0, ft - now0) : 0;
+        return { ...t, remaining_ms: remainingMs, remaining: remainingMs };
+      });
+      collected.push(...this._vaTimers);
+    }
+    const filtered = collected.filter((t) => !(this._dismissed.has(`${t.source_entity}:${t.id}`)));
+    const now = Date.now();
+    this._timers = filtered.map((t) => {
+      const now3 = now;
+      const durationMs = typeof t.duration === "number" ? t.duration : 0;
+
+      const endTs = (typeof t.end_ts === "number")
+        ? t.end_ts
+        : (!t.paused && typeof t.end === "number" ? t.end : null);
+
+      const startTs = (typeof t.start_ts === "number")
+        ? t.start_ts
+        : (endTs && durationMs ? (endTs - durationMs) : null);
+
+      let remainingMs;
+      if (t.kind === "template") remainingMs = durationMs;
+      else if (t.idle) remainingMs = durationMs;
+      else if (t.finished) remainingMs = 0;
+      else if (t.paused) remainingMs = (typeof t.remaining_ms === "number" ? t.remaining_ms : (typeof t.end === "number" ? t.end : 0));
+      else if (endTs) remainingMs = Math.max(0, endTs - now3);
+      else remainingMs = 0;
+
+      const state =
+        t.state ||
+        (t.finished ? "finished" : (t.idle ? "idle" : (t.paused ? "paused" : (remainingMs <= 0 ? "expired" : "active"))));
+
+      const supports =
+        t.supports || {
+          pause: ["helper", "local", "mqtt", "timer"].includes(t.source),
+          cancel: ["helper", "local", "mqtt", "timer", "alexa"].includes(t.source),
+          snooze: ["helper", "local", "mqtt", "timer", "alexa"].includes(t.source),
+          extend: ["helper", "local", "mqtt", "timer"].includes(t.source),
+        };
+
+      const percent = durationMs && remainingMs >= 0
+        ? Math.max(0, Math.min(100, ((durationMs - remainingMs) / durationMs) * 100))
+        : 0;
+
+      return {
+        ...t,
+        name: t.name || t.label,
+        duration_ms: durationMs,
+        start_ts: startTs,
+        end_ts: endTs,
+        remaining_ms: remainingMs,
+        state,
+        supports,
+
+        remaining: remainingMs,
+        percent,
+      };
+    }).sort((a, b) => {
+      if (a.finished && !b.finished) return 1;
+      if (!a.finished && b.finished) return -1;
+      const ar0 = Number(a.remaining_ms ?? a.remaining ?? 0);
+      const br0 = Number(b.remaining_ms ?? b.remaining ?? 0);
+      const ar = isFinite(ar0) ? ar0 : Number.MAX_SAFE_INTEGER;
+      const br = isFinite(br0) ? br0 : Number.MAX_SAFE_INTEGER;
+      return ar - br;
+    });
+    for (const timer of this._timers) {
+      const wasRinging = this._ringingTimers.has(timer.id);
+      if (timer.source === "timer" && timer.idle && wasRinging) {
+        timer.idle = false;
+        timer.remaining = 0;
+      }
+      const isNowRinging = timer.remaining <= 0 && !timer.paused && !timer.idle;
+      if (isNowRinging && !wasRinging) {
+        this._ringingTimers.add(timer.id);
+        if (this._ringingInitialized) {
+          this._playAudioNotification(timer.id, timer);
+          this._publishTimerEvent("expired", timer);
+        }
+      } else if (!isNowRinging && wasRinging) {
+        this._ringingTimers.delete(timer.id);
+        this._stopAudioForTimer(timer.id);
+      }
+    }
+    this._ringingInitialized = true;
+    const ids = new Set(this._timers.map((t) => t.id));
+    for (const r of this._ringingTimers) {
+      if (!ids.has(r)) {
+        this._ringingTimers.delete(r);
+        this._stopAudioForTimer(r);
+      }
+    }
+    const now2 = Date.now();
+    const audioDelay = (this._config.audio_completion_delay || 4) * 1000;
+    for (const timer of [...this._timers]) {
+      if (timer.idle || timer.remaining > 0 || timer.paused) continue;
+      if (timer.source === 'va') continue;
+      const action = this._config.expire_action;
+      if (action === "dismiss") continue;
+      if (action === "keep") {
+        const isWritable = ["helper", "local", "mqtt"].includes(timer.source);
+        let expiredAt;
+        if (isWritable) {
+          if (!timer.expiredAt) {
+            timer.expiredAt = now2;
+            this._updateTimerInStorage(timer.id, { expiredAt: now2 }, timer.source);
+          }
+          expiredAt = timer.expiredAt;
+        } else {
+          if (!this._expirationTimes.has(timer.id)) this._expirationTimes.set(timer.id, now2);
+          expiredAt = this._expirationTimes.get(timer.id);
+        }
+        const keepMs = (parseInt(this._config.expire_keep_for, 10) || 120) * 1000;
+        if (now2 - expiredAt >= keepMs) {
+          if (!timer._isBeingRemoved) {
+            timer._isBeingRemoved = true;
+            this._handleDismiss(timer);
+            if (!isWritable) this._expirationTimes.delete(timer.id);
+          }
+        }
+        continue;
+      }
+      if (action === "remove") {
+        const entityConf=this._getEntityConfig(timer.source_entity);
+        let isAudioEnabled;
+        if (timer && (timer.audio_enabled===true || timer.audio_enabled===false)) isAudioEnabled=timer.audio_enabled===true;
+        else if (entityConf && entityConf.audio_enabled!==undefined) isAudioEnabled=entityConf.audio_enabled===true;
+        else isAudioEnabled=this._config.audio_enabled===true;
+        if (!timer._isBeingRemoved) {
+          timer._isBeingRemoved = true;
+          const dismissAction = () => this._handleDismiss(timer);
+          if (isAudioEnabled) setTimeout(dismissAction, audioDelay);
+          else dismissAction();
+        }
+      }
+    }
+    const currentIds = new Set(this._timers.map((t) => t.id));
+    for (const id of this._expirationTimes.keys()) {
+      if (!currentIds.has(id)) this._expirationTimes.delete(id);
+    }
+    for (const [timerId, audioData] of this._activeAudioInstances.entries()) {
+      if (!this._ringingTimers.has(timerId)) this._stopAudioForTimer(timerId);
+    }
+    if (!this._lastCleanupTime || Date.now() - this._lastCleanupTime > 10000) {
+      this._cleanupThrottleMap();
+      this._lastCleanupTime = Date.now();
+    }
+  }
+
+  _ensureAlarmAudio() {
+    if (this._alarmAudio) return this._alarmAudio;
+    const a = new Audio();
+    a.preload = "auto";
+    this._alarmAudio = a;
+    return a;
+  }
+
+  _unlockAudio() {
+    if (this._audioUnlocked) return;
+    // iOS Safari and the HA Companion App webview gate audio per HTMLAudioElement:
+    // a Web Audio context unlock alone is not enough, because each <audio> element
+    // needs its own user-gesture-initiated play() before later programmatic plays
+    // succeed. We therefore (1) prime a page-wide Web Audio context, and
+    // (2) touch the single shared alarm <audio> element that _playAudioNotification
+    // will reuse so later alarms (fired from timer callbacks) are allowed.
+    let unlocked = false;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) {
+        if (!this._audioCtx) this._audioCtx = new Ctx();
+        const ctx = this._audioCtx;
+        const playSilent = () => {
+          try {
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+          } catch (_) {}
+        };
+        if (ctx.state === "suspended" && typeof ctx.resume === "function") {
+          ctx.resume().then(playSilent).catch(() => {});
+        } else {
+          playSilent();
+        }
+        unlocked = true;
+      }
+    } catch (_) {}
+    try {
+      const audio = this._ensureAlarmAudio();
+      audio.src = "data:audio/wav;base64,UklGRiUAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQEAAACA";
+      audio.volume = 0;
+      const restore = () => {
+        try { audio.pause(); audio.currentTime = 0; audio.volume = 1; } catch (_) {}
+      };
+      const p = audio.play();
+      if (p && typeof p.then === "function") {
+        // Track the unlock's play promise so _playAudioNotification can wait for it
+        // to settle before changing src and starting the real alarm — otherwise the
+        // unlock's restore() (which calls audio.pause()) races with the alarm play
+        // and produces spurious 'audio failed' signals on the first timer of a session.
+        this._audioUnlockPlay = p.then(() => { restore(); }, () => { restore(); });
+      } else {
+        restore();
+        this._audioUnlockPlay = Promise.resolve();
+      }
+      unlocked = true;
+    } catch (_) {}
+    this._audioUnlocked = unlocked;
+  }
+
+  _resolveNotifyConfig() {
+    const n = this._config && this._config.notify;
+    if (!n || typeof n !== "object") return null;
+    if (!n.service || typeof n.service !== "string") return null;
+    return n;
+  }
+
+  _notifyContext(timer) {
+    const name = (timer && (timer.name || timer.friendly_name)) ||
+      ((timer && timer.source_entity) ? String(timer.source_entity).split(".").pop() : "Timer");
+    return {
+      name,
+      entity_id: (timer && (timer.source_entity || timer.entity_id)) || "",
+      duration: (timer && timer.duration) || "",
+    };
+  }
+
+  _formatNotifyText(s, ctx) {
+    if (typeof s !== "string") return s;
+    return s.replace(/\{(name|entity_id|duration)\}/g, (_, k) => (ctx[k] != null ? String(ctx[k]) : ""));
+  }
+
+  _dispatchNotify(notifyConf, timer) {
+    try {
+      const m = String(notifyConf.service).match(/^([a-z0-9_]+)\.([a-z0-9_]+)$/i);
+      if (!m) {
+        console.warn("[va-simple-timer-card] notify.service must be in 'domain.service' form, got:", notifyConf.service);
+        return;
+      }
+      const domain = m[1];
+      const service = m[2];
+      const ctx = this._notifyContext(timer);
+      const payload = {};
+      if (notifyConf.message != null) payload.message = this._formatNotifyText(String(notifyConf.message), ctx);
+      if (notifyConf.title != null) payload.title = this._formatNotifyText(String(notifyConf.title), ctx);
+      if (notifyConf.data && typeof notifyConf.data === "object") {
+        payload.data = notifyConf.data;
+      }
+      if (payload.message == null) payload.message = `Timer ${ctx.name} finished`;
+      this.hass.callService(domain, service, payload);
+    } catch (e) {
+      console.warn("[va-simple-timer-card] notify service call failed:", e?.message || e);
+    }
+  }
+
+  _playAudioNotification(timerId,timer){
+    const entityId = timer?.source_entity || timer?.entity_id || timer?.id || null;
+    const entityConf = this._getEntityConfig(entityId);
+
+    const timerHasOverride =
+      timer && (
+        timer.audio_enabled === true ||
+        timer.audio_enabled === false ||
+        timer.audio_file_url !== undefined ||
+        timer.audio_repeat_count !== undefined ||
+        timer.audio_play_until_dismissed !== undefined
+      );
+
+    const entityHasOverride =
+      entityConf && (
+        entityConf.audio_enabled !== undefined ||
+        entityConf.audio_file_url !== undefined ||
+        entityConf.audio_repeat_count !== undefined ||
+        entityConf.audio_play_until_dismissed !== undefined
+      );
+
+    let audioEnabled, audioFileUrl, audioRepeatCount, audioPlayUntilDismissed;
+
+    if (timerHasOverride) {
+      if (timer.audio_enabled === false) audioEnabled = false;
+      else audioEnabled = timer.audio_enabled === true;
+      audioFileUrl = timer.audio_file_url;
+      audioRepeatCount = timer.audio_repeat_count;
+      audioPlayUntilDismissed = timer.audio_play_until_dismissed;
+    } else if (entityHasOverride) {
+      audioEnabled = entityConf.audio_enabled;
+      audioFileUrl = entityConf.audio_file_url;
+      audioRepeatCount = entityConf.audio_repeat_count;
+      audioPlayUntilDismissed = entityConf.audio_play_until_dismissed;
+    } else {
+      audioEnabled = this._config.audio_enabled;
+      audioFileUrl = this._config.audio_file_url;
+      audioRepeatCount = this._config.audio_repeat_count;
+      audioPlayUntilDismissed = this._config.audio_play_until_dismissed;
+    }
+
+    const notifyConf = this._resolveNotifyConfig();
+    const notifyWhen = (notifyConf && notifyConf.when) || "on_audio_fail";
+    const fireNotify = (outcome) => {
+      if (!notifyConf) return;
+      if (notifyWhen === "on_audio_fail" && outcome === "audio_ok") return;
+      if (notifyWhen !== "always" && notifyWhen !== "on_audio_fail") return;
+      this._dispatchNotify(notifyConf, timer);
+    };
+
+    if (!audioEnabled || !audioFileUrl || !this._validateAudioUrl(audioFileUrl)) {
+      fireNotify("no_audio");
+      return;
+    }
+    if (notifyConf && notifyWhen === "always") {
+      fireNotify("always");
+    }
+    this._stopAudioForTimer(timerId);
+    try {
+      const audio = this._ensureAlarmAudio();
+      // Wait for any in-flight unlock play to settle so its async restore()
+      // (audio.pause()) cannot race with our alarm playback. Falls through
+      // immediately if there is no unlock in flight.
+      const unlockSettled = (this._audioUnlockPlay && typeof this._audioUnlockPlay.then === "function")
+        ? this._audioUnlockPlay
+        : Promise.resolve();
+      unlockSettled.then(() => {
+        // Bail if the timer was dismissed while we were waiting.
+        if (!this._ringingTimers.has(timerId)) return;
+        audio.src = audioFileUrl;
+        audio.volume = 1;
+      let playCount = 0;
+      let firstPlayResolved = false;
+      const maxPlays = audioPlayUntilDismissed ? Infinity : Math.max(1, Math.min(10, audioRepeatCount || 1));
+      const playNext = () => {
+        if (this._ringingTimers.has(timerId) && this._activeAudioInstances.has(timerId) && playCount < maxPlays) {
+          playCount++;
+          try { audio.currentTime = 0; } catch (_) {}
+          const isFirstAttempt = playCount === 1;
+          let sawPlayingEvent = false;
+          let promiseRejected = false;
+          let rejectionError = null;
+          const onPlayingOnce = () => {
+            sawPlayingEvent = true;
+            firstPlayResolved = true;
+          };
+          if (isFirstAttempt) {
+            try { audio.addEventListener("playing", onPlayingOnce, { once: true }); } catch (_) {}
+          }
+          const p = audio.play();
+          if (p && typeof p.then === "function") {
+            p.then(() => { firstPlayResolved = true; }).catch((err) => {
+              promiseRejected = true;
+              rejectionError = err;
+              if (!isFirstAttempt) return;
+              // The play() promise rejection is unreliable on iOS Safari (it can
+              // reject with AbortError/NotAllowedError even when playback succeeds).
+              // Wait a generous window, then trust the audio element's own state
+              // (playing event, !paused, currentTime advanced) as ground truth.
+              setTimeout(() => {
+                try { audio.removeEventListener("playing", onPlayingOnce); } catch (_) {}
+                const audioIsActuallyPlaying =
+                  firstPlayResolved ||
+                  sawPlayingEvent ||
+                  (audio && !audio.paused && audio.currentTime > 0);
+                if (audioIsActuallyPlaying) return;
+                console.warn("[va-simple-timer-card] Alarm audio.play() rejected and never started (likely iOS autoplay policy; tap the card once to unlock):", rejectionError?.message || rejectionError);
+                fireNotify("audio_fail");
+              }, 1500);
+            });
+          }
+        } else {
+          this._stopAudioForTimer(timerId);
+        }
+      };
+      const onError = () => {
+        // Audio element 'error' fires for various reasons (src reset, network blip,
+        // decoder transient). The authoritative signal for "alarm did not play" is
+        // the rejected play() promise handled above, so do NOT fire notify from here.
+        this._stopAudioForTimer(timerId);
+      };
+      const audioData = { audio, playNext, onError };
+      audio.addEventListener("ended", playNext);
+      audio.addEventListener("error", onError);
+      this._activeAudioInstances.set(timerId, audioData);
+      playNext();
+      }).catch(() => { /* unlock promise should never reject visibly */ });
+    } catch (e) {
+      fireNotify("audio_fail");
+    }
+  }
+
+  _stopAudioForTimer(timerId) {
+    const audioData = this._activeAudioInstances.get(timerId);
+    if (audioData) {
+      const { audio, playNext, onError } = audioData;
+      try { audio.removeEventListener("ended", playNext); } catch (_) {}
+      try { if (onError) audio.removeEventListener("error", onError); } catch (_) {}
+      try { audio.pause(); audio.currentTime = 0; } catch (_) {}
+      this._activeAudioInstances.delete(timerId);
+    }
+  }
+
+  _cleanupThrottleMap() {
+    const now = Date.now();
+    const CLEANUP_THRESHOLD = 60000;
+    for (const [key, time] of this._lastActionTime.entries()) {
+      if (now - time > CLEANUP_THRESHOLD) this._lastActionTime.delete(key);
+    }
+  }
+
+
+  _discoverVoicePEEntities() {
+    try {
+      const states = this.hass?.states || {};
+      const out = [];
+      for (const [entityId, st] of Object.entries(states)) {
+        if (!entityId || !st) continue;
+        const state = st.state;
+        if (!["active", "paused", "idle", "finished"].includes(state)) continue;
+        const attrs = st.attributes || {};
+        const controlEntity = attrs.control_entity ? String(attrs.control_entity).trim() : "";
+        if (!controlEntity) continue;
+
+        out.push(entityId);
+      }
+      out.sort((a, b) => a.localeCompare(b));
+      return out;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  _getDefaultVoicePETargetEntity() {
+
+    try {
+      const cfg = Array.isArray(this._config?.entities) ? this._config.entities : [];
+      for (const entityConf of cfg) {
+        const entityId = typeof entityConf === "string" ? entityConf : entityConf?.entity;
+        const mode = typeof entityConf === "string" ? null : entityConf?.mode;
+        if (!entityId) continue;
+        if (mode === "voice_pe" || (entityId.startsWith("sensor.") && String(entityId).toLowerCase().includes("vpe_timer"))) {
+          return entityId;
+        }
+        const st = this.hass?.states?.[entityId];
+        const controlEntity = st?.attributes?.control_entity ? String(st.attributes.control_entity).trim() : "";
+        if (controlEntity) return entityId;
+      }
+    } catch (_) {}
+
+    const discovered = this._discoverVoicePEEntities();
+    return discovered.length ? discovered[0] : null;
+  }
+
+  _ensureAutoVoicePEEntities() {
+    if (this._autoVoicePEInjected) return;
+    if (this._config?.auto_voice_pe !== true) return;
+
+    const cfgEntities = Array.isArray(this._config?.entities) ? this._config.entities : [];
+    if (cfgEntities.length > 0) {
+      this._autoVoicePEInjected = true;
+      return;
+    }
+
+    const discovered = this._discoverVoicePEEntities();
+    if (!discovered.length) return;
+
+    this._config.entities = discovered.map((e) => ({ entity: e, mode: "voice_pe" }));
+    this._autoVoicePEInjected = true;
+  }
+
+  _publishTimerEvent(event, timer) {
+    if (this._config.storage === "mqtt" || this._config.default_timer_entity?.startsWith("sensor.")) {
+      const payload = {
+        id: timer.id,
+        label: timer.label,
+        name: timer.name,
+        source: timer.source,
+        source_entity: timer.source_entity,
+        icon: timer.icon,
+        color: timer.color,
+        voice_pe_timer_id: timer.voice_pe_timer_id,
+        control_entity: timer.control_entity,
+        timestamp: Date.now(),
+        event: event,
+        duration: timer.duration,
+        remaining: timer.remaining
+      };
+
+      if (timer?.pinned_id) payload.pinned_id = timer.pinned_id;
+
+
+      if (timer?.source === "voice_pe") {
+        payload.state = timer.state;
+        payload.start_ts = timer.start_ts;
+        payload.end_ts = timer.end_ts;
+        payload.duration_ms = timer.duration_ms ?? timer.duration;
+        payload.remaining_ms = timer.remaining_ms ?? timer.remaining;
+      }
+
+      this.hass.callService("mqtt", "publish", {
+        topic: `${this._config?.mqtt?.events_topic || "simple_timer_card/events"}/${event}`,
+        payload: JSON.stringify(payload),
+        retain: false,
+      });
+    }
+  }
+
+
+  _getEntityConfig(entityId) {
+    if (!entityId || !this._config.entities) return null;
+    for (const entityConf of this._config.entities) {
+      const confEntityId = typeof entityConf === "string" ? entityConf : entityConf?.entity;
+      if (confEntityId === entityId) return typeof entityConf === "string" ? {} : entityConf;
+    }
+    return null;
+  }
+
+  _parseDuration(durationStr) {
+    if (!durationStr) return 0;
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(durationStr)) return this._parseHMSToMs(durationStr);
+    if (/^\d{1,2}:\d{2}$/.test(durationStr)) {
+      const parts = durationStr.split(":").map((p) => parseInt(p, 10));
+      return (parts[0] * 60 + parts[1]) * 1000;
+    }
+    let totalSeconds = 0;
+    const hourMatch = durationStr.match(/(\d+)\s*h/);
+    const minuteMatch = durationStr.match(/(\d+)\s*m/);
+    const secondMatch = durationStr.match(/(\d+)\s*s/);
+    const numberOnlyMatch = durationStr.match(/^\d+$/);
+    if (hourMatch) totalSeconds += parseInt(hourMatch[1]) * 3600;
+    if (minuteMatch) totalSeconds += parseInt(minuteMatch[1]) * 60;
+    if (secondMatch) totalSeconds += parseInt(secondMatch[1]);
+    if (!hourMatch && !minuteMatch && !secondMatch && numberOnlyMatch) totalSeconds = parseInt(numberOnlyMatch[0]) * 60;
+    return totalSeconds * 1000;
+  }
+
+  _mutateHelper(entityId, mutator) {
+    const state = this.hass.states[entityId]?.state ?? '{"timers":[]}';
+    let data;
+    try {
+      data = JSON.parse(state);
+      if (!this._validateStoredTimerData(data)) data = { timers: [] };
+    } catch {
+      data = { timers: [] };
+    }
+    if (!Array.isArray(data.timers)) data.timers = [];
+
+    data.timers = data.timers.map((t) => {
+      if (!t || typeof t !== "object") return t;
+      const c = { ...t };
+
+      if (typeof c.start_ts !== "number") {
+        if (typeof c.start === "number") c.start_ts = c.start;
+        else if (typeof c.start === "string") {
+          const parsed = Date.parse(c.start);
+          if (!isNaN(parsed)) c.start_ts = parsed;
+        }
+      }
+
+      if (c.paused) {
+        if (typeof c.remaining_ms !== "number" && typeof c.end === "number") c.remaining_ms = c.end;
+        c.end_ts = null;
+      } else {
+        if (typeof c.end_ts !== "number" && typeof c.end === "number") c.end_ts = c.end;
+        if (c.remaining_ms != null) delete c.remaining_ms;
+      }
+
+      if (c.start != null) delete c.start;
+      if (c.end != null) delete c.end;
+
+      return c;
+    });
+
+    mutator(data);
+    const domain = entityId.split(".")[0];
+    this.hass.callService(domain, "set_value", { entity_id: entityId, value: JSON.stringify({ ...data, version: 2 }) });
+  }
+
+  _handleCreateTimer(e) {
+    const form = e.target;
+    const durationStr = form.querySelector('ha-textfield[name="duration"]')?.value?.trim() ?? "";
+    const label = form.querySelector('ha-textfield[name="label"]')?.value?.trim() ?? "";
+    const targetEntity = form.querySelector('[name="target_entity"]')?.value ?? "";
+    const durationMs = this._parseDuration(durationStr);
+    let resolvedTargetEntity = targetEntity;
+    if (!resolvedTargetEntity) resolvedTargetEntity = this._config.default_timer_entity || "";
+    if (this._config.auto_voice_pe === true) {
+      const vpeEntity = this._getDefaultVoicePETargetEntity();
+      if (vpeEntity) resolvedTargetEntity = vpeEntity;
+    }
+    if (durationMs <= 0) return;
+    const validation = this._validateTimerInput(durationMs, label);
+    if (!validation.valid) return;
+    const now = Date.now();
+    const endTime = now + durationMs;
+    const newTimer = {
+      id: `custom-${now}`,
+      label: this._sanitizeText(label || this._localize("timer")),
+      icon: this._config.default_timer_icon || "mdi:timer-outline",
+      color: this._config.default_timer_color || "var(--primary-color)",
+      start_ts: now,
+      end_ts: endTime,
+      duration: durationMs,
+      source: "helper",
+      paused: false,
+    };
+    if (resolvedTargetEntity) {
+      const ce = this._getVoicePEControlEntity(resolvedTargetEntity);
+      if (ce) {
+        this._publishTimerEvent("started", { source: "voice_pe", source_entity: resolvedTargetEntity, label: newTimer.label });
+        this._sendVoicePEStart(durationMs, "", resolvedTargetEntity);
+        this.requestUpdate();
+        return;
+      }
+    }
+    if (!resolvedTargetEntity) {
+      const now = Date.now();
+      const t = {
+        id: newTimer.id,
+        kind: "active",
+        label: newTimer.label,
+        name: newTimer.label,
+        source: this._config.storage === "mqtt" ? "mqtt" : "local",
+        source_entity: this._config.storage === "mqtt" ? this._config.mqtt?.sensor_entity : "local",
+        start_ts: now,
+        end_ts: now + durationMs,
+        state: "active",
+        supports: { pause: true, cancel: true, snooze: true, extend: true },
+        icon: newTimer.icon,
+        color: newTimer.color,
+        duration: durationMs,
+        paused: false,
+        idle: false,
+        finished: false,
+      };
+      this._addTimerToStorage(t);
+      this._publishTimerEvent("started", t);
+      this.requestUpdate();
+      return;
+    }
+    this._mutateHelper(resolvedTargetEntity, (data) => { data.timers.push(newTimer); });
+    this._publishTimerEvent("started", newTimer);
+  }
+  _parseDurationInputToMs(input) {
+    if (input == null) return null;
+    if (typeof input === "number") {
+      if (!Number.isFinite(input) || input <= 0) return null;
+      return Math.round(input * 60000);
+    }
+    const raw = String(input).trim().toLowerCase();
+    const m = raw.match(/^(\d+)\s*([smhd])?$/);
+    if (!m) return null;
+    const value = parseInt(m[1], 10);
+    if (!Number.isFinite(value) || value <= 0) return null;
+    const unit = m[2] || "m";
+    if (unit === "s") return value * 1000;
+    if (unit === "m") return value * 60000;
+    if (unit === "h") return value * 3600000;
+    if (unit === "d") return value * 86400000;
+    return null;
+  }
+
+  _formatPresetLabel(preset) {
+    const raw = String(preset).trim().toLowerCase();
+    const m = raw.match(/^(\d+)\s*([smhd])?$/);
+    if (!m) return String(preset);
+    return `${m[1]}${this._localize(m[2] || "m")}`;
+  }
+
+  _createPresetTimer(preset, entity = null, overrides = {}) {
+    const durationMs = this._parseDurationInputToMs(preset);
+    if (!durationMs) return;
+
+    const label = overrides.label || (() => {
+      const raw = typeof preset === "string" ? preset.trim().toLowerCase() : preset;
+      if (typeof raw === "string" && raw.endsWith("s")) {
+        const seconds = parseInt(raw.slice(0, -1), 10);
+        return `${seconds}s ${this._localize("timer")}`;
+      }
+      if (typeof raw === "string" && raw.endsWith("h")) {
+        const hours = parseInt(raw.slice(0, -1), 10);
+        return `${hours}${this._localize("h")} ${this._localize("timer")}`;
+      }
+      if (typeof raw === "string" && raw.endsWith("d")) {
+        const days = parseInt(raw.slice(0, -1), 10);
+        return `${days}${this._localize("d")} ${this._localize("timer")}`;
+      }
+      const minutes = typeof raw === "string" && raw.endsWith("m") ? parseInt(raw.slice(0, -1), 10) : parseInt(raw, 10);
+      if (!isNaN(minutes) && minutes > 0) return this._formatTimerLabel(minutes * 60);
+      return this._formatTimerLabel(Math.round(durationMs / 1000));
+    })();
+
+    let targetEntity = entity;
+    if (!targetEntity && this._config.auto_voice_pe === true) {
+      targetEntity = this._getDefaultVoicePETargetEntity();
+    }
+    if (!targetEntity) targetEntity = this._config.default_timer_entity;
+    const voicePEEnabled = this._config.auto_voice_pe === true;
+    const controlEntityFromCfg = this._config?.voice_pe_control_entity ? String(this._config.voice_pe_control_entity).trim() : "";
+    const canStartVoicePE = voicePEEnabled && !!controlEntityFromCfg;
+
+    if (voicePEEnabled && !controlEntityFromCfg) {
+      this._toast("Voice PE control entity is not set. Please configure it in the card editor.");
+    }
+
+    if (canStartVoicePE) {
+      const userProvidedName = !!(overrides?.voice_pe_name && String(overrides.voice_pe_name).trim());
+      const nameForCommand = userProvidedName ? String(overrides.voice_pe_name).trim() : "";
+      this._publishTimerEvent("started", { source: "voice_pe", source_entity: targetEntity, label });
+      this._sendVoicePEStart(durationMs, nameForCommand, targetEntity);
+      this.requestUpdate();
+      return;
+    }
+
+    const now = Date.now();
+    const newTimer = {
+      id: overrides.id || `preset-${now}`,
+      kind: "active",
+      label,
+      name: label,
+      source: "local",
+      source_entity: targetEntity || "local",
+      start_ts: now,
+      end_ts: now + durationMs,
+      state: "active",
+      supports: { pause: true, cancel: true, snooze: true, extend: true },
+
+      pinned_id: overrides.pinned_id,
+      expired_subtitle: overrides.expired_subtitle ?? this._config.expired_subtitle,
+      ...(overrides.audio_enabled !== undefined ? { audio_enabled: overrides.audio_enabled } : {}),
+      ...(overrides.audio_file_url !== undefined ? { audio_file_url: overrides.audio_file_url } : {}),
+      ...(overrides.audio_repeat_count !== undefined ? { audio_repeat_count: overrides.audio_repeat_count } : {}),
+      ...(overrides.audio_play_until_dismissed !== undefined ? { audio_play_until_dismissed: overrides.audio_play_until_dismissed } : {}),
+
+      icon: overrides.icon || this._config.default_timer_icon || "mdi:timer-outline",
+      color: overrides.color || this._config.default_timer_color || "var(--primary-color)",
+      duration: durationMs,
+      paused: false,
+      idle: false,
+      finished: false,
+    };
+
+    if (targetEntity && (targetEntity.startsWith("input_text.") || targetEntity.startsWith("text."))) {
+      newTimer.source = "helper";
+      newTimer.source_entity = targetEntity;
+      if (resolvedTargetEntity) {
+      const ce = this._getVoicePEControlEntity(resolvedTargetEntity);
+      if (ce) {
+        this._publishTimerEvent("started", { source: "voice_pe", source_entity: resolvedTargetEntity, label: newTimer.label });
+        this._sendVoicePEStart(durationMs, "", resolvedTargetEntity);
+        this.requestUpdate();
+        return;
+      }
+    }
+    this._mutateHelper(resolvedTargetEntity, (data) => { data.timers.push(newTimer); });
+      this._publishTimerEvent("created", newTimer);
+    } else if (this._config.storage === "mqtt") {
+      newTimer.source = "mqtt";
+      newTimer.source_entity = this._config.mqtt.sensor_entity;
+      this._addTimerToStorage(newTimer);
+      this._publishTimerEvent("created", newTimer);
+    } else {
+      newTimer.source = "local";
+      newTimer.source_entity = this._config.storage === "mqtt" ? this._config.mqtt.sensor_entity : "local";
+      this._addTimerToStorage(newTimer);
+      this._publishTimerEvent("created", newTimer);
+    }
+    this._publishTimerEvent("started", newTimer);
+    this.requestUpdate();
+  }
+  _formatTimerLabel(totalSeconds) {
+    if (totalSeconds <= 0) return this._localize("timer");
+    const t = this._localize("timer");
+    const h = this._localize("h");
+    const m = this._localize("m");
+    const s = this._localize("s");
+    const d = this._localize("d");
+    if (totalSeconds < 60) return `${totalSeconds}${s} ${t}`;
+    const days = Math.floor(totalSeconds / DAY_IN_SECONDS);
+    const remainderAfterDays = totalSeconds % DAY_IN_SECONDS;
+    if (days > 0 && remainderAfterDays === 0) return `${days}${d} ${t}`;
+    const hours = Math.floor(remainderAfterDays / HOUR_IN_SECONDS);
+    const minutes = Math.floor((remainderAfterDays % HOUR_IN_SECONDS) / MINUTE_IN_SECONDS);
+    const seconds = remainderAfterDays % MINUTE_IN_SECONDS;
+    const parts = [];
+    if (days) parts.push(`${days}${d}`);
+    if (hours) parts.push(`${hours}${h}`);
+    if (minutes) parts.push(`${minutes}${m}`);
+    if (seconds && parts.length < 3) parts.push(`${seconds}${s}`);
+    return `${parts.join("")} ${t}`;
+  }
+
+  _formatDurationDisplay(ms) {
+    if (ms <= 0) return `0${this._localize("s")}`;
+    const totalSeconds = Math.floor(ms / 1000);
+    if (totalSeconds < 60) return `${totalSeconds}${this._localize("s")}`;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (totalSeconds < 3600) return `${minutes}${this._localize("m")}${seconds ? seconds + this._localize("s") : ""}`;
+    const hours = Math.floor(minutes / 60);
+    const remMin = minutes % 60;
+    return `${hours}${this._localize("h")}${remMin ? remMin + this._localize("m") : ""}`;
+  }
+
+  _renderTimerNameSelector(inputId, placeholder) {
+    const presets = this._config.timer_name_presets || [];
+    if (presets.length === 0) {
+      return b`<input id="${inputId}" class="text-input" placeholder="${placeholder}" style="margin-top: 12px;" />`;
+    }
+    const customValue = this._lastSelectedName[inputId];
+    const isCustomValue = customValue && !presets.includes(customValue);
+    return b`
+      <div class="name-selector">
+        <div class="name-chips" style="display: ${this._showingCustomName[inputId] ? "none" : "flex"};">
+          ${presets.map(name => b`
+            <button class="btn btn-preset ${this._lastSelectedName[inputId] === name ? "selected" : ""}"
+                    @click=${(e) => this._setTimerName(inputId, name, e)}>
+              ${this._sanitizeText(name)}
+            </button>
+          `)}
+          ${isCustomValue ? b`
+            <button class="btn btn-preset selected"
+                    @click=${(e) => this._editCustomValue(inputId, e)}>
+              ${this._sanitizeText(customValue)}
+            </button>
+          ` : b`
+            <button class="btn btn-ghost"
+                    @click=${(e) => this._showCustomNameInput(inputId, e)}>
+              ${this._localize("custom")}
+            </button>
+          `}
+        </div>
+        <input id="${inputId}" class="text-input" placeholder="${placeholder}"
+               style="display: ${this._showingCustomName[inputId] ? "block" : "none"};"
+               @blur=${(e) => this._handleCustomInputBlur(inputId, e)}
+               @keypress=${(e) => e.key === "Enter" && this._handleCustomInputBlur(inputId, e)} />
+      </div>
+    `;
+  }
+
+  _setTimerName(inputId, name, e) {
+    e?.stopPropagation();
+    const input = this.shadowRoot?.getElementById(inputId);
+    if (input) {
+      input.value = name;
+      this._lastSelectedName[inputId] = name;
+      this._showingCustomName[inputId] = false;
+      this.requestUpdate();
+    }
+  }
+
+  _showCustomNameInput(inputId, e) {
+    e?.stopPropagation();
+    const input = this.shadowRoot?.getElementById(inputId);
+    if (input) {
+      input.value = "";
+      this._showingCustomName[inputId] = true;
+      this.requestUpdate();
+      setTimeout(() => input.focus(), 10);
+    }
+  }
+
+  _editCustomValue(inputId, e) {
+    e?.stopPropagation();
+    const input = this.shadowRoot?.getElementById(inputId);
+    if (input) {
+      input.value = this._lastSelectedName[inputId] || "";
+      this._showingCustomName[inputId] = true;
+      this.requestUpdate();
+      setTimeout(() => { input.focus(); input.select(); }, 10);
+    }
+  }
+
+  _handleCustomInputBlur(inputId, e) {
+    const input = e.target;
+    const value = input.value.trim();
+    if (value) {
+      this._lastSelectedName[inputId] = value;
+      this._showingCustomName[inputId] = false;
+    } else {
+      this._showingCustomName[inputId] = false;
+      this._lastSelectedName[inputId] = null;
+    }
+    this.requestUpdate();
+  }
+
+  _cleanFriendlyName(friendlyName) {
+    if (!friendlyName) return friendlyName;
+    return friendlyName.replace(/\s*next\s+timer\s*/i, "").trim();
+  }
+
+  _handleStart(timer) {
+    if (timer?.kind === "template") {
+      if (this._isActionThrottled("start_template", timer.pinned_id || timer.id, 500)) return;
+      this._createPresetTimer(
+        timer.template_preset ?? timer.duration_input ?? timer.preset ?? timer.duration,
+        null,
+        (() => {
+          const overrides = {
+            label: timer.label || timer.name,
+            voice_pe_name: timer.label || timer.name,
+            icon: timer.icon,
+            color: timer.color,
+            expired_subtitle: timer.expired_subtitle,
+            pinned_id: timer.pinned_id || timer.id,
+          };
+          if (timer.audio_enabled === true || timer.audio_enabled === false) overrides.audio_enabled = timer.audio_enabled;
+          if (timer.audio_file_url) overrides.audio_file_url = timer.audio_file_url;
+          if (timer.audio_repeat_count !== undefined) overrides.audio_repeat_count = timer.audio_repeat_count;
+          if (timer.audio_play_until_dismissed === true || timer.audio_play_until_dismissed === false) overrides.audio_play_until_dismissed = timer.audio_play_until_dismissed;
+          return overrides;
+        })()
+      );
+      return;
+    }
+
+    if (timer.source === "timer") {
+      this._publishTimerEvent("started", timer);
+      if (timer.duration) {
+        const totalSeconds = Math.ceil(timer.duration / 1000);
+        const serviceDuration = this._formatDurationForService(totalSeconds);
+        this.hass.callService("timer", "start", { entity_id: timer.source_entity, duration: serviceDuration });
+      } else {
+        this.hass.callService("timer", "start", { entity_id: timer.source_entity });
+      }
+    } else {
+      this._toast("This timer can't be started from here.");
+    }
+  }
+
+  _handleCancel(timer) {
+    if (this._isActionThrottled("cancel", timer.id)) return;
+    this._ringingTimers.delete(timer.id);
+    if (timer.source === 'va') {
+      this.hass.callService('view_assist', 'cancel_timer', { timer_id: timer.va_raw_id })
+        .then(() => setTimeout(() => this._fetchVATimers(), 700))
+        .catch(e => console.error('[va-simple-timer-card] cancel_timer failed', e));
+      return;
+    }
+    if (timer.source === "voice_pe") {
+      if (!this._isLocalVoicePETimer(timer)) {
+        this._toast("This timer is read only.");
+        return;
+      }
+      this._publishTimerEvent("cancelled", timer);
+      this._sendVoicePECommand(timer.control_entity, `cancel:${String(timer.voice_pe_timer_id).trim()}`);
+      return;
+    }
+
+    this._publishTimerEvent("cancelled", timer);
+    if (timer.source === "helper") {
+      this._mutateHelper(timer.source_entity, (data) => { data.timers = data.timers.filter((t) => t.id !== timer.id); });
+    } else if (["local", "mqtt"].includes(timer.source)) {
+      this._removeTimerFromStorage(timer.id, timer.source);
+      this.requestUpdate();
+    } else if (timer.source === "timer") {
+      this.hass.callService("timer", "cancel", { entity_id: timer.source_entity });
+    } else {
+      this._toast("This timer can't be cancelled from here.");
+    }
+  }
+
+  _handlePause(timer) {
+    if (timer.source === "voice_pe") {
+      if (!this._isLocalVoicePETimer(timer)) {
+        this._toast("This timer is read only.");
+        return;
+      }
+      this._publishTimerEvent("paused", timer);
+      this._sendVoicePECommand(timer.control_entity, `pause:${String(timer.voice_pe_timer_id).trim()}`);
+      return;
+    }
+
+    this._publishTimerEvent("paused", timer);
+    if (timer.source === "helper") {
+      const now = Date.now();
+      const updates = _pauseUpdatesFromTimer(timer, now);
+      this._mutateHelper(timer.source_entity, (data) => {
+        const idx = data.timers.findIndex((t) => t.id === timer.id);
+        if (idx !== -1) {
+          data.timers[idx].paused = true;
+          data.timers[idx].remaining_ms = updates.remaining_ms;
+          data.timers[idx].end_ts = null;
+          data.timers[idx].state = "paused";
+        }
+      });
+    } else if (["local", "mqtt"].includes(timer.source)) {
+      const now = Date.now();
+      const updates = _pauseUpdatesFromTimer(timer, now);
+      this._updateTimerInStorage(
+        timer.id,
+        { paused: true, remaining_ms: updates.remaining_ms, end_ts: null, state: "paused" },
+        timer.source
+      );
+      this.requestUpdate();
+    } else if (timer.source === "timer") {
+      this.hass.callService("timer", "pause", { entity_id: timer.source_entity });
+    } else {
+      this._toast("This timer can't be paused from here.");
+    }
+  }
+
+  _handleResume(timer) {
+    if (timer.source === "voice_pe") {
+      if (!this._isLocalVoicePETimer(timer)) {
+        this._toast("This timer is read only.");
+        return;
+      }
+      this._publishTimerEvent("resumed", timer);
+      this._sendVoicePECommand(timer.control_entity, `resume:${String(timer.voice_pe_timer_id).trim()}`);
+      return;
+    }
+
+    this._publishTimerEvent("resumed", timer);
+    if (timer.source === "helper") {
+      const now = Date.now();
+      const updates = _resumeUpdatesFromTimer(timer, now);
+      this._mutateHelper(timer.source_entity, (data) => {
+        const idx = data.timers.findIndex((t) => t.id === timer.id);
+        if (idx !== -1) {
+          data.timers[idx].paused = false;
+          data.timers[idx].start_ts = updates.start_ts;
+          data.timers[idx].end_ts = updates.end_ts;
+          data.timers[idx].state = "active";
+          if (data.timers[idx].remaining_ms != null) delete data.timers[idx].remaining_ms;
+        }
+      });
+    } else if (["local", "mqtt"].includes(timer.source)) {
+      const now = Date.now();
+      const updates = _resumeUpdatesFromTimer(timer, now);
+      this._updateTimerInStorage(
+        timer.id,
+        updates,
+        timer.source
+      );
+      this.requestUpdate();
+    } else if (timer.source === "timer") {
+      this.hass.callService("timer", "start", { entity_id: timer.source_entity });
+    } else {
+      this._toast("This timer can't be resumed from here.");
+    }
+  }
+
+  _togglePause(t, e) {
+    e?.stopPropagation?.();
+    if (!["helper", "local", "mqtt", "timer"].includes(t.source)) return;
+    t.paused ? this._handleResume(t) : this._handlePause(t);
+  }
+
+  // === Action handler infrastructure (v2.6.0) ===
+  //
+  // Standard HA-style tap / hold / double-tap support on the card root and
+  // per row. Resolution for a row action: row config -> card config ->
+  // built-in default. Built-in default for tap is "open inline editor" when
+  // canEdit, else "toggle pause/resume". Hold and double-tap have no
+  // built-in default (action: "none" suppresses inheritance and default).
+  _hasAnyRowAction(t) {
+    const rowConf = this._getEntityConfig(t.source_entity) || {};
+    const c = this._config || {};
+    return !!(rowConf.tap_action || rowConf.hold_action || rowConf.double_tap_action
+           || c.tap_action || c.hold_action || c.double_tap_action);
+  }
+
+  _buildRowActionCtx(t, canEdit) {
+    const rowConf = this._getEntityConfig(t.source_entity) || {};
+    const cardConf = this._config || {};
+    const tapAction = rowConf.tap_action || cardConf.tap_action;
+    const holdAction = rowConf.hold_action || cardConf.hold_action;
+    const doubleAction = rowConf.double_tap_action || cardConf.double_tap_action;
+    return {
+      cardLevel: false,
+      entityId: t.source_entity,
+      timer: t,
+      canEdit,
+      isIdle: !!t.idle,
+      tapAction, holdAction, doubleAction,
+      hold: !!(holdAction && holdAction.action && holdAction.action !== "none"),
+      double: !!(doubleAction && doubleAction.action && doubleAction.action !== "none"),
+      key: `row:${t.source_entity || t.id || ""}`,
+    };
+  }
+
+  _buildCardActionCtx() {
+    const c = this._config || {};
+    return {
+      cardLevel: true,
+      entityId: undefined,
+      timer: null,
+      canEdit: false,
+      tapAction: c.tap_action,
+      holdAction: c.hold_action,
+      doubleAction: c.double_tap_action,
+      hold: !!(c.hold_action && c.hold_action.action && c.hold_action.action !== "none"),
+      double: !!(c.double_tap_action && c.double_tap_action.action && c.double_tap_action.action !== "none"),
+      key: "card",
+    };
+  }
+
+  _rowActionHandlers(t, canEdit) {
+    const factory = () => this._buildRowActionCtx(t, canEdit);
+    return {
+      down: (e) => this._onActionPointerDown(factory, e, true),
+      up: (e) => this._onActionPointerUp(factory, e, true),
+      cancel: () => this._onActionPointerCancel(),
+    };
+  }
+
+  _cardActionHandlers() {
+    const factory = () => this._buildCardActionCtx();
+    return {
+      down: (e) => this._onActionPointerDown(factory, e, false),
+      up: (e) => this._onActionPointerUp(factory, e, false),
+      cancel: () => this._onActionPointerCancel(),
+    };
+  }
+
+  // Ignore events that originate from an interactive descendant. This is
+  // what keeps the pause button, snooze/dismiss chips, vertical-circle hot
+  // zone and inline-editor inputs from also firing the row/card action.
+  _actionEventIsInternal(e) {
+    const tgt = e.target;
+    if (!tgt || typeof tgt.closest !== "function") return false;
+    const sel = "button, ha-icon-button, ha-button, mwc-button, "
+              + "ha-textfield, ha-input, ha-select, ha-formfield, input, textarea, "
+              + ".vcircle-wrap, .actions, .vactions, .vprogressbar, [data-no-action]";
+    return !!tgt.closest(sel);
+  }
+
+  _onActionPointerDown(ctxFactory, e, isRow) {
+    if (this._actionEventIsInternal(e)) return;
+    if (e.button !== undefined && e.button !== 0) return;
+    // For card-level: ignore if the event originated inside a row li; the row
+    // handler is authoritative there.
+    if (!isRow && e.target && typeof e.target.closest === "function" && e.target.closest("li")) return;
+    const ctx = ctxFactory();
+    this._actionState = { ctx, holdFired: false, holdTimer: null, downAt: Date.now() };
+    if (ctx.hold) {
+      this._actionState.holdTimer = window.setTimeout(() => {
+        if (!this._actionState) return;
+        this._actionState.holdFired = true;
+        this._dispatchAction(this._actionState.ctx, "hold");
+      }, 500);
+    }
+  }
+
+  _onActionPointerUp(ctxFactory, e, isRow) {
+    if (!this._actionState) return;
+    if (this._actionEventIsInternal(e)) { this._cancelActionState(); return; }
+    if (!isRow && e.target && typeof e.target.closest === "function" && e.target.closest("li")) {
+      this._cancelActionState();
+      return;
+    }
+    const state = this._actionState;
+    this._actionState = null;
+    if (state.holdTimer) clearTimeout(state.holdTimer);
+    if (state.holdFired) return;
+    const ctx = state.ctx;
+    const now = Date.now();
+    if (ctx.double && this._lastTap && this._lastTap.key === ctx.key && (now - this._lastTap.at) < 300) {
+      if (this._pendingTap) { clearTimeout(this._pendingTap); this._pendingTap = null; }
+      this._lastTap = null;
+      this._dispatchAction(ctx, "double_tap");
+      return;
+    }
+    this._lastTap = { key: ctx.key, at: now };
+    if (ctx.double) {
+      this._pendingTap = window.setTimeout(() => {
+        this._pendingTap = null;
+        this._dispatchAction(ctx, "tap");
+      }, 300);
+    } else {
+      this._dispatchAction(ctx, "tap");
+    }
+  }
+
+  _onActionPointerCancel() {
+    this._cancelActionState();
+  }
+
+  _cancelActionState() {
+    if (this._actionState && this._actionState.holdTimer) clearTimeout(this._actionState.holdTimer);
+    this._actionState = null;
+  }
+
+  _dispatchAction(ctx, type) {
+    const action = type === "tap" ? ctx.tapAction
+                 : type === "hold" ? ctx.holdAction
+                 : ctx.doubleAction;
+    if (action && action.action === "none") return;
+    if (action && action.action) { this._fireAction(action, ctx); return; }
+    // Built-in defaults: tap only, row level only.
+    //   - Idle HA timer entity (canEdit + isIdle): open inline editor.
+    //   - Any other state (paused, running, finished, or non-timer source):
+    //     no-op. Configure `tap_action: toggle` to get pause/resume.
+    if (type !== "tap") return;
+    if (ctx.cardLevel) return;
+    if (ctx.canEdit && ctx.isIdle) this._openTimerEditor(ctx.timer);
+  }
+
+  _fireAction(action, ctx) {
+    if (action.confirmation) {
+      const text = (typeof action.confirmation === "object" && action.confirmation.text)
+        ? action.confirmation.text
+        : "Are you sure?";
+      if (!window.confirm(text)) return;
+    }
+    switch (action.action) {
+      case "more-info": {
+        const entityId = action.entity || ctx.entityId;
+        if (!entityId) return;
+        this._fireHassEvent("hass-more-info", { entityId });
+        return;
+      }
+      case "toggle": {
+        // For timers managed by this card the HA `toggle` service does not
+        // exist (timer.* exposes start/pause/cancel/finish). Route to the
+        // most useful per-state action. Prefer the row's own timer object
+        // so predefined (template) rows with no source_entity still work.
+        let ourTimer = ctx && ctx.timer ? ctx.timer : null;
+        const entityId = action.entity || ctx.entityId;
+        if (!ourTimer && entityId) {
+          ourTimer = (this._timers || []).find(tt => tt && tt.source_entity === entityId) || null;
+        }
+        if (ourTimer) {
+          // Predefined / template row: always start (creates the live timer).
+          if (ourTimer.kind === "template" || ourTimer.source === "template") {
+            this._handleStart(ourTimer);
+            return;
+          }
+          if (["helper", "local", "mqtt", "timer", "voice_pe"].includes(ourTimer.source)) {
+            if (ourTimer.idle) {
+              // Idle HA timer.* opens the inline editor (matches the
+              // no-tap-action default). Other idle sources start in place.
+              if (ourTimer.source === "timer") this._openTimerEditor(ourTimer);
+              else this._handleStart(ourTimer);
+              return;
+            }
+            this._togglePause(ourTimer);
+            return;
+          }
+        }
+        if (!entityId || !this.hass) return;
+        const domain = entityId.split(".")[0];
+        this.hass.callService(domain, "toggle", { entity_id: entityId });
+        return;
+      }
+      case "navigate": {
+        if (!action.navigation_path) return;
+        const replace = !!action.navigation_replace;
+        if (replace) window.history.replaceState(null, "", action.navigation_path);
+        else window.history.pushState(null, "", action.navigation_path);
+        this._fireHassEvent("location-changed", { replace });
+        return;
+      }
+      case "url": {
+        if (!action.url_path) return;
+        window.open(action.url_path);
+        return;
+      }
+      case "perform-action":
+      case "call-service": {
+        const svc = action.perform_action || action.service;
+        if (!svc || typeof svc !== "string" || !svc.includes(".")) return;
+        const [domain, service] = svc.split(".", 2);
+        const data = action.data || action.service_data || {};
+        const target = action.target || {};
+        this.hass.callService(domain, service, data, target);
+        return;
+      }
+      default:
+        return;
+    }
+  }
+
+  _fireHassEvent(type, detail) {
+    const event = new Event(type, { bubbles: true, cancelable: false, composed: true });
+    event.detail = detail || {};
+    this.dispatchEvent(event);
+  }
+
+  _handleDismiss(timer) {
+    this._ringingTimers.delete(timer.id);
+    this._stopAudioForTimer(timer.id);
+    if (timer.source === 'va') {
+      this.hass.callService('view_assist', 'cancel_timer', { timer_id: timer.va_raw_id })
+        .then(() => setTimeout(() => this._fetchVATimers(), 700))
+        .catch(e => console.error('[va-simple-timer-card] cancel_timer failed', e));
+      return;
+    }
+    if (timer.source === "helper") {
+      this._mutateHelper(timer.source_entity, (data) => { data.timers = data.timers.filter((t) => t.id !== timer.id); });
+    } else if (["local", "mqtt"].includes(timer.source)) {
+      this._removeTimerFromStorage(timer.id, timer.source); this.requestUpdate();
+    } else if (timer.source === "timer") {
+      this.hass.callService("timer", "finish", { entity_id: timer.source_entity });
+    } else {
+      this._dismissed.add(`${timer.source_entity}:${timer.id}`);
+      this.requestUpdate();
+    }
+  }
+
+  _handleSnooze(timer, snoozeMinutesOverride) {
+    if (this._isActionThrottled("snooze", timer.id)) return;
+    this._ringingTimers.delete(timer.id);
+    this._stopAudioForTimer(timer.id);
+    this._publishTimerEvent("snoozed", timer);
+    if (timer.source === 'va') {
+      const mins = snoozeMinutesOverride || (this._config.va_snooze_options?.[0] ?? 5);
+      this.hass.callService('view_assist', 'snooze_timer', { timer_id: timer.va_raw_id, time: mins + ' minutes' })
+        .then(() => setTimeout(() => this._fetchVATimers(), 700))
+        .catch(e => console.error('[va-simple-timer-card] snooze_timer failed', e));
+      return;
+    }
+    const snoozeMinutes = Number(snoozeMinutesOverride ?? this._config.snooze_duration ?? 5);
+    if (!Number.isFinite(snoozeMinutes) || snoozeMinutes <= 0) {
+      this._toast("Invalid snooze_duration setting.");
+      return;
+    }
+    const newDurationMs = snoozeMinutes * 60000;
+    const newEndTime = Date.now() + newDurationMs;
+    if (timer.source === "helper") {
+      const now = Date.now();
+      this._mutateHelper(timer.source_entity, (data) => {
+        const idx = data.timers.findIndex((t) => t.id === timer.id);
+        if (idx !== -1) {
+          data.timers[idx].start_ts = now;
+          data.timers[idx].end_ts = newEndTime;
+          data.timers[idx].duration = newDurationMs;
+          data.timers[idx].paused = false;
+          data.timers[idx].state = "active";
+        }
+      });
+    } else if (["local", "mqtt"].includes(timer.source)) {
+      const now = Date.now();
+      this._updateTimerInStorage(
+        timer.id,
+        {
+          start_ts: now,
+          end_ts: newEndTime,
+          duration: newDurationMs,
+          paused: false,
+          state: "active",
+        },
+        timer.source
+      );
+      this.requestUpdate();
+    } else if (timer.source === "timer") {
+      const serviceDuration = this._formatDurationForService(snoozeMinutes * 60);
+      this.hass.callService("timer", "start", { entity_id: timer.source_entity, duration: serviceDuration });
+    } else {
+      this._toast("Only helper, local, MQTT, and timer entities can be snoozed here.");
+    }
+  }
+
+  _formatTimeAgo(ms) {
+    if (ms < 1000) return null;
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const fmt = (key, n) => this._localize(key).replace("{n}", n);
+    if (hours > 0) return fmt(hours === 1 ? "hour_ago" : "hours_ago", hours);
+    if (minutes > 0) return fmt(minutes === 1 ? "minute_ago" : "minutes_ago", minutes);
+    return fmt(seconds === 1 ? "second_ago" : "seconds_ago", seconds);
+  }
+
+  _formatClock(totalSeconds, includeDays = false) {
+    if (totalSeconds <= 0) return "00:00";
+
+    const days = Math.floor(totalSeconds / DAY_IN_SECONDS);
+    const remAfterDays = totalSeconds % DAY_IN_SECONDS;
+    const hours = Math.floor(remAfterDays / HOUR_IN_SECONDS);
+    const minutes = Math.floor((remAfterDays % HOUR_IN_SECONDS) / MINUTE_IN_SECONDS);
+    const seconds = remAfterDays % MINUTE_IN_SECONDS;
+    const pad = (n, len=2) => String(n).padStart(len, "0");
+
+    if (includeDays) {
+      if (days > 0) return `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      if (hours > 0) return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      return `${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    const totalHours = days * 24 + hours;
+    if (totalHours > 0) {
+        return `${pad(totalHours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+    return `${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  _getUnitLabel(key, count, style) {
+    if (style === "compact") {
+      if (key === "year" || key === "years") return this._localize("y_short");
+      if (key === "month" || key === "months") return this._localize("mo_short");
+      if (key === "week" || key === "weeks") return this._localize("w_short");
+      if (key === "day" || key === "days") return this._localize("d");
+      if (key === "hour" || key === "hours") return this._localize("h");
+      if (key === "minute" || key === "minutes") return this._localize("m");
+      return this._localize("s");
+    }
+
+    const translatedLabel = this._localize(key);
+    return `${count} ${translatedLabel}`;
+  }
+
+  _formatDuration(value, unit = "seconds") {
+    let totalSeconds;
+    if (unit === "ms") {
+      if (value <= 0) return "00:00";
+      totalSeconds = Math.ceil(value / 1000);
+    } else {
+      if (value <= 0) return "00:00";
+      totalSeconds = Math.floor(value);
+    }
+    return this._formatClock(totalSeconds, false);
+  }
+
+  _formatDurationHM(ms) {
+    const totalSeconds = Math.ceil(ms / 1000);
+    if (totalSeconds <= 0) return "00";
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const pad = (n) => String(n).padStart(2, "0");
+    if (hours > 0) return `${pad(hours)}:${pad(minutes)}`;
+    return `${pad(minutes)}`;
+  }
+
+  _formatDurationSS(ms) {
+    if (ms <= 0) return "0";
+    return `${Math.ceil(ms / 1000)}`;
+  }
+
+  _formatDurationDHMS(ms) {
+    return this._formatClock(Math.ceil(ms / 1000), true);
+  }
+
+  _formatHumanUnits(ms, style) {
+    const unitOrder = this._config.time_format_units && this._config.time_format_units.length
+      ? this._config.time_format_units
+      : ["days", "hours", "minutes", "seconds"];
+    const map = {
+      years: YEAR_IN_MS,
+      months: 30 * DAY_IN_MS,
+      weeks: 7 * DAY_IN_MS,
+      days: DAY_IN_MS,
+      hours: 3600 * 1000,
+      minutes: 60 * 1000,
+      seconds: 1000,
+    };
+    let remaining = ms;
+    const parts = [];
+    for (const u of unitOrder) {
+      const msPer = map[u];
+      if (!msPer) continue;
+      const count = Math.floor(remaining / msPer);
+      if (count > 0 || (u === unitOrder[unitOrder.length - 1] && parts.length === 0)) {
+        remaining -= count * msPer;
+        const unitKey = count === 1 ? u.slice(0, -1) : u;
+        const label = this._getUnitLabel(unitKey, count, style === "natural" ? "short" : style);
+        parts.push(style === "compact" ? `${count}${label}` : `${label}`);
+      }
+    }
+    if (style === "compact") return parts.join(" ");
+    return parts.join(", ");
+  }
+
+  _formatTimeString(t) {
+    const tf = this._config.time_format;
+    if (tf === "dhms") return this._formatDurationDHMS(t.remaining);
+    if (tf === "hm") return this._formatDurationHM(t.remaining);
+    if (tf === "ss") return this._formatDurationSS(t.remaining);
+    if (tf === "human_compact") return this._formatHumanUnits(t.remaining, "compact");
+    if (tf === "human_short") return this._formatHumanUnits(t.remaining, "short");
+    if (tf === "human_natural") return this._formatHumanUnits(t.remaining, "natural");
+    return this._formatDurationHMS(t.remaining);
+  }
+
+  _formatDurationHMS(ms) {
+    return this._formatClock(Math.ceil(ms / 1000), false);
+  }
+
+  _formatDurationForService(totalSeconds) {
+    totalSeconds = Math.max(0, Math.floor(totalSeconds));
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  _toggleCustom(which) {
+    const openKey = `noTimer${which.charAt(0).toUpperCase() + which.slice(1)}Open`;
+    this._ui[openKey] = !this._ui[openKey];
+    this.requestUpdate();
+  }
+
+  _parseAdjustmentToSeconds(value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value * 60;
+    }
+    if (typeof value !== "string") return 0;
+    const m = value.trim().toLowerCase().match(/^(\d+)\s*([smhd])?$/);
+    if (!m) return 0;
+    const n = parseInt(m[1], 10);
+    if (!Number.isFinite(n) || n < 0) return 0;
+    switch (m[2]) {
+      case "s": return n;
+      case "h": return n * 3600;
+      case "d": return n * 86400;
+      case "m":
+      default:  return n * 60;
+    }
+  }
+
+  _adjust(which, value, sign = 1) {
+    const delta = this._parseAdjustmentToSeconds(value);
+    if (!Number.isFinite(delta)) return;
+    const base = Number(this._customSecs?.[which] ?? 0);
+    const next = base + sign * delta;
+    this._customSecs = { ...this._customSecs, [which]: Math.max(0, Number.isFinite(next) ? next : 0) };
+  }
+
+
+  _createAndSaveTimer(secs, label) {
+    if (this._isActionThrottled("create_timer", "global", 500)) return;
+    const secsNum = Number(secs);
+    if (!Number.isFinite(secsNum) || secsNum <= 0) return;
+
+    const durationMs = secsNum * 1000;
+    const validation = this._validateTimerInput(durationMs, label);
+    if (!validation.valid) return;
+
+    const finalLabel = label && String(label).trim()
+      ? this._sanitizeText(String(label).trim())
+      : this._formatTimerLabel(secsNum);
+
+    let targetEntity = this._config.default_timer_entity || "";
+    if (this._config.auto_voice_pe === true) {
+      const vpeEntity = this._getDefaultVoicePETargetEntity();
+      if (vpeEntity) targetEntity = vpeEntity;
+    }
+
+    if (targetEntity) {
+      const voicePEEnabled = this._config.auto_voice_pe === true;
+      const controlEntityFromCfg = this._config?.voice_pe_control_entity ? String(this._config.voice_pe_control_entity).trim() : "";
+      const canStartVoicePE = voicePEEnabled && !!controlEntityFromCfg;
+
+      if (voicePEEnabled && !controlEntityFromCfg) {
+        this._toast("Voice PE control entity is not set. Please configure it in the card editor.");
+      }
+
+      if (canStartVoicePE) {
+        this._publishTimerEvent("started", { source: "voice_pe", source_entity: targetEntity, label: finalLabel });
+        const userProvidedName = !!(label && String(label).trim());
+        const nameForCommand = userProvidedName ? String(label).trim() : "";
+        this._sendVoicePEStart(durationMs, nameForCommand, targetEntity);
+        this.requestUpdate();
+        return;
+      }
+    }
+
+
+
+    if (targetEntity && (targetEntity.startsWith("input_text.") || targetEntity.startsWith("text."))) {
+      const now = Date.now();
+      const newTimer = {
+        id: `custom-${now}`,
+        kind: "active",
+        state: "active",
+        label: finalLabel,
+        name: finalLabel,
+        icon: this._config.default_timer_icon || "mdi:timer-outline",
+        color: this._config.default_timer_color || "var(--primary-color)",
+        source: "helper",
+        source_entity: targetEntity,
+        start_ts: now,
+        end_ts: now + durationMs,
+        duration: durationMs,
+        supports: { pause: true, cancel: true, snooze: true, extend: true },
+      };
+      this._mutateHelper(targetEntity, (data) => { data.timers.push(newTimer); });
+      this._publishTimerEvent("started", newTimer);
+      this.requestUpdate();
+      return;
+    }
+
+
+    const now = Date.now();
+    const t = {
+      id: `custom-${now}`,
+      kind: "active",
+      label: finalLabel,
+      name: finalLabel,
+      source: this._config.storage === "mqtt" ? "mqtt" : "local",
+      source_entity: this._config.storage === "mqtt" ? this._config.mqtt?.sensor_entity : "local",
+      start_ts: now,
+      end_ts: now + durationMs,
+      state: "active",
+      supports: { pause: true, cancel: true, snooze: true, extend: true },
+      icon: this._config.default_timer_icon || "mdi:timer-outline",
+      color: this._config.default_timer_color || "var(--primary-color)",
+      duration: durationMs,
+      paused: false,
+      idle: false,
+      finished: false,
+    };
+    this._addTimerToStorage(t);
+    this._publishTimerEvent("started", t);
+    this.requestUpdate();
+  }
+
+  _startFromCustom(which, label) {
+    const secs = this._customSecs[which];
+    const inputId = which === "horizontal" ? "nt-h-name" : "nt-v-name";
+    let finalLabel = label || this._lastSelectedName[inputId] || "";
+    const input = this.shadowRoot?.getElementById(inputId);
+    if (input && input.value) finalLabel = input.value.trim();
+    this._createAndSaveTimer(secs, finalLabel);
+    const defaultDurationSecs = (parseInt(this._config.default_new_timer_duration_mins, 10) || 15) * 60;
+    this._customSecs = { ...this._customSecs, [which]: defaultDurationSecs };
+    const openKey = `noTimer${which.charAt(0).toUpperCase() + which.slice(1)}Open`;
+    this._ui[openKey] = false;
+    this._showingCustomName[inputId] = false;
+    this._lastSelectedName[inputId] = null;
+    if (input) input.value = "";
+    this.requestUpdate();
+  }
+
+  _startActive(which, label) {
+    const secs = this._activeSecs[which];
+    const inputId = which === "bar" ? "add-bar-name" : "add-fill-name";
+    let finalLabel = label || this._lastSelectedName[inputId] || "";
+    const input = this.shadowRoot?.getElementById(inputId);
+    if (input && input.value) finalLabel = input.value.trim();
+    this._createAndSaveTimer(secs, finalLabel);
+    const defaultDurationSecs = (parseInt(this._config.default_new_timer_duration_mins, 10) || 15) * 60;
+    this._activeSecs = { ...this._activeSecs, [which]: defaultDurationSecs };
+    const openKey = `active${which.charAt(0).toUpperCase() + which.slice(1)}Open`;
+    this._ui[openKey] = false;
+    this._showingCustomName[inputId] = false;
+    this._lastSelectedName[inputId] = null;
+    if (input) input.value = "";
+    this.requestUpdate();
+  }
+
+  _toggleActivePicker(which) {
+    const openKey = `active${which.charAt(0).toUpperCase() + which.slice(1)}Open`;
+    this._ui[openKey] = !this._ui[openKey];
+    this.requestUpdate();
+  }
+
+  _adjustActive(which, value, sign = 1) {
+    const delta = this._parseAdjustmentToSeconds(value);
+    this._activeSecs = { ...this._activeSecs, [which]: Math.max(0, this._activeSecs[which] + sign * delta) };
+  }
+
+  _pickAutoMilestoneUnit(duration) {
+    if (!duration || duration <= 0) return "seconds";
+    if (duration >= YEAR_IN_MS) return "years";
+    if (duration >= 30 * DAY_IN_MS) return "months";
+    if (duration >= 7 * DAY_IN_MS) return "weeks";
+    if (duration >= DAY_IN_MS) return "days";
+    if (duration >= 3600 * 1000) return "hours";
+    if (duration >= 60 * 1000) return "minutes";
+    return "seconds";
+  }
+
+  _renderMilestoneSegments(t, pct) {
+    if (this._config.progress_mode !== "milestones") return null;
+    if (!["bar_horizontal", "bar_vertical"].includes(this._config.style)) return null;
+    const cfgUnit = (this._config.milestone_unit || "auto").toLowerCase();
+    const effectiveUnit = cfgUnit === "auto" ? this._pickAutoMilestoneUnit(t.duration) : cfgUnit;
+    if (effectiveUnit === "none") return null;
+    const unitMsMap = {
+      years: YEAR_IN_MS,
+      months: 30 * DAY_IN_MS,
+      weeks: 7 * DAY_IN_MS,
+      days: DAY_IN_MS,
+      hours: 3600 * 1000,
+      minutes: 60 * 1000,
+      seconds: 1000
+    };
+    const unitMs = unitMsMap[effectiveUnit];
+    if (!unitMs || !t.duration || t.duration <= 0) return null;
+    const segments = Math.min(100, Math.max(1, Math.ceil(t.duration / unitMs)));
+    if (!segments || segments <= 1) return null;
+    const filledRaw = pct / 100 * segments;
+    const completed = Math.floor(filledRaw);
+    const activeIndex = Math.min(segments - 1, Math.max(0, completed));
+    const idle = t.idle === true;
+    return b`
+      <div class="milestone-track ${idle ? "idle" : ""}">
+        ${Array.from({ length: segments }).map((_, idx) => {
+          if (idle) {
+            return b`<div class="segment idle"></div>`;
+          }
+          const isCompleted = idx < completed;
+          const shouldPulse = !t.paused && !t.idle && this._config.milestone_pulse !== false;
+          const isActive = idx === activeIndex && shouldPulse;
+          const isInactive = idx > completed;
+          const cls = [
+            "segment",
+            isCompleted ? "completed" : "",
+            isActive ? "active" : "",
+            isInactive ? "inactive" : "",
+            this._config.progress_mode === "drain" ? "drain" : "fill"
+          ].join(" ");
+          return b`<div class="${cls}"></div>`;
+        })}
+      </div>
+    `;
+  }
+
+  _renderProgressTrack(t, style, pct, pctLeft) {
+    const milestoneTrack = this._renderMilestoneSegments(t, pct);
+    if (milestoneTrack) return milestoneTrack;
+    return b`
+      <div class="track">
+        <div class="fill" style="width:${this._config.progress_mode === "drain" ? pctLeft : pct}%"></div>
+      </div>
+    `;
+  }
+
+  _openTimerEditor(t) {
+    if (t.source !== "timer") return;
+    const ms = t.duration || 0;
+    const totalSeconds = Math.floor(ms / 1000);
+    this._editDuration = {
+      h: Math.floor(totalSeconds / 3600),
+      m: Math.floor((totalSeconds % 3600) / 60),
+      s: totalSeconds % 60
+    };
+    this._editingTimerId = t.id;
+    this.requestUpdate();
+  }
+
+  _cancelEdit() {
+    this._editingTimerId = null;
+    this.requestUpdate();
+  }
+
+  _adjustEditTotal(deltaSeconds) {
+    let total = this._editDuration.h * 3600 + this._editDuration.m * 60 + this._editDuration.s;
+    total += deltaSeconds;
+    if (total < 0) total = 0;
+    this._editDuration = {
+        h: Math.floor(total / 3600),
+        m: Math.floor((total % 3600) / 60),
+        s: total % 60
+    };
+    this.requestUpdate();
+  }
+
+  async _saveTimerConfig(t) {
+    const { h, m, s } = this._editDuration;
+    const durationStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const stateObj = this.hass.states[t.source_entity];
+    const name = stateObj.attributes.friendly_name || t.source_entity;
+
+    try {
+        await this.hass.callWS({
+            type: "timer/update",
+            timer_id: t.source_entity.replace("timer.", ""),
+            duration: durationStr,
+            name: name,
+            icon: stateObj.attributes.icon || ""
+        });
+    } catch(e) {
+        if (this.hass.services?.timer?.set_duration) {
+            try {
+                await this.hass.callService("timer", "set_duration", {
+                    entity_id: t.source_entity,
+                    duration: durationStr
+                });
+                return;
+            } catch(e2) {
+                console.error("Error updating timer via set_duration", e2);
+            }
+        }
+        if (e.code === "not_found") {
+            console.warn(`Timer ${t.source_entity} is not registry-managed (likely YAML-defined). Config update skipped.`);
+            return;
+        }
+        console.error("Error updating timer", e);
+        this._toast(`Error: ${e.message}`);
+        throw e;
+    }
+  }
+
+  async _startEditTimer(t) {
+    try {
+        await this._saveTimerConfig(t);
+
+        const { h, m, s } = this._editDuration;
+        const durationStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        this.hass.callService("timer", "start", {
+            entity_id: t.source_entity,
+            duration: durationStr
+        });
+        this._editingTimerId = null;
+        this.requestUpdate();
+    } catch (e) {
+    }
+  }
+
+  async _saveAndClose(t) {
+      await this._saveTimerConfig(t);
+      this._editingTimerId = null;
+      this.requestUpdate();
+  }
+
+  _renderInlineEditor(t, style) {
+    const isCircle = style === "circle";
+    const baseClasses = style.startsWith("fill_")
+      ? "card item editor-row"
+      : (isCircle ? "item vtile editor-row" : "item bar editor-row");
+
+    const minuteButtons = this._config.minute_buttons?.length
+      ? this._config.minute_buttons
+      : [1, 5, 10];
+
+    const totalSeconds = this._editDuration.h * 3600 + this._editDuration.m * 60 + this._editDuration.s;
+    const stateObj = t.source_entity ? this.hass.states[t.source_entity] : null;
+    const timerName = stateObj?.attributes?.friendly_name || t.label || t.source_entity || "";
+
+    const renderAdjustButtons = (sign) => minuteButtons.map((val) => {
+      const delta = this._parseAdjustmentToSeconds(val);
+      const isNegative = sign < 0;
+      const isClickable = !isNegative || totalSeconds >= delta;
+      const displayLabel = this._formatPresetLabel(val);
+
+      return b`
+        <button class="btn btn-ghost ${isClickable ? "" : "disabled"}"
+                @click=${() => isClickable && this._adjustEditTotal(sign * delta)}>
+          ${isNegative ? "-" : "+"}${displayLabel}
+        </button>
+      `;
+    });
+
+    return b`
+      <li class="${baseClasses}" style="--tcolor:${t.color || "var(--primary-color)"}; cursor: default;">
+        <div class="editor-container">
+          <div class="buttons-grid">
+            ${renderAdjustButtons(1)}
+          </div>
+
+          <div class="display">${this._formatClock(totalSeconds, true)}</div>
+
+          <div class="buttons-grid">
+            ${renderAdjustButtons(-1)}
+          </div>
+
+          <input class="text-input" placeholder="${this._localize("timer_name_optional")}" readonly style="margin-top: 12px;"
+                 .value=${this._sanitizeText(timerName)} />
+
+          <div class="picker-actions">
+            <button class="btn btn-ghost" @click=${() => this._cancelEdit()}>${this._localize("cancel")}</button>
+            <button class="btn btn-ghost" @click=${() => this._saveAndClose(t)}>${this._localize("save")}</button>
+            <button class="btn btn-primary" @click=${() => this._startEditTimer(t)}>${this._localize("start")}</button>
+          </div>
+        </div>
+      </li>
+    `;
+  }
+
+  _renderItem(t, style) {
+    if (this._editingTimerId === t.id) {
+        return this._renderInlineEditor(t, style);
+    }
+    const state = this._getTimerRenderState(t, style);
+    const { isPaused, isIdle, isFinished, color, icon, ring, pct, pctLeft, isCircleStyle, isFillStyle, supportsPause, supportsManualControls, timeStr, circleValues, supportsReadOnlyDismiss } = state;
+    const baseClasses = isFillStyle ? "card item" : (isCircleStyle ? "item vtile" : "item bar");
+    const finishedClasses = isFillStyle ? "card item finished" : (isCircleStyle ? "item vtile" : "card item bar");
+
+    const isRunning = !t.idle && !t.paused && !t.finished;
+    const canEdit = t.source === "timer" && !isRunning;
+
+    if (ring) {
+      if (isCircleStyle) {
+        return b`
+          <li class="${finishedClasses}" style="--tcolor:${color}">
+            <div class="vcol">
+              <div class="vcircle-wrap">
+                <svg class="vcircle" width="64" height="64" viewBox="0 0 64" aria-hidden="true">
+                  <circle class="vc-track ${this._config.progress_mode === "drain" ? "vc-track-drain" : ""}" style="stroke: var(--tcolor, var(--primary-color)); stroke-opacity: 0.22;"
+                          cx="32" cy="32" r="${circleValues.radius}"></circle>
+                  <circle class="vc-prog ${this._config.progress_mode === "drain" ? "vc-prog-drain done" : "done"}"
+                          cx="32" cy="32" r="${circleValues.radius}"
+                    stroke-dasharray="${circleValues.circumference} ${circleValues.circumference}"
+                    style="stroke: var(--tcolor, var(--primary-color)); stroke-dashoffset: ${this._config.progress_mode === "drain" ? circleValues.circumference : "0"};
+                            transition: stroke-dashoffset 0.25s;"></circle>
+                </svg>
+                <div class="icon-wrap xl"><ha-icon .icon=${icon}></ha-icon></div>
+              </div>
+              <div class="vtitle">${t.label}</div>
+              <div class="vstatus up">${timeStr}</div>
+              <div class="vactions">
+                ${supportsManualControls ? b`
+                  ${t.source === 'va' ? (this._config.va_snooze_options || [5, 10]).map(m => b`<button class="chip" @click=${() => this._handleSnooze(t, m)}>Snooze ${m}m</button>`) : b`<button class="chip" @click=${() => this._handleSnooze(t)}>${this._localize("snooze")}</button>`}
+                  <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+                ` : supportsReadOnlyDismiss ? b`
+                  <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+                ` : ""}
+              </div>
+            </div>
+          </li>
+        `;
+      }
+      return b`
+        <li class="${finishedClasses}" style="--tcolor:${color}">
+          ${isFillStyle ? b`<div class="progress-fill" style="width:100%"></div>` : ""}
+          <div class="${isFillStyle ? "card-content" : "row"}">
+            <div class="icon-wrap"><ha-icon .icon=${icon}></ha-icon></div>
+            <div class="info">
+              <div class="title">${t.label}</div>
+              <div class="status up">${timeStr}</div>
+            </div>
+            ${supportsManualControls ? b`
+              <div class="chips">
+                <button class="chip" @click=${() => this._handleSnooze(t)}>${this._localize("snooze")}</button>
+                <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+              </div>
+            ` : supportsReadOnlyDismiss ? b`
+              <div class="chips">
+                <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+              </div>
+            `: ""}
+          </div>
+        </li>
+      `;
+    }
+
+    const acts = this._rowActionHandlers(t, canEdit);
+    const rowStyle = (canEdit || this._hasAnyRowAction(t)) ? "cursor: pointer;" : "";
+
+    const fillPct = this._config.progress_mode === "drain" ? pctLeft : pct;
+    const fillInlineStyle = `width:${fillPct}%;`;
+
+    if (isFillStyle) {
+      return b`
+        <li class="${baseClasses}" style="--tcolor:${color}; ${rowStyle}" @pointerdown=${acts.down} @pointerup=${acts.up} @pointercancel=${acts.cancel}>
+          <div class="progress-fill" style="${fillInlineStyle}"></div>
+          <div class="card-content">
+            <div class="icon-wrap"><ha-icon .icon=${icon}></ha-icon></div>
+            <div class="info">
+              <div class="title">${t.label}</div>
+              <div class="status">${timeStr}</div>
+            </div>
+            <div class="actions" @click=${(e) => e.stopPropagation()}>
+              ${isIdle && supportsManualControls ? b`
+                <button class="action-btn" title="${this._localize("start")}" @click=${() => this._handleStart(t)}>
+                  <ha-icon icon="mdi:play"></ha-icon>
+                </button>
+              ` : supportsPause && !ring && supportsManualControls ? b`
+                <button class="action-btn" title="${t.paused ? "Resume" : "Pause"}" @click=${() => t.paused ? this._handleResume(t) : this._handlePause(t)}>
+                  <ha-icon icon=${t.paused ? "mdi:play" : "mdi:pause"}></ha-icon>
+                </button>
+              ` : ""}
+              ${supportsManualControls && !isIdle ? b`<button class="action-btn" title="${this._localize("cancel")}" @click=${() => this._handleCancel(t)}><ha-icon icon="mdi:close"></ha-icon></button>` : ""}
+            </div>
+          </div>
+        </li>
+      `;
+    } else if (isCircleStyle) {
+      return b`
+        <li class="${baseClasses}" style="--tcolor:${color}; ${rowStyle}" @pointerdown=${acts.down} @pointerup=${acts.up} @pointercancel=${acts.cancel}>
+          ${supportsManualControls && !isIdle ? b`
+            <button class="vtile-close" title="${this._localize("cancel")}"
+              @click=${(e)=>{ e.stopPropagation(); this._handleCancel(t); }}>
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          ` : ""}
+          <div class="vcol">
+            <div class="vcircle-wrap"
+                 title="${isIdle ? "Start" : (t.paused ? "Resume" : "Pause")}"
+                 @click=${(e)=> {
+                   e.stopPropagation();
+                   if (isIdle && supportsManualControls) this._handleStart(t);
+                   else if (supportsPause && supportsManualControls) this._togglePause(t, e);
+                 }}>
+              <svg class="vcircle" width="64" height="64" viewBox="0 0 64" aria-hidden="true">
+                <circle class="vc-track ${this._config.progress_mode === "drain" ? "vc-track-drain" : ""}" style="stroke: var(--tcolor, var(--primary-color)); stroke-opacity: 0.22;"
+                        cx="32" cy="32" r="${circleValues.radius}"></circle>
+                <circle class="vc-prog ${this._config.progress_mode === "drain" ? "vc-prog-drain" : ""}"
+                        cx="32" cy="32" r="${circleValues.radius}"
+                  stroke-dasharray="${circleValues.circumference} ${circleValues.circumference}"
+                  style="stroke: var(--tcolor, var(--primary-color)); stroke-dashoffset: ${circleValues.strokeDashoffset}; transition: stroke-dashoffset 0.25s;"></circle>
+              </svg>
+              <div class="icon-wrap xl"><ha-icon .icon=${icon}></ha-icon></div>
+            </div>
+            <div class="vtitle">${t.label}</div>
+            <div class="vstatus">${timeStr}</div>
+          </div>
+        </li>
+      `;
+    } else {
+      return b`
+        <li class="${baseClasses}" style="--tcolor:${color}; ${rowStyle}" @pointerdown=${acts.down} @pointerup=${acts.up} @pointercancel=${acts.cancel}>
+          <div class="row">
+            <div class="icon-wrap"><ha-icon .icon=${icon}></ha-icon></div>
+            <div class="info">
+              <div class="top">
+                <div class="title">${t.label}</div>
+                <div class="status">${timeStr}</div>
+              </div>
+              ${this._renderProgressTrack(t, style, pct, pctLeft)}
+            </div>
+            <div class="actions" @click=${(e) => e.stopPropagation()}>
+              ${isIdle && supportsManualControls ? b`
+                <button class="action-btn" title="${this._localize("start")}" @click=${() => this._handleStart(t)}>
+                  <ha-icon icon="mdi:play"></ha-icon>
+                </button>
+              ` : supportsPause && !ring && supportsManualControls ? b`
+                <button class="action-btn" title="${t.paused ? "Resume" : "Pause"}" @click=${() => t.paused ? this._handleResume(t) : this._handlePause(t)}>
+                  <ha-icon icon=${t.paused ? "mdi:play" : "mdi:pause"}></ha-icon>
+                </button>
+              ` : ""}
+              ${supportsManualControls && !isIdle ? b`<button class="action-btn" title="${this._localize("cancel")}" @click=${() => this._handleCancel(t)}><ha-icon icon="mdi:close"></ha-icon></button>` : ""}
+            </div>
+          </div>
+        </li>
+      `;
+    }
+  }
+
+  _calculateCircleValues(radius = 28, pct = 0, mode = "fill") {
+    const circumference = radius * 2 * Math.PI;
+    const strokeDashoffset = mode === "drain"
+      ? (pct / 100) * circumference
+      : circumference - (pct / 100) * circumference;
+    return { radius, circumference, strokeDashoffset };
+  }
+
+  _getTimerRenderState(t, style) {
+    const isPaused = t.paused;
+    const isIdle = t.idle;
+    const isFinished = t.finished;
+    const color = isPaused ? "var(--warning-color)" : (isFinished ? "var(--success-color)" : (t.color || "var(--primary-color)"));
+    const icon = isIdle ? (t.icon || "mdi:timer-outline") : (isPaused ? "mdi:timer-pause" : (isFinished ? "mdi:timer-check" : (t.icon || "mdi:timer-outline")));
+    const ring = t.remaining <= 0 && !isIdle && !isFinished;
+    const pct = typeof t.percent === "number" ? Math.max(0, Math.min(100, t.percent)) : 0;
+    const pctLeft = 100 - pct;
+    const isCircleStyle = style === "circle";
+    const isFillStyle = style.startsWith("fill_");
+    const supportsPause = ["helper", "local", "mqtt", "timer"].includes(t.source) || (t.source === "voice_pe" && !!(t.control_entity && String(t.control_entity).trim() && t.voice_pe_timer_id && String(t.voice_pe_timer_id).trim()));
+    const entityConf = this._getEntityConfig(t.source_entity);
+    const hideTimerActions = entityConf?.hide_timer_actions === true;
+    const isTimerSource = t.source === "timer";
+    const supportsManualControls = (((["local", "mqtt", "timer", "helper"].includes(t.source)) || t.kind === "template" || t.source === "template") && !(isTimerSource && hideTimerActions)) || (t.source === "voice_pe" && !!(t.control_entity && String(t.control_entity).trim()));
+    const supportsReadOnlyDismiss = ring && ["timestamp", "minutes_attr", "alexa"].includes(t.source);
+    let timeStr;
+    if (isIdle) timeStr = t.duration ? this._formatDuration(t.duration, "ms") : this._localize("ready");
+    else if (isPaused) timeStr = `${this._formatDuration(t.remaining, "ms")} (${this._localize("paused")})`;
+    else if (isFinished) {
+      const now = Date.now();
+      const elapsedSinceFinish = now - (t.finishedAt || t.end_ts || now);
+      const elapsedStr = this._formatTimeAgo(elapsedSinceFinish);
+      const expiredMessage = t.expired_subtitle || entityConf?.expired_subtitle || this._config.expired_subtitle || this._localize("times_up");
+      timeStr = elapsedStr ? `${expiredMessage} - ${elapsedStr}` : expiredMessage;
+    } else if (ring) {
+      timeStr = t.expired_subtitle || entityConf?.expired_subtitle || this._config.expired_subtitle || this._localize("times_up");
+    } else {
+      timeStr = this._formatTimeString(t);
+    }
+    let circleValues;
+    if (isCircleStyle) {
+      const progressMode = this._config.progress_mode === "drain" ? "drain" : "fill";
+      circleValues = this._calculateCircleValues(28, pct, progressMode);
+    }
+    return {
+      isPaused, isIdle, isFinished, color, icon, ring, pct, pctLeft,
+      isCircleStyle, isFillStyle,
+      supportsPause, supportsManualControls, timeStr,
+      circleValues, supportsReadOnlyDismiss
+    };
+  }
+
+  _renderMinuteButtons(which, adjustFunction, sign) {
+    const minuteButtons = this._config.minute_buttons?.length ? this._config.minute_buttons : [1, 5, 10];
+    const target = ["horizontal", "vertical"].includes(which) ? "custom" : "active";
+    const whichKey = which === "horizontal" ? "horizontal" : (which === "vertical" ? "vertical" : (which === "fill" ? "fill" : "bar"));
+    const currentSecs = this[`_${target}Secs`][whichKey];
+    return minuteButtons.map(val => {
+      const delta = this._parseAdjustmentToSeconds(val);
+      const isNegative = sign < 0;
+      const isClickable = !isNegative || (currentSecs >= delta);
+      const displayLabel = this._formatPresetLabel(val);
+      return b`
+        <button class="btn btn-ghost ${isClickable ? "" : "disabled"}"
+                @click=${() => isClickable && adjustFunction(whichKey, val, sign)}>
+          ${isNegative ? "-" : "+"}${displayLabel}
+        </button>
+      `;
+    });
+  }
+
+  _renderItemVertical(t, style) {
+    if (this._editingTimerId === t.id) {
+        return this._renderInlineEditor(t, style);
+    }
+    const state = this._getTimerRenderState(t, style);
+    const { isPaused, isIdle, isFinished, color, icon, ring, pct, pctLeft, isCircleStyle, isFillStyle, supportsPause, supportsManualControls, timeStr, circleValues, supportsReadOnlyDismiss } = state;
+    const baseClasses = style.startsWith("fill_") ? "card item vtile" : "item vtile";
+
+    const isRunning = !t.idle && !t.paused && !t.finished;
+    const canEdit = t.source === "timer" && !isRunning;
+    const acts = this._rowActionHandlers(t, canEdit);
+    const rowStyle = (canEdit || this._hasAnyRowAction(t)) ? "cursor: pointer;" : "";
+
+    const fillPct = this._config.progress_mode === "drain" ? pctLeft : pct;
+    const fillInlineStyle = `width:${fillPct}%;`;
+
+    if (ring) {
+      return b`
+        <li class="${baseClasses}" style="--tcolor:${color}">
+          ${style.startsWith("fill_") ? b`<div class="progress-fill" style="width:100%"></div>` : ""}
+          <div class="vcol">
+            <div class="icon-wrap large"><ha-icon .icon=${icon}></ha-icon></div>
+            <div class="vtitle">${t.label}</div>
+            <div class="vstatus up">${timeStr}</div>
+            <div class="vactions-center">
+              ${supportsManualControls ? b`
+                <button class="chip" @click=${() => this._handleSnooze(t)}>${this._localize("snooze")}</button>
+                <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+              ` : supportsReadOnlyDismiss ? b`
+                <button class="chip" @click=${() => this._handleDismiss(t)}>${this._localize("dismiss")}</button>
+              ` : ""}
+            </div>
+          </div>
+        </li>
+      `;
+    }
+
+    if (style === "circle") {
+      return b`
+        <li class="${baseClasses}" style="--tcolor:${color}; ${rowStyle}" @pointerdown=${acts.down} @pointerup=${acts.up} @pointercancel=${acts.cancel}>
+          ${supportsManualControls && !isIdle ? b`
+            <button class="vtile-close" title="${this._localize("cancel")}"
+              @click=${(e)=>{ e.stopPropagation(); this._handleCancel(t); }}>
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          ` : ""}
+          <div class="vcol">
+            <div class="vcircle-wrap"
+                 title="${isIdle ? "Start" : (t.paused ? "Resume" : "Pause")}"
+                 @click=${(e)=> {
+                   e.stopPropagation();
+                   if (canEdit) {
+                     this._openTimerEditor(t);
+                     return;
+                   }
+                   if (isIdle && supportsManualControls) this._handleStart(t);
+                   else if (supportsPause && supportsManualControls) this._togglePause(t, e);
+                 }}>
+              <svg class="vcircle" width="64" height="64" viewBox="0 0 64" aria-hidden="true">
+                <circle class="vc-track ${this._config.progress_mode === "drain" ? "vc-track-drain" : ""}"
+                        cx="32" cy="32" r="${circleValues.radius}"></circle>
+                <circle class="vc-prog ${this._config.progress_mode === "drain" ? "vc-prog-drain" : ""}"
+                        cx="32" cy="32" r="${circleValues.radius}"
+                  stroke-dasharray="${circleValues.circumference} ${circleValues.circumference}"
+                  style="stroke-dashoffset: ${circleValues.strokeDashoffset}; transition: stroke-dashoffset 0.25s;"></circle>
+              </svg>
+              <div class="icon-wrap xl"><ha-icon .icon=${icon}></ha-icon></div>
+            </div>
+            <div class="vtitle">${t.label}</div>
+            <div class="vstatus">${timeStr}</div>
+          </div>
+        </li>
+      `;
+    }
+
+    return b`
+      <li class="${baseClasses}" style="--tcolor:${color}; ${rowStyle}" @pointerdown=${acts.down} @pointerup=${acts.up} @pointercancel=${acts.cancel}>
+        ${style.startsWith("fill_") ? b`<div class="progress-fill" style="${fillInlineStyle}"></div>` : ""}
+        <div class="vcol">
+          <div class="icon-wrap large"><ha-icon .icon=${icon}></ha-icon></div>
+          <div class="vtitle">${t.label}</div>
+          <div class="vstatus">${timeStr}</div>
+          ${style.startsWith("bar_") ? b`
+            <div class="vprogressbar" @click=${(e) => e.stopPropagation()}>
+              ${isIdle && supportsManualControls ? b`
+                <button class="action-btn" title="${this._localize("start")}" @click=${() => this._handleStart(t)}>
+                  <ha-icon icon="mdi:play"></ha-icon>
+                </button>
+              ` : supportsPause && supportsManualControls ? b`
+                <button class="action-btn"
+                  title="${t.paused ? "Resume" : "Pause"}"
+                  @click=${() => t.paused ? this._handleResume(t) : this._handlePause(t)}>
+                  <ha-icon icon=${t.paused ? "mdi:play" : "mdi:pause"}></ha-icon>
+                </button>
+              ` : ""}
+              ${this._renderMilestoneSegments(t, pct) || b`
+                <div class="vtrack small">
+                  <div class="vfill" style="width:${this._config.progress_mode === "drain" ? pctLeft : pct}%"></div>
+                </div>
+              `}
+              ${supportsManualControls && !isIdle ? b`
+                <button class="action-btn" title="${this._localize("cancel")}" @click=${() => this._handleCancel(t)}>
+                  <ha-icon icon="mdi:close"></ha-icon>
+                </button>
+              ` : ""}
+            </div>
+          ` : b`
+
+            <div class="vactions" @click=${(e) => e.stopPropagation()}>
+              ${isIdle && supportsManualControls ? b`
+                <button class="action-btn" title="${this._localize("start")}" @click=${() => this._handleStart(t)}>
+                  <ha-icon icon="mdi:play"></ha-icon>
+                </button>
+              ` : supportsPause && supportsManualControls ? b`
+                <button class="action-btn"
+                  title="${t.paused ? "Resume" : "Pause"}"
+                  @click=${() => t.paused ? this._handleResume(t) : this._handlePause(t)}>
+                  <ha-icon icon=${t.paused ? "mdi:play" : "mdi:pause"}></ha-icon>
+                </button>
+              ` : ""}
+              ${supportsManualControls && !isIdle ? b`
+                <button class="action-btn" title="${this._localize("cancel")}" @click=${() => this._handleCancel(t)}>
+                  <ha-icon icon="mdi:close"></ha-icon>
+                </button>
+              ` : ""}
+            </div>
+          `}
+        </div>
+      </li>
+    `;
+  }
+
+  _getPinnedTimers() {
+    const pinned = Array.isArray(this._config?.pinned_timers) ? this._config.pinned_timers : [];
+    if (pinned.length === 0) return [];
+    const ns = this._storageNamespace || "default";
+    return pinned.map((p, idx) => {
+      const durationInput = (p && typeof p === "object") ? (p.duration ?? p.preset ?? p.minutes ?? p.secs) : p;
+      const durationMs = this._parseDurationInputToMs(durationInput);
+      if (!durationMs) return null;
+      const label = (p && typeof p === "object" && p.name) ? p.name : `#${idx + 1}`;
+      const icon = (p && typeof p === "object" && p.icon) ? p.icon : (this._config.default_timer_icon || "mdi:timer-outline");
+      const color = (p && typeof p === "object" && p.color) ? p.color : (this._config.default_timer_color || "var(--primary-color)");
+      const userId = (p && typeof p === "object" && p.id) ? String(p.id) : null;
+      const basePinnedId = userId || `pinned-${idx}`;
+      const pinnedId = userId ? `${ns}:${basePinnedId}` : `${ns}:${this._cardInstanceKey}:${basePinnedId}`;
+      const templateId = `template:${pinnedId}`;
+
+      return {
+        id: templateId,
+        pinned_id: pinnedId,
+        kind: "template",
+        name: label,
+        label,
+        source: "template",
+        source_entity: null,
+        start_ts: null,
+        end_ts: null,
+        state: "idle",
+        supports: { pause: false, cancel: false, snooze: false, extend: false },
+
+        template_preset: durationInput,
+        duration_input: durationInput,
+
+        icon,
+        color,
+        expired_subtitle: (p && typeof p === "object" && p.expired_subtitle) ? p.expired_subtitle : (this._config.expired_subtitle || ""),
+        audio_enabled: (p && typeof p === "object" && p.audio_enabled === true) ? true : undefined,
+        audio_file_url: (p && typeof p === "object" && p.audio_file_url) ? p.audio_file_url : undefined,
+        audio_repeat_count: (p && typeof p === "object" && p.audio_repeat_count != null) ? p.audio_repeat_count : undefined,
+        audio_play_until_dismissed: (p && typeof p === "object" && p.audio_play_until_dismissed === true) ? true : undefined,
+
+        duration: durationMs,
+        end: durationMs,
+        paused: false,
+        idle: true,
+        finished: false,
+        duration_ms: durationMs,
+        remaining_ms: durationMs,
+        remaining: durationMs,
+        percent: 0,
+      };
+    }).filter(Boolean);
+  }
+
+
+  _compareTimersForDisplay(a, b) {
+    if (a.finished && !b.finished) return 1;
+    if (!a.finished && b.finished) return -1;
+
+    const sortBy = (this._config?.sort_by || "time_left");
+    const sortOrder = (this._config?.sort_order || "asc");
+    const dir = sortOrder === "desc" ? -1 : 1;
+
+    const nameA = String(a.name || a.label || "").toLowerCase();
+    const nameB = String(b.name || b.label || "").toLowerCase();
+
+    if (sortBy === "name") {
+      const c = nameA.localeCompare(nameB);
+      if (c !== 0) return c * dir;
+    }
+
+    const ar0 = Number(a.remaining_ms ?? a.remaining ?? 0);
+    const br0 = Number(b.remaining_ms ?? b.remaining ?? 0);
+    const ar = isFinite(ar0) ? ar0 : Number.MAX_SAFE_INTEGER;
+    const br = isFinite(br0) ? br0 : Number.MAX_SAFE_INTEGER;
+    const diff = ar - br;
+    if (diff !== 0) return diff * dir;
+
+    if (sortBy !== "name") {
+      const c2 = nameA.localeCompare(nameB);
+      if (c2 !== 0) return c2;
+    }
+    return 0;
+  }
+
+  _sortTimersForDisplay(list) {
+    return [...(list || [])].sort((a, b) => this._compareTimersForDisplay(a, b));
+  }
+
+
+  render() {
+    if (!this._config) return b``;
+    const presets = this._config.show_timer_presets === false ? [] : (this._config.timer_presets?.length ? this._config.timer_presets : [5, 15, 30]);
+    const activeTimers = this._timers.filter(t => {
+      if (t.idle && t.source === "voice_pe") return false;
+      if (t.idle && t.source === "timer") {
+        const entityConfig = this._getEntityConfig(t.source_entity);
+        const keepVisible = entityConfig?.keep_timer_visible_when_idle === true;
+        if (!keepVisible) return false;
+      }
+      return true;
+    });
+
+    const pinnedTimersRaw = this._getPinnedTimers().filter(pt => !activeTimers.some(t => t.pinned_id && pt.pinned_id && t.pinned_id === pt.pinned_id));
+
+    const pinnedPosition = (this._config.pinned_timers_position || "inline");
+    const sortedActiveTimers = this._sortTimersForDisplay(activeTimers);
+    const sortedPinnedTimers = this._sortTimersForDisplay(pinnedTimersRaw);
+
+    let timers;
+    if (pinnedPosition === "top") {
+      timers = [...sortedPinnedTimers, ...sortedActiveTimers];
+    } else if (pinnedPosition === "bottom") {
+      timers = [...sortedActiveTimers, ...sortedPinnedTimers];
+    } else {
+      timers = this._sortTimersForDisplay([...sortedPinnedTimers, ...sortedActiveTimers]);
+    }
+const layout = this._config.layout;
+    const style = this._config.style;
+    const activeTimersLayout = ["fill_vertical", "bar_vertical", "circle"].includes((this._config.style || "").toLowerCase()) ? "vertical" : "horizontal";
+    const showPresetsInActive = this._config.show_timer_presets !== false && this._config.show_active_header !== false;
+
+    const noTimerCard = layout === "horizontal" ? b`
+      <div class="card nt-h ${this._ui.noTimerHorizontalOpen ? "expanded" : ""}">
+        <div class="row">
+          <div class="card-content" @click=${this._config.show_timer_presets === false ? () => this._toggleCustom("horizontal") : null}>
+            <div class="icon-wrap"><ha-icon icon="mdi:timer-off"></ha-icon></div>
+            <div>
+              <p class="nt-title">${this._localize("no_timers")}</p>
+              <p class="nt-sub">${this._localize("click_to_start")}</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            ${presets.map((preset) => {
+              const label = this._formatPresetLabel(preset);
+              return b`<button class="btn btn-preset" @click=${() => this._createPresetTimer(preset)}>${label}</button>`;
+            })}
+            ${this._config.show_timer_presets === false ? b`
+              <button class="btn btn-ghost" @click=${() => this._toggleCustom("horizontal")}><ha-icon icon="mdi:plus" style="--mdc-icon-size:16px;"></ha-icon> ${this._localize("add")}</button>
+            ` : b`
+              <button class="btn btn-ghost" @click=${() => this._toggleCustom("horizontal")}>${this._localize("custom")}</button>
+            `}
+          </div>
+        </div>
+        <div class="picker">
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("horizontal", (which, m, sign) => this._adjust(which, m, sign), 1)}
+          </div>
+          <div class="display">${this._formatClock(this._customSecs.horizontal, true)}</div>
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("horizontal", (which, m, sign) => this._adjust(which, m, sign), -1)}
+          </div>
+          ${this._renderTimerNameSelector("nt-h-name", this._localize("timer_name_optional"))}
+
+          <div class="picker-actions">
+            <button class="btn btn-ghost" @click=${() => (this._ui.noTimerHorizontalOpen = false)}>${this._localize("cancel")}</button>
+            <button class="btn btn-primary" @click=${() => this._startFromCustom("horizontal")}>${this._localize("start")}</button>
+          </div>
+        </div>
+      </div>
+    ` : b`
+      <div class="card nt-v ${this._ui.noTimerVerticalOpen ? "expanded" : ""}">
+        <div class="col">
+          <div class="card-content" style="flex-direction:column;justify-content:center;gap:8px;flex:1;" @click=${this._config.show_timer_presets === false ? () => this._toggleCustom("vertical") : null}>
+            <div class="icon-wrap"><ha-icon icon="mdi:timer-off"></ha-icon></div>
+            <p class="nt-title">${this._localize("no_active_timers")}</p>
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            ${presets.map((preset) => {
+              const label = this._formatPresetLabel(preset);
+              return b`<button class="btn btn-preset" @click=${() => this._createPresetTimer(preset)}>${label}</button>`;
+            })}
+            ${this._config.show_timer_presets === false ? b`
+              <button class="btn btn-ghost" @click=${() => this._toggleCustom("vertical")}><ha-icon icon="mdi:plus" style="--mdc-icon-size:16px;"></ha-icon> ${this._localize("add")}</button>
+            ` : b`
+              <button class="btn btn-ghost" @click=${() => this._toggleCustom("vertical")}>${this._localize("custom")}</button>
+            `}
+          </div>
+        </div>
+        <div class="picker">
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("vertical", (which, m, sign) => this._adjust(which, m, sign), 1)}
+          </div>
+          <div class="display">${this._formatClock(this._customSecs.vertical, true)}</div>
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("vertical", (which, m, sign) => this._adjust(which, m, sign), -1)}
+          </div>
+          ${this._renderTimerNameSelector("nt-v-name", this._localize("timer_name_optional"))}
+          <div class="picker-actions">
+            <button class="btn btn-ghost" @click=${() => (this._ui.noTimerVerticalOpen = false)}>${this._localize("cancel")}</button>
+            <button class="btn btn-primary" @click=${() => this._startFromCustom("vertical")}>${this._localize("start")}</button>
+          </div>
+        </div>
+      </div>
+    `;
+    const renderFn = activeTimersLayout === "vertical"
+      ? this._renderItemVertical.bind(this)
+      : this._renderItem.bind(this);
+    const useGrid = (activeTimersLayout === "vertical") || (style === "circle");
+    const cols = (useGrid && timers.length > 1) ? 2 : 1;
+    const listClass = useGrid ? `list vgrid cols-${cols}` : "list";
+    const activeCard = style.startsWith("fill_") ? b`
+      <div class="card ${this._ui.activeFillOpen ? "card-show" : ""}">
+        ${this._config.show_active_header !== false ? b`
+          <div class="active-head">
+            <h4>${this._localize("active_timers")}</h4>
+            ${showPresetsInActive ? b`
+              <div class="header-actions">
+                ${presets.map((preset) => {
+                  const label = this._formatPresetLabel(preset);
+                  return b`<button class="btn btn-preset" @click=${() => this._createPresetTimer(preset)}>${label}</button>`;
+                })}
+                <button class="btn btn-ghost" @click=${() => this._toggleActivePicker("fill")}>${this._localize("custom")}</button>
+              </div>
+            ` : b`
+              <button class="btn btn-add" @click=${() => this._toggleActivePicker("fill")}><ha-icon icon="mdi:plus" style="--mdc-icon-size:16px;"></ha-icon> ${this._localize("add")}</button>
+            `}
+          </div>
+        ` : ""}
+        <div class="active-picker">
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("fill", (which, m, sign) => this._adjustActive(which, m, sign), 1)}
+          </div>
+          <div class="display">${this._formatClock(this._activeSecs.fill, true)}</div>
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("fill", (which, m, sign) => this._adjustActive(which, m, sign), -1)}
+          </div>
+          ${this._renderTimerNameSelector("add-fill-name", this._localize("timer_name_optional"))}
+          <div class="picker-actions">
+            <button class="btn btn-ghost" @click=${() => (this._ui.activeFillOpen = false)}>${this._localize("cancel")}</button>
+            <button class="btn btn-primary" @click=${() => this._startActive("fill")}>${this._localize("start")}</button>
+          </div>
+        </div>
+        <ul class="${listClass}">
+          ${timers.map((t) => renderFn(t, style))}
+        </ul>
+      </div>
+    ` : b`
+      <div class="card ${this._ui.activeBarOpen ? "card-show" : ""}">
+        ${this._config.show_active_header !== false ? b`
+          <div class="active-head">
+            <h4>${this._localize("active_timers")}</h4>
+            ${showPresetsInActive ? b`
+              <div class="header-actions">
+                ${presets.map((preset) => {
+                  const label = this._formatPresetLabel(preset);
+                  return b`<button class="btn btn-preset" @click=${() => this._createPresetTimer(preset)}>${label}</button>`;
+                })}
+                <button class="btn btn-ghost" @click=${() => this._toggleActivePicker("bar")}>${this._localize("custom")}</button>
+              </div>
+            ` : b`
+              <button class="btn btn-add" @click=${() => this._toggleActivePicker("bar")}><ha-icon icon="mdi:plus" style="--mdc-icon-size:16px;"></ha-icon> ${this._localize("add")}</button>
+            `}
+          </div>
+        ` : ""}
+        <div class="active-picker">
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("bar", (which, m, sign) => this._adjustActive(which, m, sign), 1)}
+          </div>
+          <div class="display">${this._formatClock(this._activeSecs.bar, true)}</div>
+          <div class="buttons-grid">
+            ${this._renderMinuteButtons("bar", (which, m, sign) => this._adjustActive(which, m, sign), -1)}
+          </div>
+          ${this._renderTimerNameSelector("add-bar-name", this._localize("timer_name_optional"))}
+          <div class="picker-actions">
+            <button class="btn btn-ghost" @click=${() => (this._ui.activeBarOpen = false)}>${this._localize("cancel")}</button>
+            <button class="btn btn-primary" @click=${() => this._startActive("bar")}>${this._localize("start")}</button>
+          </div>
+        </div>
+        <ul class="${listClass}">
+          ${timers.map((t) => renderFn(t, style))}
+        </ul>
+      </div>
+    `;
+    const cardActs = this._cardActionHandlers();
+    return b`
+      <ha-card dir=${this._isRTL() ? "rtl" : "ltr"} @pointerdown=${cardActs.down} @pointerup=${cardActs.up} @pointercancel=${cardActs.cancel}>
+        ${this._config.title ? b`<div class="card-header"><span>${this._config.title}</span></div>` : ""}
+        ${timers.length === 0 ? b`<div class="grid"><div>${noTimerCard}</div></div>` : b`<div class="grid"><div>${activeCard}</div></div>`}
+      </ha-card>
+    `;
+  }
+
+  static get styles() {
+    return i$4`
+      :host { --stc-chip-radius: 9999px; }
+      ha-card { border-radius: var(--ha-card-border-radius, 12px); overflow: hidden; padding: 0; background: var(--ha-card-background, var(--card-background-color)); }
+      .grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0; margin: -1px 0; }
+      .card { background: transparent; position: relative; padding: 0 8px; box-sizing: border-box; }
+      .card-content { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; padding: 0 4px; height: 40px; }
+      .progress-fill { position: absolute; inset: 6px 0; height: auto; width: 0; left: 0; z-index: 0; transition: width 1s linear; background: var(--tcolor, var(--primary-color)); opacity: 0.25; border-radius: inherit; }
+      .card.finished .progress-fill { width: 100% !important; }
+      .nt-h { padding: 0 8px; min-height: 56px; transition: height .3s ease; }
+      .nt-h.expanded { height: auto; }
+      .nt-h .row { display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+      .nt-v { padding: 0 8px; min-height: 120px; transition: height .3s ease; }
+      .nt-v.expanded { height: auto; }
+      .nt-v .col { display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; min-height: 120px; }
+      .picker, .active-picker { max-height: 0; opacity: 0; overflow: hidden; transition: max-height .5s ease, opacity .3s ease, padding-top .5s ease, margin-bottom .3s ease; padding-top: 0; margin-bottom: 0; }
+      .card.expanded .picker { max-height: 450px; opacity: 1; padding: 12px 8px 8px; }
+      .card-show .active-picker { max-height: 450px; opacity: 1; margin-bottom: 8px; padding: 8px 0; }
+      .icon-wrap { width: 36px; height: 36px; border-radius: var(--ha-card-border-radius, 50%); background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 18%, var(--ha-card-background, var(--card-background-color))); display: flex; align-items: center; justify-content: center; flex: 0 0 36px; }
+      .icon-wrap ha-icon { --mdc-icon-size: 22px; color: var(--tcolor, var(--primary-color)); }
+      .nt-title { margin: 0; font-size: 14px; font-weight: 500; line-height: 20px; }
+      .nt-sub { margin: 0; font-size: 12px; color: var(--secondary-text-color); line-height: 16px; }
+      .btn { font-weight: 600; border-radius: var(--stc-chip-radius); padding: 6px 10px; font-size: 12px; border: none; cursor: pointer; }
+      .btn.disabled { opacity: 0.5; pointer-events: none; }
+      .btn-preset { background: var(--secondary-background-color, rgba(0,0,0,.08)); color: var(--primary-text-color); }
+      .btn-ghost { background: var(--card-background-color); border: 1px solid var(--divider-color); color: var(--primary-text-color); }
+      .btn-primary { background: var(--primary-color); color: var(--text-primary-color, #fff); }
+      .btn-add { display: flex; align-items: center; gap: 8px; background: var(--secondary-background-color, rgba(0,0,0,.08)); color: var(--secondary-text-color); }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 220px; margin: 0 auto; }
+      .buttons-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; box-sizing: border-box; }
+      .buttons-grid .btn { flex: 0 0 auto; min-width: 68px; }
+      .display { text-align: center; font-size: 36px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin: 8px 0; }
+      .picker-actions { display: flex; gap: 12px; width: 100%; margin: 16px auto 0; box-sizing: border-box; }
+      .picker-actions .btn { flex: 1; }
+      .text-input { width: 90%; text-align: center; padding: 8px 12px; font-size: 14px; border-radius: var(--stc-chip-radius); color: var(--primary-text-color); background: var(--card-background-color); border: 1px solid var(--divider-color); outline: none; margin: 0 auto; display: block; }
+      .text-input::placeholder { color: var(--secondary-text-color); }
+      .name-selector { display: flex; flex-direction: column; gap: 8px; width: 100%; padding-top: 12px; position: relative; transition: all 0.3s ease; }
+      .name-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; animation: fadeIn 0.3s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+      .active-head { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+      .active-head h4 { margin: 0; font-size: 16px; font-weight: 600; color: var(--primary-text-color); }
+      .header-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+      .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+      .item { box-sizing: border-box; position: relative; border-radius: var(--ha-card-border-radius, 12px); overflow: hidden; padding: 8px 0; min-height: 56px; background: var(--stc-item-background, transparent); }
+      .item .info { display: flex; flex-direction: column; justify-content: center; height: 36px; flex: 1; overflow: hidden; }
+      .item .title { font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .item .status { font-size: 12px; color: var(--secondary-text-color); line-height: 16px; font-variant-numeric: tabular-nums; }
+      .item .status.editable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+      .item .status.up { color: color-mix(in srgb, var(--tcolor, var(--primary-color)) 70%, white); }
+      .item .actions { display: flex; gap: 4px; align-items: center; height: 36px; }
+      .item .action-btn { color: var(--secondary-text-color); background: none; border: 0; padding: 4px; cursor: pointer; border-radius: 50%; transition: all 0.2s; }
+      .bar .row { display: flex; align-items: center; gap: 12px; height: 40px; }
+      .bar .top { display: flex; align-items: center; justify-content: space-between; height: 18px; }
+      .track { width: 100%; height: 8px; border-radius: var(--stc-chip-radius); background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 10%, transparent); margin-top: 2px; overflow: hidden; }
+      .fill { height: 100%; width: 0%; border-radius: var(--stc-chip-radius); background: var(--tcolor, var(--primary-color)); transition: width 1s linear; }
+      .chip { font-weight: 600; color: color-mix(in srgb, var(--tcolor, var(--primary-color)) 70%, white); border-radius: var(--stc-chip-radius); padding: 4px 8px; font-size: 12px; background: none; border: 1px solid color-mix(in srgb, var(--tcolor, var(--primary-color)) 20%, transparent); cursor: pointer; }
+      .chip:hover { background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 18%, var(--ha-card-background, var(--card-background-color))); }
+      .vgrid { display: grid; gap: 8px; padding: 0px; }
+      .vgrid.cols-1 { grid-template-columns: 1fr; }
+      .vgrid.cols-2 { grid-template-columns: 1fr 1fr; }
+      .vtile { position: relative; min-height: 120px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+      .vtile .vcol { z-index: 1; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+      .vtile-close { position: absolute; top: 4px; inset-inline-end: 4px; border: 0; background: none; padding: 4px; border-radius: 50%; color: var(--secondary-text-color); cursor: pointer; z-index: 3; }
+      .vtile-close:hover { background: color-mix(in srgb, var(--primary-color) 10%, transparent); }
+      .icon-wrap.large { width: 36px; height: 36px; flex: 0 0 36px; border-radius: var(--ha-card-border-radius, 50%); background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 18%, var(--ha-card-background, var(--card-background-color))); display: flex; align-items: center; justify-content: center; }
+      .vtitle { font-size: 14px; font-weight: 600; line-height: 16px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
+      .vstatus { font-size: 12px; color: var(--secondary-text-color); line-height: 14px; font-variant-numeric: tabular-nums; margin: 0; margin-bottom: 2px; }
+      .vstatus.editable { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+      .vstatus.up { color: color-mix(in srgb, var(--tcolor, var(--primary-color)) 70%, white); }
+      .vtrack.small { flex: 0 0 60%; height: 6px; border-radius: var(--stc-chip-radius); background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 10%, transparent); overflow: hidden; }
+      .vfill { height: 100%; background: var(--tcolor, var(--primary-color)); transition: width 1s linear, height 1s linear; border-radius: var(--stc-chip-radius); }
+      .vprogressbar { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0px; margin-top: -4px; margin-bottom: -4px; }
+      .vprogressbar .milestone-track { flex: 0 0 60%; }
+      .vactions { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: -4px; margin-bottom: -4px; }
+      .vcircle-wrap { position: relative; width: 64px; height: 64px; display: grid; place-items: center; }
+      .vcircle { position: absolute; inset: 0; transform: rotate(-90deg); z-index: 0; }
+      .vc-track, .vc-prog { fill: none; stroke-width: 4.5px; vector-effect: non-scaling-stroke; }
+      .vc-track { stroke: var(--tcolor, var(--primary-color)); stroke-opacity: 0.22; }
+      .vc-prog { stroke: var(--tcolor, var(--primary-color)); transition: stroke-dashoffset 1s linear; }
+      .vc-prog.done { stroke-dashoffset: 0 !important; }
+      .vc-prog-drain { stroke: var(--tcolor, var(--primary-color)); transition: stroke-dashoffset 1s linear; }
+      .icon-wrap.xl { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%; background: color-mix(in srgb, var(--tcolor, var(--divider-color)) 22%, transparent); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
+      .icon-wrap.xl ha-icon { --mdc-icon-size: 28px; color: var(--tcolor, var(--primary-color)); }
+      .milestone-track { display: flex; gap: 1px; width: 100%; height: 8px; margin-top: 2px; }
+      .vprogressbar .milestone-track { flex: 0 0 60%; }
+      .milestone-track.idle .segment { background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 15%, transparent); }
+      .segment { flex: 1 1 0; height: 100%; background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 15%, transparent); border-radius: 1px; }
+      .segment.completed { background: var(--tcolor, var(--primary-color)); }
+      .segment.active { animation: pulseMilestone 1s ease-in-out infinite; }
+      .segment.inactive { opacity: 0.35; }
+      .segment.drain.completed { opacity: 0.9; }
+      .segment.drain.inactive { opacity: 0.2; }
+      .segment.idle { background: color-mix(in srgb, var(--tcolor, var(--primary-color)) 15%, transparent); }
+      @keyframes pulseMilestone { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+      .editor-row { flex-direction: column; align-items: center; padding: 12px; height: auto !important; min-height: 100px; }
+      .editor-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+      .editor-header { font-weight: 700; font-size: 1.1em; margin-bottom: 12px; }
+      .time-picker-row { display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
+      .time-slot { display: flex; flex-direction: column; align-items: center; margin: 0 6px; }
+      .time-slot ha-icon { cursor: pointer; color: var(--primary-color); --mdc-icon-size: 32px; }
+      .time-val { font-size: 2em; font-weight: bold; margin: 4px 0; min-width: 45px; text-align: center; }
+      .colon { font-size: 2em; font-weight: bold; margin-top: -15px; }
+      .time-label { font-size: 0.75em; color: var(--secondary-text-color); }
+      .va-badge { display:inline-block; font-size:.65em; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:5px; vertical-align:middle; text-transform:uppercase; letter-spacing:.04em; opacity:.85; }
+      .va-badge-timer   { background:#039be522; color:#039be5; }
+      .va-badge-alarm   { background:#e5393522; color:#e53935; }
+      .va-badge-reminder{ background:#fb8c0022; color:#fb8c00; }
+    \`;
+  }
+
+  _toast(msg) {
+    const ev = new CustomEvent("hass-notification", { detail: { message: msg }, bubbles: true, composed: true });
+    this.dispatchEvent(ev);
+  }
+}
+
+class VASimpleTimerCardEditor extends i$1 {
+  static get properties() { return { hass: {}, _config: {}, _expandedSections: { state: true }, _showAdvanced: { state: true }, _searchQuery: { state: true } }; }
+
+  constructor() {
+    super();
+    this._debounceTimeout = null;
+    this._emitTimeout = null;
+    this._expandedSections = {
+      appearance: true,
+      entities: true,
+      sorting: false,
+      timeFormat: false,
+      defaults: false,
+      presets: false,
+      pinned: false,
+      audio: false,
+      notify: false,
+      storage: false,
+    };
+    this._showAdvanced = false;
+    this._searchQuery = "";
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._debounceTimeout) { clearTimeout(this._debounceTimeout); this._debounceTimeout = null; }
+    if (this._emitTimeout) { clearTimeout(this._emitTimeout); this._emitTimeout = null; }
+  }
+
+  updated(changedProperties) {
+    super.updated?.(changedProperties);
+    // Re-apply the search filter whenever the query changes or the
+    // editor re-renders (config edits can add / remove fields).
+    this._applySearchFilter();
+  }
+
+  _applySearchFilter() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    const q = (this._searchQuery || "").trim().toLowerCase();
+    const panels = root.querySelectorAll("ha-expansion-panel");
+    panels.forEach((panel) => {
+      let matchCount = 0;
+      const body = panel.querySelector(".panel-body");
+      if (!body) return;
+      // Direct children of .panel-body are the field rows we filter.
+      // We also descend into .entity-options (per-entity sub-blocks)
+      // so a search like "audio" still highlights matching per-entity
+      // fields nested inside the entity editor.
+      const candidates = [
+        ...body.children,
+        ...body.querySelectorAll(".entity-options > *"),
+      ];
+      candidates.forEach((el) => {
+        const text = this._extractSearchableText(el);
+        const matches = !q || text.includes(q);
+        el.toggleAttribute("data-search-hidden", !!q && !matches);
+        if (matches) matchCount++;
+      });
+      panel.toggleAttribute("data-search-hidden", !!q && matchCount === 0);
+    });
+  }
+
+  _extractSearchableText(el) {
+    if (!el || el.nodeType !== 1) return "";
+    // Gather text from common label sources so the search matches
+    // both visible labels and labels provided as attributes.
+    const parts = [];
+    const own = el.getAttribute && el.getAttribute("label");
+    if (own) parts.push(own);
+    const labelled = el.querySelectorAll ? el.querySelectorAll("[label]") : [];
+    labelled.forEach((n) => { const v = n.getAttribute("label"); if (v) parts.push(v); });
+    if (el.textContent) parts.push(el.textContent);
+    return parts.join(" ").toLowerCase();
+  }
+
+  setConfig(config) {
+    const c = { ...(config || {}) };
+    if (typeof c.timer_name_presets === "string") c.timer_name_presets = c.timer_name_presets.split(",").map(s => s.trim()).filter(Boolean);
+    if (typeof c.timer_presets === "string") c.timer_presets = c.timer_presets.split(",").map(s => s.trim()).filter(Boolean);
+    if (typeof c.minute_buttons === "string") c.minute_buttons = c.minute_buttons.split(",").map(s => s.trim()).filter(Boolean);
+    if (typeof c.time_format_units === "string") c.time_format_units = c.time_format_units.split(",").map(s => s.trim()).filter(Boolean);
+    this._config = { ...c };
+    if (!this._expandedSections) {
+      this._expandedSections = {
+        appearance: true, entities: true,
+        sorting: false, timeFormat: false, defaults: false,
+        presets: false, pinned: false, audio: false, notify: false, storage: false,
+      };
+    }
+    this.requestUpdate();
+  }
+
+  _valueChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const target = ev.target;
+    const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+    if (!key) return;
+    const hasChecked = target.checked !== undefined;
+    let value = hasChecked ? target.checked : target.value;
+    if (key === "timer_presets" && typeof value === "string") {
+      value = value.split(",").map(v => v.trim()).filter(v => v).map(v => {
+        const m = v.toLowerCase().match(/^(\d+)\s*([smhd])?$/);
+        if (!m) return null;
+        const n = parseInt(m[1], 10);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        return m[2] ? `${n}${m[2]}` : n;
+      }).filter(v => v !== null);
+      if (value.length === 0) value = [5, 15, 30];
+    }
+    if (key === "minute_buttons" && typeof value === "string") {
+      value = value.split(",").map(v => v.trim()).filter(v => v).map(v => {
+        const m = v.toLowerCase().match(/^(\d+)\s*([smhd])?$/);
+        if (!m) return null;
+        const n = parseInt(m[1], 10);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        return m[2] ? `${n}${m[2]}` : n;
+      }).filter(v => v !== null);
+      if (value.length === 0) value = [1, 5, 10];
+    }
+    if (key === "timer_name_presets" && typeof value === "string") {
+      value = value.split(",").map(name => name.trim()).filter(name => name);
+    }
+    if (key === "time_format_units" && typeof value === "string") {
+      value = value.split(",").map(u => u.trim().toLowerCase()).filter(u => ["years","months","weeks","days","hours","minutes","seconds"].includes(u));
+      if (value.length === 0) value = ["days","hours","minutes","seconds"];
+    }
+    if (key === "auto_voice_pe" && value !== true) {
+      const next = { ...this._config };
+      delete next.auto_voice_pe;
+      delete next.voice_pe_control_entity;
+      this._config = next;
+      this._emitChange();
+      return;
+    }
+    if (hasChecked) this._updateConfig({ [key]: value }, true);
+    else this._updateConfig({ [key]: value });
+  }
+
+  _detailValueChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const target = ev.target;
+    const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+    if (!key) return;
+    this._updateConfig({ [key]: ev.detail.value });
+  }
+
+  _notifyValueChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const target = ev.target;
+    const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+    if (!key) return;
+    const isSelect = target.tagName && target.tagName.toLowerCase() === "ha-select";
+    let value;
+    if (isSelect) {
+      if (ev.stopPropagation) ev.stopPropagation();
+      value = ev?.detail?.value;
+      if ((value === undefined || value === null) && ev?.detail && typeof ev.detail.index === "number" && Array.isArray(target?.options)) {
+        value = target.options[ev.detail.index]?.value;
+      }
+      if (value === undefined || value === null) value = target.value;
+      if (typeof value !== "string") return;
+    } else {
+      value = target.checked !== undefined ? target.checked : target.value;
+    }
+    const notify = { ...(this._config.notify || {}) };
+    if (value === "" || value == null) delete notify[key];
+    else notify[key] = value;
+    if (!notify.service) {
+      const next = { ...this._config };
+      delete next.notify;
+      this._config = next;
+      this._emitChange();
+      this.requestUpdate();
+      return;
+    }
+    this._updateConfig({ notify });
+    this.requestUpdate();
+  }
+
+  _notifyCriticalChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const isOn = !!ev.target.checked;
+    const notify = { ...(this._config.notify || {}) };
+    if (!notify.service) return;
+    const data = { ...(notify.data || {}) };
+    const push = { ...(data.push || {}) };
+    if (isOn) {
+      push.sound = { name: "default", critical: 1, volume: 1.0 };
+    } else if (push.sound && typeof push.sound === "object" && push.sound.critical === 1) {
+      delete push.sound;
+    }
+    if (Object.keys(push).length === 0) delete data.push;
+    else data.push = push;
+    if (Object.keys(data).length === 0) delete notify.data;
+    else notify.data = data;
+    this._updateConfig({ notify });
+    this.requestUpdate();
+  }
+
+  _selectChanged(ev) {
+    if (!this._config || !this.hass) return;
+    const target = ev.target;
+    const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+    if (!key) return;
+    ev.stopPropagation();
+    // HA 2026.x ha-select uses ha-dropdown internally and fires `selected` with
+    // ev.detail.value. Older mwc-select fires `selected` with ev.detail.index and
+    // only sets target.value after the fact. Resolve in this order: detail.value,
+    // detail.index (mapped via target.options), then target.value.
+    let value = ev?.detail?.value;
+    if ((value === undefined || value === null) && ev?.detail && typeof ev.detail.index === "number" && Array.isArray(target?.options)) {
+      value = target.options[ev.detail.index]?.value;
+    }
+    if (value === undefined || value === null) value = target.value;
+    if (typeof value !== "string" || value === "") return;
+    if (value === this._config[key]) return;
+    if (key === "style") {
+      const styleValue = value.toLowerCase();
+      const validStyles = ["fill_vertical", "fill_horizontal", "bar_vertical", "bar_horizontal", "circle"];
+      const normalizedStyle = validStyles.includes(styleValue) ? styleValue : "bar_horizontal";
+      this._updateConfig({ style: normalizedStyle }, true);
+    } else if (key === "progress_mode") {
+      const modes = ["drain", "fill", "milestones"];
+      this._updateConfig({ progress_mode: modes.includes(value) ? value : "drain" }, true);
+    } else if (key === "time_format") {
+      const formats = ["hms","hm","ss","dhms","human_compact","human_short","human_natural","standard"];
+      const mapped = value === "standard" ? "hms" : value;
+      this._updateConfig({ time_format: formats.includes(mapped) ? mapped : "hms" }, true);
+    } else if (key === "milestone_unit") {
+      const opts = ["auto","none","years","months","weeks","days","hours","minutes","seconds"];
+      this._updateConfig({ milestone_unit: opts.includes(value) ? value : "auto" }, true);
+    } else {
+      this._updateConfig({ [key]: value }, true);
+    }
+  }
+
+  _entityValueChanged(e, index) {
+    if (!this._config || !this.hass) return;
+    if (e.stopPropagation) e.stopPropagation();
+    if (index < 0 || index >= (this._config.entities || []).length) return;
+    const target = e.target;
+    const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+    if (!key) return;
+    let value;
+    if (target.checked !== undefined) value = target.checked;
+    else {
+      // HA 2026.2+ ha-select fires `selected` event with ev.detail.value; older mwc-select
+      // only sets target.value. Try detail first, then fall back to target.value.
+      if (e && e.detail && e.detail.value !== undefined && e.detail.value !== null) value = e.detail.value;
+      if (value === undefined && typeof target.selected?.value === "string" && target.selected.value !== "") value = target.selected.value;
+      if (value === undefined && target.value !== undefined) value = target.value;
+      if (value === undefined) return;
+    }
+    const newConfig = { ...this._config };
+    const entities = [...(newConfig.entities || [])];
+    let entityConf;
+    if (typeof entities[index] === "string") entityConf = { entity: entities[index] };
+    else if (entities[index] && typeof entities[index] === "object") entityConf = { ...entities[index] };
+    else entityConf = { entity: "" };
+    if (value === "" || value === undefined || value === null) delete entityConf[key];
+    else entityConf[key] = value;
+    if (Object.keys(entityConf).length === 1 && entityConf.entity) entities[index] = entityConf.entity;
+    else if (Object.keys(entityConf).length > 0) entities[index] = entityConf;
+    else entities[index] = "";
+    newConfig.entities = entities;
+    this._updateConfig(newConfig, true);
+  }
+
+_addPinnedTimer() {
+  const pinned = Array.isArray(this._config.pinned_timers) ? [...this._config.pinned_timers] : [];
+  pinned.push({ name: "", duration: "5m" });
+  this._config = { ...this._config, pinned_timers: pinned };
+  this.requestUpdate();
+  this._emitChange();
+}
+
+_removePinnedTimer(index) {
+  const pinned = Array.isArray(this._config.pinned_timers) ? [...this._config.pinned_timers] : [];
+  pinned.splice(index, 1);
+  this._config = { ...this._config, pinned_timers: pinned };
+  this.requestUpdate();
+  this._emitChange();
+}
+
+_pinnedTimerValueChanged(ev, index) {
+  if (!this._config || !this.hass) return;
+  const target = ev.target;
+  const key = target.configValue ?? target.dataset?.configValue ?? target.getAttribute?.("configValue");
+  if (!key) return;
+
+  let value = target.checked !== undefined ? target.checked : (target.value !== undefined ? target.value : ev?.detail?.value);
+  if (key === "audio_repeat_count") {
+    const n = parseInt(value, 10);
+    value = Number.isFinite(n) && n > 0 ? n : 1;
+  }
+
+  const pinned = Array.isArray(this._config.pinned_timers) ? [...this._config.pinned_timers] : [];
+  const cur = (pinned[index] && typeof pinned[index] === "object") ? { ...pinned[index] } : {};
+  cur[key] = value;
+
+  pinned[index] = cur;
+  this._config = { ...this._config, pinned_timers: pinned };
+  this._emitChange();
+}
+
+  _addEntity() {
+    if (!this._config) return;
+    const newConfig = { ...this._config };
+    const entities = [...(newConfig.entities || [])];
+    entities.push("");
+    newConfig.entities = entities;
+    this._updateConfig(newConfig, true);
+  }
+
+  _removeEntity(i) {
+    if (!this._config || i < 0 || i >= (this._config.entities || []).length) return;
+    const newConfig = { ...this._config };
+    const entities = [...newConfig.entities];
+    entities.splice(i, 1);
+    newConfig.entities = entities;
+    this._updateConfig(newConfig, true);
+  }
+
+  _updateConfig(changes, immediate = false) {
+    if (!this._config) return;
+    if (typeof changes === "object" && changes !== null) {
+      if (changes.entities !== undefined) this._config = changes;
+      else this._config = { ...this._config, ...changes };
+    }
+    if (immediate) this._emitChange();
+    else {
+      if (this._emitTimeout) clearTimeout(this._emitTimeout);
+      this._emitTimeout = setTimeout(() => { this._emitChange(); this._emitTimeout = null; }, 50);
+    }
+  }
+
+  _emitChange() {
+    if (!this._config) return;
+    try {
+      const cleanedConfig = this._removeDefaultValues(this._config);
+      const event = new CustomEvent("config-changed", { detail: { config: cleanedConfig }, bubbles: true, composed: true });
+      this.dispatchEvent(event);
+    } catch (error) {}
+  }
+
+  _removeDefaultValues(config) {
+    const defaults = {
+      layout: "horizontal",
+      style: "bar_horizontal",
+      progress_mode: "drain",
+      show_timer_presets: true,
+      timer_presets: [5, 15, 30],
+      timer_name_presets: [],
+      snooze_duration: 5,
+      show_active_header: true,
+      minute_buttons: [1, 5, 10],
+      pinned_timers_position: "inline",
+      sort_by: "time_left",
+      sort_order: "asc",
+      default_new_timer_duration_mins: 15,
+      time_format: "hms",
+      time_format_units: ["days","hours","minutes","seconds"],
+      expire_action: "keep",
+      expire_keep_for: 120,
+      auto_dismiss_writable: false,
+      audio_enabled: false,
+      audio_file_url: "",
+      audio_repeat_count: 1,
+      audio_play_until_dismissed: false,
+      audio_completion_delay: 4,
+      expired_subtitle: null,
+      default_timer_icon: "mdi:timer-outline",
+      default_timer_color: "var(--primary-color)",
+      default_timer_entity: null,
+      keep_timer_visible_when_idle: false,
+      milestone_unit: "auto",
+      milestone_pulse: true,
+    };
+
+    const cleaned = { ...(config || {}) };
+
+    delete cleaned.alexa_audio_enabled;
+    delete cleaned.alexa_audio_file_url;
+    delete cleaned.alexa_audio_repeat_count;
+    delete cleaned.alexa_audio_play_until_dismissed;
+
+    const normCsv = (v) => {
+      if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean);
+      if (typeof v === "string") return v.split(",").map((x) => x.trim()).filter(Boolean);
+      return [];
+    };
+
+    if (typeof cleaned.entities === "string") cleaned.entities = [cleaned.entities];
+    if (!Array.isArray(cleaned.entities)) delete cleaned.entities;
+    if (Array.isArray(cleaned.entities) && cleaned.entities.filter((e) => String(e || "").trim()).length === 0) delete cleaned.entities;
+
+    if (!Array.isArray(cleaned.pinned_timers) || cleaned.pinned_timers.length === 0) delete cleaned.pinned_timers;
+
+    if (cleaned.timer_name_presets !== undefined) cleaned.timer_name_presets = normCsv(cleaned.timer_name_presets);
+    if (cleaned.time_format_units !== undefined) cleaned.time_format_units = normCsv(cleaned.time_format_units);
+
+    if (cleaned.timer_presets !== undefined) {
+      const raw = Array.isArray(cleaned.timer_presets) ? cleaned.timer_presets : (typeof cleaned.timer_presets === "string" ? cleaned.timer_presets.split(",") : []);
+      cleaned.timer_presets = raw.map((x) => (typeof x === "number" ? x : String(x).trim())).filter((x) => x !== "");
+    }
+
+    if (cleaned.minute_buttons !== undefined) {
+      const raw = Array.isArray(cleaned.minute_buttons) ? cleaned.minute_buttons : (typeof cleaned.minute_buttons === "string" ? cleaned.minute_buttons.split(",") : []);
+      cleaned.minute_buttons = raw.map((v) => {
+        if (v === null || v === undefined) return null;
+        if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+        const s = String(v).trim().toLowerCase();
+        if (!s) return null;
+        const m = s.match(/^(\d+)\s*([smhd])?$/);
+        if (!m) return null;
+        const n = parseInt(m[1], 10);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        return m[2] ? `${n}${m[2]}` : n;
+      }).filter((x) => x !== null);
+    }
+
+    const stripIfEmpty = (k) => {
+      if (cleaned[k] === "" || cleaned[k] === null || cleaned[k] === undefined) delete cleaned[k];
+      if (Array.isArray(cleaned[k]) && cleaned[k].length === 0) delete cleaned[k];
+    };
+
+    stripIfEmpty("audio_file_url");
+    stripIfEmpty("expired_subtitle");
+    stripIfEmpty("title");
+    stripIfEmpty("default_timer_entity");
+
+    if (!cleaned.audio_enabled) {
+      delete cleaned.audio_file_url;
+      delete cleaned.audio_repeat_count;
+      delete cleaned.audio_play_until_dismissed;
+      delete cleaned.audio_completion_delay;
+    }
+
+    if (cleaned.show_timer_presets === false) {
+      delete cleaned.timer_presets;
+      delete cleaned.timer_name_presets;
+    }
+
+    const isEqualArray = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+
+    for (const [key, def] of Object.entries(defaults)) {
+      if (!(key in cleaned)) continue;
+      const val = cleaned[key];
+      if (Array.isArray(def)) {
+        if (isEqualArray(val, def)) delete cleaned[key];
+      } else if (val === def) {
+        delete cleaned[key];
+      }
+    }
+
+    if (cleaned.mqtt && typeof cleaned.mqtt === "object") {
+      if (Object.keys(cleaned.mqtt).length === 0) delete cleaned.mqtt;
+    }
+
+    if (cleaned.notify && typeof cleaned.notify === "object" && !cleaned.notify.service) {
+      delete cleaned.notify;
+    }
+
+    return cleaned;
+  }
+
+
+  async firstUpdated() {
+    // Note: ha-input is the new (2026.4+) successor of ha-textfield. ha-textfield
+    // is migrated to use ha-input internally and is scheduled for removal in 2026.5.
+    // We wait for either to be defined so our render() can pick the right tag.
+    const tags = ["ha-entity-picker","ha-select","ha-textfield","ha-input","ha-icon-picker","ha-form","mwc-list-item"];
+    tags.forEach((t) => { customElements.whenDefined(t).then(() => this.requestUpdate()).catch(() => {}); });
+    this._ensureHACommonsLoaded();
+    this.requestUpdate();
+  }
+
+  // Choose between ha-input (HA 2026.4+) and ha-textfield (older HA). ha-input
+  // is loaded by ha-form's text/number selectors in 2026.4+; ha-textfield is
+  // loaded by the same selectors on older HA. We pick whichever is currently
+  // upgraded so the visible element always matches a defined custom element.
+  get _tfTag() {
+    if (customElements.get("ha-input")) return i`ha-input`;
+    return i`ha-textfield`;
+  }
+
+  // Render a text/number input using the chosen tag. Returns a static-html
+  // template so the tag itself can be interpolated. All call sites in the
+  // editor go through this helper so a single switch flips the entire UI.
+  // Toolbar search input. Uses the same dynamic tag selection as _tf so
+  // it picks ha-input on HA 2026.4+ (where ha-textfield is a compat shim
+  // that can render empty) and ha-textfield on older HA.
+  _renderSearchInput() {
+    const tag = this._tfTag;
+    return u`<${tag}
+        class="editor-search"
+        outlined
+        label="Search settings"
+        .value=${this._searchQuery || ""}
+        @input=${(e) => { this._searchQuery = e.target.value || ""; }}
+      ></${tag}>`;
+  }
+
+  _tf({ label, value, configValue, type, min, max, step, helper, placeholder, change, cls }) {
+    const tag = this._tfTag;
+    return u`<${tag}
+        class=${o(cls)}
+        label=${label ?? ""}
+        .value=${value ?? ""}
+        .configValue=${configValue ?? ""}
+        type=${type ?? "text"}
+        min=${o(min)}
+        max=${o(max)}
+        step=${o(step)}
+        helper=${o(helper)}
+        placeholder=${o(placeholder)}
+        @input=${change}
+        @change=${change}
+      ></${tag}>`;
+  }
+
+  // Force-load HA's lazy-loaded editor components. In HA 2026.x the main app
+  // doesn't define `ha-textfield` / `ha-input` / `ha-entity-picker` /
+  // `ha-icon-picker` until something on screen actually needs them. A card
+  // editor opened from the dashboard sometimes mounts before HA has had a
+  // reason to import those chunks, so our custom elements stay un-upgraded
+  // (empty inline elements with no shadow root - no label, no input visible).
+  //
+  // `ha-form` lazy-loads each selector's underlying component on demand. By
+  // mounting a hidden form with text/number/entity/icon selectors we trigger
+  // HA's loader for everything we use in the editor, then remove the form.
+  // In HA 2026.4+ the text/number selectors load `ha-input`; in older HA they
+  // load `ha-textfield`. The whenDefined hooks in firstUpdated() catch either
+  // case and re-render.
+  _ensureHACommonsLoaded() {
+    const needText = !customElements.get("ha-textfield") && !customElements.get("ha-input");
+    const needEntity = !customElements.get("ha-entity-picker");
+    const needIcon = !customElements.get("ha-icon-picker");
+    if (!needText && !needEntity && !needIcon) return;
+    try {
+      const loader = document.createElement("ha-form");
+      loader.style.display = "none";
+      loader.schema = [
+        { name: "_t", selector: { text: {} } },
+        { name: "_n", selector: { number: { min: 0, mode: "box" } } },
+        { name: "_e", selector: { entity: {} } },
+        { name: "_i", selector: { icon: {} } },
+      ];
+      loader.data = { _t: "", _n: 0, _e: "", _i: "" };
+      loader.hass = this.hass;
+      this.shadowRoot?.appendChild(loader);
+      // Keep the loader briefly so HA can finish dynamic-importing the
+      // components. Removing it immediately is fine - the imports proceed -
+      // but a small delay also makes diagnostics easier.
+      setTimeout(() => { try { loader.remove(); } catch (_) {} }, 0);
+    } catch (_) {}
+  }
+
+  // Backward-compatible alias - keep in case anything else in the file
+  // references the old name.
+  _ensureEntityPickerLoaded() { this._ensureHACommonsLoaded(); }
+
+  _getDisplayStyleValue() {
+    return this._config.style || "bar_horizontal";
+  }
+
+  _detectMode(entityId, entityState, entityConf) {
+    if (!entityState) return null;
+    if (entityId.startsWith("timer.")) return "timer";
+    if (entityId.startsWith("input_text.") || entityId.startsWith("text.")) return "helper";
+    const attrs = entityState.attributes || {};
+    if (
+      attrs.alarms_brief != null ||
+      attrs.sorted_active != null ||
+      attrs.sorted_paused != null ||
+      attrs.sorted_all != null ||
+      attrs.next_timer != null ||
+      attrs.timers != null ||
+      ((entityId.includes("next_timer") || entityId.endsWith("_next_timer")) &&
+        (attrs.total_active != null || attrs.total_all != null || attrs.status != null || attrs.timer != null || attrs.dismissed != null))
+    ) return "alexa";
+    if (attrs.device_class === "timestamp") return "timestamp";
+    const guessAttr = entityConf?.minutes_attr;
+    if (guessAttr && (attrs[guessAttr] ?? null) !== null) return "minutes_attr";
+    if (attrs.start_time) return "timestamp";
+    const stateVal = entityState.state;
+    if (stateVal && stateVal !== "unknown" && stateVal !== "unavailable") {
+      if (isNaN(stateVal) && !isNaN(Date.parse(stateVal))) return "timestamp";
+    }
+    return null;
+  }
+
+  _toggleSection(key) {
+    this._expandedSections = { ...(this._expandedSections || {}), [key]: !this._expandedSections?.[key] };
+  }
+
+  render() {
+    if (!this.hass || !this._config) return b``;
+    const entityPickerReady = !!customElements.get("ha-entity-picker");
+    const storageType = this._config.default_timer_entity?.startsWith("sensor.") ? "mqtt" : "local";
+    const showMilestonesSection = this._config.progress_mode === "milestones";
+
+    // HA 2026.x rewrote ha-select to use ha-dropdown internally; that variant
+    // renders ONLY from the .options property and ignores slotted <mwc-list-item>
+    // children. We set both .options and keep the slotted items as a fallback
+    // for older HA. Keep these in sync with the slotted items below.
+    const SELECT_OPTIONS = {
+      layout: [
+        { value: "horizontal", label: "Horizontal" },
+        { value: "vertical", label: "Vertical" },
+      ],
+      style: [
+        { value: "fill_vertical", label: "Background fill (vertical)" },
+        { value: "fill_horizontal", label: "Background fill (horizontal)" },
+        { value: "bar_vertical", label: "Progress bar (vertical)" },
+        { value: "bar_horizontal", label: "Progress bar (horizontal)" },
+        { value: "circle", label: "Circle" },
+      ],
+      progress_mode: [
+        { value: "drain", label: "Drain" },
+        { value: "fill", label: "Fill" },
+        { value: "milestones", label: "Milestones (bar styles only)" },
+      ],
+      language: [
+        { value: "da", label: "Dansk" },
+        { value: "de", label: "Deutsch" },
+        { value: "en", label: "English" },
+        { value: "es", label: "Español" },
+        { value: "fr", label: "Français" },
+        { value: "it", label: "Italiano" },
+        { value: "nl", label: "Nederlands" },
+        { value: "pl", label: "Polski" },
+        { value: "he", label: "עברית" },
+      ],
+      sort_by: [
+        { value: "time_left", label: "Time left" },
+        { value: "name", label: "Name" },
+      ],
+      sort_order: [
+        { value: "asc", label: "Ascending" },
+        { value: "desc", label: "Descending" },
+      ],
+      pinned_timers_position: [
+        { value: "inline", label: "Mixed with timers" },
+        { value: "top", label: "Top" },
+        { value: "bottom", label: "Bottom" },
+      ],
+      time_format: [
+        { value: "hms", label: "HH:MM:SS" },
+        { value: "hm", label: "HH:MM" },
+        { value: "ss", label: "Seconds only" },
+        { value: "dhms", label: "DD:HH:MM:SS" },
+        { value: "human_compact", label: "Unit style, compact" },
+        { value: "human_short", label: "Unit style, short labels" },
+        { value: "human_natural", label: "Unit style, natural language" },
+      ],
+      milestone_unit: [
+        { value: "auto", label: "Auto (default)" },
+        { value: "none", label: "None" },
+        { value: "years", label: "Years" },
+        { value: "months", label: "Months" },
+        { value: "weeks", label: "Weeks" },
+        { value: "days", label: "Days" },
+        { value: "hours", label: "Hours" },
+        { value: "minutes", label: "Minutes" },
+        { value: "seconds", label: "Seconds" },
+      ],
+      expire_action: [
+        { value: "keep", label: "Keep visible" },
+        { value: "dismiss", label: "Dismiss" },
+        { value: "remove", label: "Remove" },
+      ],
+      entity_mode: [
+        { value: "auto", label: "Auto (Default)" },
+        { value: "alexa", label: "Alexa" },
+        { value: "timer", label: "Timer" },
+        { value: "voice_pe", label: "Voice PE" },
+        { value: "helper", label: "Helper (input_text/text)" },
+        { value: "timestamp", label: "Timestamp sensor" },
+        { value: "minutes_attr", label: "Minutes attribute" },
+      ],
+    };
+
+    const appearanceContent = b`
+      ${this._tf({ label: "Title", placeholder: "Optional", helper: "Shown above the timer list at the top of the card.", value: this._config.title, configValue: "title", change: this._valueChanged })}
+
+      <div class="row">
+        <ha-select label="Layout" helper="How timers are arranged in the list." naturalMenuWidth fixedMenuPosition .value=${this._config.layout || "horizontal"} .configValue=${"layout"} .options=${SELECT_OPTIONS.layout} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="horizontal">Horizontal</mwc-list-item>
+          <mwc-list-item value="vertical">Vertical</mwc-list-item>
+        </ha-select>
+
+        <ha-select label="Style" helper="Card visual style." naturalMenuWidth fixedMenuPosition .value=${this._getDisplayStyleValue()} .configValue=${"style"} .options=${SELECT_OPTIONS.style} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="fill_vertical">Background fill (vertical)</mwc-list-item>
+          <mwc-list-item value="fill_horizontal">Background fill (horizontal)</mwc-list-item>
+          <mwc-list-item value="bar_vertical">Progress bar (vertical)</mwc-list-item>
+          <mwc-list-item value="bar_horizontal">Progress bar (horizontal)</mwc-list-item>
+          <mwc-list-item value="circle">Circle</mwc-list-item>
+        </ha-select>
+      </div>
+
+      <div class="row">
+        <ha-select label="Progress mode" helper="How the progress bar fills as time runs out." naturalMenuWidth fixedMenuPosition .value=${this._config.progress_mode || "drain"} .configValue=${"progress_mode"} .options=${SELECT_OPTIONS.progress_mode} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="drain">Drain</mwc-list-item>
+          <mwc-list-item value="fill">Fill</mwc-list-item>
+          <mwc-list-item value="milestones">Milestones (bar styles only)</mwc-list-item>
+        </ha-select>
+
+        <ha-select label="Language" helper="Override the auto-detected display language." naturalMenuWidth fixedMenuPosition .value=${(String(this._config.language || this.hass?.language || "en").toLowerCase().split(/[-_]/)[0])} .configValue=${"language"} .options=${SELECT_OPTIONS.language} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="en">English</mwc-list-item>
+          <mwc-list-item value="de">Deutsch</mwc-list-item>
+          <mwc-list-item value="es">Español</mwc-list-item>
+          <mwc-list-item value="da">Dansk</mwc-list-item>
+          <mwc-list-item value="it">Italiano</mwc-list-item>
+          <mwc-list-item value="fr">Français</mwc-list-item>
+          <mwc-list-item value="he">עברית</mwc-list-item>
+          <mwc-list-item value="pl">Polski</mwc-list-item>
+        </ha-select>
+      </div>
+
+      <label class="toggle-row">
+        <ha-switch .checked=${this._config.show_active_header !== false} .configValue=${"show_active_header"} @change=${this._valueChanged}></ha-switch>
+        <div class="toggle-text">
+          <span class="toggle-title">Show "Active Timers" heading</span>
+          <span class="toggle-desc">Display a heading above timers that are currently running.</span>
+        </div>
+      </label>
+    `;
+
+    const sortingContent = b`
+      <div class="row">
+        <ha-select label="Sort by" helper="Field used to order the timer list." naturalMenuWidth fixedMenuPosition .value=${this._config.sort_by || "time_left"} .configValue=${"sort_by"} .options=${SELECT_OPTIONS.sort_by} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="time_left">Time left</mwc-list-item>
+          <mwc-list-item value="name">Name</mwc-list-item>
+        </ha-select>
+
+        <ha-select label="Sort order" helper="Ascending or descending." naturalMenuWidth fixedMenuPosition .value=${this._config.sort_order || "asc"} .configValue=${"sort_order"} .options=${SELECT_OPTIONS.sort_order} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="asc">Ascending</mwc-list-item>
+          <mwc-list-item value="desc">Descending</mwc-list-item>
+        </ha-select>
+      </div>
+
+      <ha-select label="Pinned timers position" helper="Where pinned-timer buttons sit relative to the list." naturalMenuWidth fixedMenuPosition .value=${this._config.pinned_timers_position || "inline"} .configValue=${"pinned_timers_position"} .options=${SELECT_OPTIONS.pinned_timers_position} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+        <mwc-list-item value="inline">Mixed with timers</mwc-list-item>
+        <mwc-list-item value="top">Top</mwc-list-item>
+        <mwc-list-item value="bottom">Bottom</mwc-list-item>
+      </ha-select>
+    `;
+
+    const timeFormatContent = b`
+      <ha-select label="Time format" helper="Layout for the countdown digits." naturalMenuWidth fixedMenuPosition .value=${this._config.time_format || "hms"} .configValue=${"time_format"} .options=${SELECT_OPTIONS.time_format} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+        <mwc-list-item value="hms">HH:MM:SS</mwc-list-item>
+        <mwc-list-item value="hm">HH:MM</mwc-list-item>
+        <mwc-list-item value="ss">Seconds only</mwc-list-item>
+        <mwc-list-item value="dhms">DD:HH:MM:SS</mwc-list-item>
+        <mwc-list-item value="human_compact">Unit style, compact</mwc-list-item>
+        <mwc-list-item value="human_short">Unit style, short labels</mwc-list-item>
+        <mwc-list-item value="human_natural">Unit style, natural language</mwc-list-item>
+      </ha-select>
+
+      ${this._tf({ label: "Unit order (comma-separated)", helper: "years,months,weeks,days,hours,minutes,seconds", value: (this._config.time_format_units || ["days","hours","minutes","seconds"]).join(","), configValue: "time_format_units", change: this._valueChanged, cls: "advanced" })}
+
+      ${showMilestonesSection ? b`
+        <div class="advanced">
+        <div class="subsection-title">Progress milestones</div>
+        <div class="row" style="align-items:flex-start;">
+          <ha-select label="Milestone unit" helper="Unit highlighted as the active milestone." naturalMenuWidth fixedMenuPosition .value=${this._config.milestone_unit || "auto"} .configValue=${"milestone_unit"} .options=${SELECT_OPTIONS.milestone_unit} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+            <mwc-list-item value="auto">Auto (default)</mwc-list-item>
+            <mwc-list-item value="none">None</mwc-list-item>
+            <mwc-list-item value="years">Years</mwc-list-item>
+            <mwc-list-item value="months">Months</mwc-list-item>
+            <mwc-list-item value="weeks">Weeks</mwc-list-item>
+            <mwc-list-item value="days">Days</mwc-list-item>
+            <mwc-list-item value="hours">Hours</mwc-list-item>
+            <mwc-list-item value="minutes">Minutes</mwc-list-item>
+            <mwc-list-item value="seconds">Seconds</mwc-list-item>
+          </ha-select>
+          <ha-formfield label="Pulse active milestone">
+            <ha-switch .checked=${this._config.milestone_pulse !== false} .configValue=${"milestone_pulse"} @change=${this._valueChanged}></ha-switch>
+          </ha-formfield>
+        </div>
+        </div>
+      ` : ""}
+    `;
+
+    const defaultsContent = b`
+      <div class="row">
+        ${this._tf({ label: "Default duration (minutes)", type: "number", min: "0", helper: "Starting value when the user opens the custom timer input.", value: this._config.default_new_timer_duration_mins ?? 15, configValue: "default_new_timer_duration_mins", change: this._valueChanged })}
+        ${this._tf({ label: "Snooze duration (minutes)", type: "number", min: "0", helper: "Minutes added when the user taps Snooze on an expired timer.", value: this._config.snooze_duration ?? 5, configValue: "snooze_duration", change: this._valueChanged })}
+      </div>
+
+      <div class="row">
+        <ha-icon-picker label="Default timer icon" helper="Used when a timer does not specify its own icon." .value=${this._config.default_timer_icon || "mdi:timer-outline"} .configValue=${"default_timer_icon"} @value-changed=${this._detailValueChanged}></ha-icon-picker>
+        ${this._tf({ label: "Default timer color", helper: "CSS color or var() used as the progress accent.", value: this._config.default_timer_color || "var(--primary-color)", configValue: "default_timer_color", change: this._valueChanged })}
+      </div>
+
+      ${this._tf({ label: "Timer expired message", helper: "Shown under each timer once it reaches zero.", value: this._config.expired_subtitle, configValue: "expired_subtitle", placeholder: "Time's up!", change: this._valueChanged })}
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <ha-select label="When a timer reaches 0" helper="Default action when the countdown hits zero. Per-entity overrides also apply." naturalMenuWidth fixedMenuPosition .value=${this._config.expire_action || "keep"} .configValue=${"expire_action"} .options=${SELECT_OPTIONS.expire_action} @selected=${this._selectChanged} @closed=${(e) => e.stopPropagation()}>
+          <mwc-list-item value="keep">Keep visible</mwc-list-item>
+          <mwc-list-item value="dismiss">Dismiss</mwc-list-item>
+          <mwc-list-item value="remove">Remove</mwc-list-item>
+        </ha-select>
+        ${this._tf({ label: "Keep-visible duration (seconds)", type: "number", min: "0", helper: "How long an expired timer stays on screen before disappearing.", value: this._config.expire_keep_for ?? 120, configValue: "expire_keep_for", change: this._valueChanged, cls: "advanced" })}
+      </div>
+
+      <label class="toggle-row advanced">
+        <ha-switch .checked=${this._config.auto_dismiss_writable === true} .configValue=${"auto_dismiss_writable"} @change=${this._valueChanged}></ha-switch>
+        <div class="toggle-text">
+          <span class="toggle-title">Auto-dismiss helper timers at 0</span>
+          <span class="toggle-desc">For helper-backed timers (input_text/text), clear the entity when the timer hits zero instead of keeping the expired value.</span>
+        </div>
+      </label>
+    `;
+
+    const presetsContent = b`
+      <label class="toggle-row">
+        <ha-switch .checked=${this._config.show_timer_presets !== false} .configValue=${"show_timer_presets"} @change=${this._valueChanged}></ha-switch>
+        <div class="toggle-text">
+          <span class="toggle-title">Show timer preset buttons</span>
+          <span class="toggle-desc">Display one-tap quick-start buttons above the empty state.</span>
+        </div>
+      </label>
+
+      ${this._config.show_timer_presets !== false ? b`
+        ${this._tf({ label: "Timer presets", helper: "Seconds, minutes, hours, or days. e.g. 5, 15, 90s, 2h", value: (this._config.timer_presets || [5, 15, 30]).join(", "), configValue: "timer_presets", change: this._valueChanged })}
+        ${this._tf({ label: "Timer name presets", helper: "Comma-separated labels shown in the custom-name picker", value: (this._config.timer_name_presets || []).join(", "), configValue: "timer_name_presets", change: this._valueChanged })}
+      ` : ""}
+
+      ${this._tf({ label: "Adjustment buttons", helper: "Seconds, minutes, hours, or days. e.g. 1, 5, 30s, 2h. Default unit is minutes.", value: (this._config.minute_buttons || [1, 5, 10]).join(", "), configValue: "minute_buttons", change: this._valueChanged })}
+    `;
+
+    const pinnedContent = b`
+      <p class="hint">One-tap reusable timers shown in the empty state. They hide while running.</p>
+
+      ${(Array.isArray(this._config.pinned_timers) ? this._config.pinned_timers : []).length === 0
+        ? b`<div class="no-entities">No pinned timers configured. Use the button below to add one.</div>`
+        : (this._config.pinned_timers || []).map((t, index) => b`
+            <div class="entity-editor">
+              <div class="entity-options" style="width:100%;">
+                <div class="row">
+                  ${this._tf({ label: "Name", value: t?.name, configValue: "name", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+                  ${this._tf({ label: "Duration", helper: "Examples: 5m, 90s, 1h", value: t?.duration ?? t?.preset ?? "5m", configValue: "duration", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+                </div>
+
+                <div class="row">
+                  <ha-icon-picker label="Icon" .value=${t?.icon || ""} .configValue=${"icon"} @value-changed=${(e) => { e.target.configValue = "icon"; this._pinnedTimerValueChanged(e, index); }}></ha-icon-picker>
+                  ${this._tf({ label: "Color", value: t?.color, configValue: "color", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+                </div>
+
+                ${this._tf({ label: "Expired message", value: t?.expired_subtitle, configValue: "expired_subtitle", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+
+                <ha-formfield label="Enable specific audio">
+                  <ha-switch .checked=${t?.audio_enabled === true} .configValue=${"audio_enabled"} @change=${(e) => this._pinnedTimerValueChanged(e, index)}></ha-switch>
+                </ha-formfield>
+
+                ${t?.audio_enabled ? b`
+                  <div class="row">
+                    ${this._tf({ label: "Audio file URL", value: t?.audio_file_url, configValue: "audio_file_url", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+                    ${this._tf({ label: "Repeat count", type: "number", min: "1", max: "10", value: t?.audio_repeat_count ?? 1, configValue: "audio_repeat_count", change: (e) => this._pinnedTimerValueChanged(e, index) })}
+                  </div>
+
+                  <ha-formfield label="Play until dismissed or snoozed">
+                    <ha-switch .checked=${t?.audio_play_until_dismissed === true} .configValue=${"audio_play_until_dismissed"} @change=${(e) => this._pinnedTimerValueChanged(e, index)}></ha-switch>
+                  </ha-formfield>
+                ` : ""}
+              </div>
+
+              <button class="remove-entity" @click=${() => this._removePinnedTimer(index)} title="Remove pinned timer">
+                <ha-icon icon="mdi:delete"></ha-icon>
+              </button>
+            </div>
+          `)}
+
+      <button class="add-button" @click=${this._addPinnedTimer}>
+        <ha-icon icon="mdi:plus"></ha-icon>
+        <span>Add pinned timer</span>
+      </button>
+    `;
+
+    const audioContent = b`
+      <label class="toggle-row">
+        <ha-switch .checked=${this._config.audio_enabled === true} .configValue=${"audio_enabled"} @change=${this._valueChanged}></ha-switch>
+        <div class="toggle-text">
+          <span class="toggle-title">Enable audio notifications</span>
+          <span class="toggle-desc">Play a sound when any timer expires (per-entity overrides also apply).</span>
+        </div>
+      </label>
+
+      ${this._config.audio_enabled ? b`
+        ${this._tf({ label: "Audio file URL or path", helper: "URL or /local/... path to an mp3, wav, or ogg file.", value: this._config.audio_file_url, configValue: "audio_file_url", placeholder: "/local/sounds/done.mp3", change: this._valueChanged })}
+        <div class="row">
+          ${this._tf({ label: "Completion delay (seconds)", type: "number", min: "1", max: "30", value: this._config.audio_completion_delay ?? 4, configValue: "audio_completion_delay", change: this._valueChanged, cls: "advanced" })}
+          ${this._tf({ label: "Number of times to play", type: "number", min: "1", max: "10", helper: "Ignored when 'Play until dismissed' is on.", value: this._config.audio_repeat_count ?? 1, configValue: "audio_repeat_count", change: this._valueChanged })}
+        </div>
+        <label class="toggle-row">
+          <ha-switch .checked=${this._config.audio_play_until_dismissed === true} .configValue=${"audio_play_until_dismissed"} @change=${this._valueChanged}></ha-switch>
+          <div class="toggle-text">
+            <span class="toggle-title">Play until dismissed or snoozed</span>
+            <span class="toggle-desc">Override the repeat count and keep playing until the user acts on the timer.</span>
+          </div>
+        </label>
+      ` : ""}
+    `;
+
+    const notifyServices = Object.keys(this.hass?.services?.notify || {})
+      .map((s) => "notify." + s)
+      .sort();
+    const notifyServiceOptions = [
+      { value: "", label: "(none)" },
+      ...notifyServices.map((s) => ({ value: s, label: s })),
+    ];
+    const notifyWhenOptions = [
+      { value: "on_audio_fail", label: "Only when audio fails (recommended)" },
+      { value: "always", label: "Always (alongside in-page audio)" },
+    ];
+    const nConf = this._config.notify || {};
+    const criticalOn = !!(nConf?.data?.push?.sound &&
+      typeof nConf.data.push.sound === "object" &&
+      nConf.data.push.sound.critical === 1);
+    const notifyContent = b`
+      <p class="hint">Optional push-notification fallback. Fires any HA <code>notify.*</code> service when a timer ends. Useful when in-page audio is blocked (locked screen, backgrounded tab, cold-loaded dashboard on iOS).</p>
+
+      <ha-select
+        label="Notify service"
+        naturalMenuWidth
+        fixedMenuPosition
+        .value=${nConf.service || ""}
+        .configValue=${"service"}
+        .options=${notifyServiceOptions}
+        @selected=${this._notifyValueChanged}
+        @closed=${(e) => e.stopPropagation()}
+      ></ha-select>
+
+      ${nConf.service ? b`
+        <ha-select
+          label="When to fire"
+          naturalMenuWidth
+          fixedMenuPosition
+          .value=${nConf.when || "on_audio_fail"}
+          .configValue=${"when"}
+          .options=${notifyWhenOptions}
+          @selected=${this._notifyValueChanged}
+          @closed=${(e) => e.stopPropagation()}
+        ></ha-select>
+
+        ${this._tf({ label: "Message", helper: "Placeholders: {name}, {entity_id}, {duration}. Defaults to 'Timer {name} finished'.", value: nConf.message, configValue: "message", placeholder: "Timer {name} finished", change: this._notifyValueChanged })}
+        ${this._tf({ label: "Title", helper: "Optional title shown above the message.", value: nConf.title, configValue: "title", change: this._notifyValueChanged })}
+
+        <label class="toggle-row">
+          <ha-switch .checked=${criticalOn} @change=${this._notifyCriticalChanged}></ha-switch>
+          <div class="toggle-text">
+            <span class="toggle-title">iOS critical alert</span>
+            <span class="toggle-desc">Plays the alert even when the device is in Focus/Silent mode. iPhone/iPad only; requires the HA Companion app to have critical-alerts permission granted.</span>
+          </div>
+        </label>
+
+        <p class="hint advanced">For custom sounds, Android channels, or other push payload fields, edit <code>notify.data:</code> directly in YAML. See <a href="https://github.com/eyalgal/simple-timer-card/blob/main/CONFIGURATION.md#-push-notification-fallback" target="_blank" rel="noopener">CONFIGURATION.md</a>.</p>
+      ` : ""}
+    `;
+
+    const storageContent = b`
+      <ha-entity-picker
+        .hass=${this.hass}
+        .value=${this._config.default_timer_entity || ""}
+        .configValue=${"default_timer_entity"}
+        @value-changed=${this._detailValueChanged}
+        label="Default timer storage (optional)"
+        help-text="Select a helper (input_text/text) or an MQTT sensor to store timers."
+        allow-custom-entity
+        .includeDomains=${["input_text", "text", "sensor"]}
+      ></ha-entity-picker>
+
+      <div class="storage-info">
+        <span class="storage-label">Storage type: <strong>${this._getStorageDisplayName(storageType)}</strong></span>
+        <small class="storage-description">${this._getStorageDescription(storageType)}</small>
+      </div>
+
+      <div class="divider"></div>
+
+      <label class="toggle-row">
+        <ha-switch .checked=${this._config.auto_voice_pe === true} .configValue=${"auto_voice_pe"} @change=${this._valueChanged}></ha-switch>
+        <div class="toggle-text">
+          <span class="toggle-title">Auto-detect Voice PE timers</span>
+          <span class="toggle-desc">Mirror Voice PE timers automatically when present on the system.</span>
+        </div>
+      </label>
+
+      ${this._config.auto_voice_pe === true ? b`
+        <ha-entity-picker
+          class="advanced"
+          .hass=${this.hass}
+          .value=${this._config.voice_pe_control_entity || ""}
+          .configValue=${"voice_pe_control_entity"}
+          .includeDomains=${["text", "input_text"]}
+          allow-custom-entity
+          label="Voice PE control entity"
+          help-text="input_text/text entity Voice PE writes timer commands to."
+          @value-changed=${this._valueChanged}
+        ></ha-entity-picker>
+      ` : ""}
+    `;
+
+    const entitiesContent = b`
+      <p class="hint">Bind to <code>timer.*</code>, Alexa, Voice PE, helper or sensor entities. Mode is auto-detected by default.</p>
+
+      ${(this._config.entities || []).length === 0
+        ? b`<div class="no-entities">No entities configured. Use the button below to add timer entities.</div>`
+        : (this._config.entities || []).map((entityConf, index) => {
+            const entityId = typeof entityConf === "string" ? entityConf : (entityConf?.entity || "");
+            const conf = typeof entityConf === "string" ? {} : (entityConf || {});
+            const st = this.hass.states[entityId];
+            const detectedMode = this._detectMode(entityId, st, conf);
+            const isAuto = !conf.mode || conf.mode === "auto";
+            const isTimestampMode = conf.mode === "timestamp" || (isAuto && detectedMode === "timestamp");
+            return b`
+              <div class="entity-editor">
+                ${entityPickerReady ? b`
+                  <ha-entity-picker
+                    .hass=${this.hass}
+                    .value=${entityId}
+                    .configValue=${"entity"}
+                    allow-custom-entity
+                    @value-changed=${(e) => this._entityValueChanged(e, index)}
+                  ></ha-entity-picker>
+                ` : b`
+                  ${this._tf({ label: "Entity (type while picker loads)", value: entityId, configValue: "entity", change: (e) => this._entityValueChanged(e, index) })}
+                `}
+                <div class="entity-options">
+                  <div class="row" style="align-items:flex-start;">
+                    <div style="flex:1;">
+                      <ha-select label="Mode" naturalMenuWidth fixedMenuPosition .value=${conf.mode || "auto"} .configValue=${"mode"} .options=${SELECT_OPTIONS.entity_mode}
+                        @selected=${(e) => { e.stopPropagation(); this._entityValueChanged(e, index); }} @closed=${(e) => e.stopPropagation()}>
+                        <mwc-list-item value="auto">Auto (Default)</mwc-list-item>
+                        <mwc-list-item value="alexa">Alexa</mwc-list-item>
+                        <mwc-list-item value="timer">Timer</mwc-list-item>
+                        <mwc-list-item value="voice_pe">Voice PE</mwc-list-item>
+                        <mwc-list-item value="helper">Helper (input_text/text)</mwc-list-item>
+                        <mwc-list-item value="timestamp">Timestamp sensor</mwc-list-item>
+                        <mwc-list-item value="minutes_attr">Minutes attribute</mwc-list-item>
+                      </ha-select>
+                      ${isAuto && detectedMode ? b`
+                        <div class="helper-text">
+                          Detected mode: <strong>${detectedMode === "unknown" ? "Unknown" : detectedMode.charAt(0).toUpperCase() + detectedMode.slice(1)}</strong>
+                        </div>
+                      ` : ""}
+                    </div>
+
+                    ${conf.mode === "minutes_attr" ? b`
+                      ${this._tf({ label: "Minutes attribute", value: conf.minutes_attr, configValue: "minutes_attr", change: (e) => this._entityValueChanged(e, index) })}
+                    ` : ""}
+
+                    ${isTimestampMode ? b`
+                      <ha-entity-picker
+                          .hass=${this.hass}
+                          .value=${conf.start_time_entity || ""}
+                          .configValue=${"start_time_entity"}
+                          @value-changed=${(e) => this._entityValueChanged(e, index)}
+                          label="Start time entity"
+                          allow-custom-entity
+                      ></ha-entity-picker>
+                    ` : ""}
+                  </div>
+
+                  ${isTimestampMode ? b`
+                    ${this._tf({ label: "Start time attribute (optional)", value: conf.start_time_attr, configValue: "start_time_attr", helper: "Attribute on this entity containing the start timestamp (e.g., 'last_triggered').", change: (e) => this._entityValueChanged(e, index), cls: "advanced" })}
+                  ` : ""}
+
+                  <div class="row">
+                    ${this._tf({ label: "Name override", value: conf.name, configValue: "name", change: (e) => this._entityValueChanged(e, index) })}
+                    <ha-icon-picker label="Icon override" .value=${conf.icon || ""} .configValue=${"icon"} @value-changed=${(e) => this._entityValueChanged(e, index)}></ha-icon-picker>
+                    ${this._tf({ label: "Color override", value: conf.color, configValue: "color", change: (e) => this._entityValueChanged(e, index) })}
+                  </div>
+
+                  ${this._tf({ label: "Expired message override", value: conf.expired_subtitle, configValue: "expired_subtitle", change: (e) => this._entityValueChanged(e, index) })}
+
+                  <ha-formfield label="Enable entity-specific audio">
+                    <ha-switch .checked=${conf.audio_enabled === true} .configValue=${"audio_enabled"} @change=${(e) => this._entityValueChanged(e, index)}></ha-switch>
+                  </ha-formfield>
+
+                  ${conf.audio_enabled ? b`
+                    <div class="row">
+                      ${this._tf({ label: "Audio file URL", value: conf.audio_file_url, configValue: "audio_file_url", change: (e) => this._entityValueChanged(e, index) })}
+                      ${this._tf({ label: "Audio repeat count", type: "number", min: "1", max: "10", value: conf.audio_repeat_count ?? 1, configValue: "audio_repeat_count", change: (e) => this._entityValueChanged(e, index) })}
+                    </div>
+                  ` : ""}
+
+                  ${(conf.mode === "timer" || (isAuto && detectedMode === "timer")) ? b`
+                    <div class="advanced">
+                    <ha-formfield label="Keep visible when idle">
+                      <ha-switch .checked=${conf.keep_timer_visible_when_idle === true} .configValue=${"keep_timer_visible_when_idle"} @change=${(e) => this._entityValueChanged(e, index)}></ha-switch>
+                    </ha-formfield>
+                    <ha-formfield label="Hide action buttons">
+                      <ha-switch .checked=${conf.hide_timer_actions === true} .configValue=${"hide_timer_actions"} @change=${(e) => this._entityValueChanged(e, index)}></ha-switch>
+                    </ha-formfield>
+                    </div>
+                  ` : ""}
+                  <div class="advanced">
+                    <div class="row-actions-label">Per-row actions (override card-level)</div>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${"Tap action"}
+                      .selector=${{ ui_action: { default_action: "none" } }}
+                      .value=${conf.tap_action}
+                      .configValue=${"tap_action"}
+                      @value-changed=${(e) => this._entityValueChanged(e, index)}
+                    ></ha-selector>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${"Hold action"}
+                      .selector=${{ ui_action: { default_action: "none" } }}
+                      .value=${conf.hold_action}
+                      .configValue=${"hold_action"}
+                      @value-changed=${(e) => this._entityValueChanged(e, index)}
+                    ></ha-selector>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${"Double-tap action"}
+                      .selector=${{ ui_action: { default_action: "none" } }}
+                      .value=${conf.double_tap_action}
+                      .configValue=${"double_tap_action"}
+                      @value-changed=${(e) => this._entityValueChanged(e, index)}
+                    ></ha-selector>
+                  </div>
+
+                </div>
+
+                <button class="remove-entity" @click=${() => this._removeEntity(index)} title="Remove entity"><ha-icon icon="mdi:delete"></ha-icon></button>
+              </div>
+            `;
+          })
+      }
+
+      <button class="add-button" @click=${this._addEntity}>
+        <ha-icon icon="mdi:plus"></ha-icon>
+        <span>Add timer entity</span>
+      </button>
+    `;
+
+    const actionsContent = b`
+      <p class="hint">
+        Standard Home Assistant action options. Row-level actions override card-level. Leave blank to inherit, or pick "No action" to suppress the built-in default (tap toggles pause/resume).
+      </p>
+      <ha-selector
+        .hass=${this.hass}
+        .label=${"Tap action"}
+        .selector=${{ ui_action: { default_action: "none" } }}
+        .value=${this._config?.tap_action}
+        .configValue=${"tap_action"}
+        @value-changed=${this._detailValueChanged}
+      ></ha-selector>
+      <ha-selector
+        .hass=${this.hass}
+        .label=${"Hold action"}
+        .selector=${{ ui_action: { default_action: "none" } }}
+        .value=${this._config?.hold_action}
+        .configValue=${"hold_action"}
+        @value-changed=${this._detailValueChanged}
+      ></ha-selector>
+      <ha-selector
+        .hass=${this.hass}
+        .label=${"Double-tap action"}
+        .selector=${{ ui_action: { default_action: "none" } }}
+        .value=${this._config?.double_tap_action}
+        .configValue=${"double_tap_action"}
+        @value-changed=${this._detailValueChanged}
+      ></ha-selector>
+    `;
+
+    const panel = (key, header, icon, content, opts = {}) => {
+      const isSearching = !!(this._searchQuery && this._searchQuery.trim());
+      const expanded = isSearching ? true : (opts.expanded ?? !!this._expandedSections?.[key]);
+      const panelCls = opts.advanced ? "advanced" : "";
+      return b`
+        <ha-expansion-panel
+          class=${panelCls}
+          outlined
+          ?expanded=${expanded}
+          @expanded-changed=${(e) => { this._expandedSections = { ...(this._expandedSections || {}), [key]: !!e.detail?.expanded }; }}
+        >
+          <div slot="header" class="panel-header">
+            <ha-icon class="panel-header-icon" icon=${icon}></ha-icon>
+            <span class="panel-header-label">${header}</span>
+          </div>
+          <div class="panel-body">${content}</div>
+        </ha-expansion-panel>
+      `;
+    };
+
+    return b`
+      <div class="editor-toolbar">
+        ${this._renderSearchInput()}
+        <ha-formfield label="Show advanced options" class="advanced-toggle">
+          <ha-switch
+            .checked=${this._showAdvanced}
+            @change=${(e) => { this._showAdvanced = !!e.target.checked; }}
+          ></ha-switch>
+        </ha-formfield>
+      </div>
+      <div class="card-config ${this._showAdvanced ? "show-advanced" : ""}">
+        ${panel("appearance", "Appearance", "mdi:palette", appearanceContent, { expanded: this._expandedSections?.appearance ?? true })}
+        ${panel("entities", "Timer entities", "mdi:format-list-bulleted", entitiesContent, { expanded: this._expandedSections?.entities ?? true })}
+        ${panel("sorting", "Sorting", "mdi:sort", sortingContent)}
+        ${panel("timeFormat", "Time format", "mdi:clock-outline", timeFormatContent)}
+        ${panel("defaults", "Timer defaults & behavior", "mdi:cog-outline", defaultsContent)}
+        ${panel("presets", "Quick-start presets", "mdi:flash-outline", presetsContent)}
+        ${panel("pinned", "Pinned timers", "mdi:pin-outline", pinnedContent)}
+        ${panel("audio", "Audio notifications", "mdi:volume-high", audioContent)}
+        ${panel("notify", "Push notification fallback", "mdi:bell-ring-outline", notifyContent)}
+        ${panel("storage", "Storage & integrations", "mdi:database-outline", storageContent)}
+        ${panel("actions", "Actions", "mdi:gesture-tap", actionsContent, { advanced: true })}
+      </div>
+    `;
+  }
+
+  _getStorageDisplayName(storage) {
+    switch (storage) {
+      case "local": return "Local Browser Storage";
+      case "helper": return "Helper Entities";
+      case "mqtt": return "MQTT";
+      default: return "Unknown";
+    }
+  }
+
+  _getStorageDescription(storage) {
+    switch (storage) {
+      case "local": return "Timers are stored locally in your browser and persist across sessions.";
+      case "helper": return "Timers are stored in Home Assistant helper entities (input_text/text).";
+      case "mqtt": return "Timers are stored via MQTT for cross-device sync. Select your MQTT sensor in 'Default Timer Storage'.";
+      default: return "";
+    }
+  }
+
+  static get styles() {
+    return i$4`
+      :host { display: block; }
+
+      .card-config { display: flex; flex-direction: column; gap: 12px; }
+
+      .editor-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 0 4px;
+        margin-bottom: 8px;
+      }
+      .editor-toolbar .editor-search {
+        flex: 1;
+        min-width: 0;
+        max-width: 320px;
+      }
+      .row-actions-label {
+        font-size: 0.85em;
+        color: var(--secondary-text-color);
+        font-weight: 500;
+        margin-top: 4px;
+      }
+      .editor-toolbar .advanced-toggle {
+        font-size: 13px;
+        color: var(--secondary-text-color);
+        flex-shrink: 0;
+      }
+
+      /* Hide fields marked .advanced unless the "Show advanced" toggle is on. */
+      .card-config:not(.show-advanced) .advanced { display: none !important; }
+      /* Hide fields and sections filtered out by the search query. */
+      [data-search-hidden] { display: none !important; }
+
+      ha-expansion-panel {
+        --expansion-panel-summary-padding: 0 16px;
+        --expansion-panel-content-padding: 0;
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+        background: var(--card-background-color);
+        overflow: hidden;
+      }
+
+      .panel-body {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 12px 0;
+      }
+      .panel-header-icon {
+        --mdc-icon-size: 20px;
+        color: var(--secondary-text-color);
+        flex-shrink: 0;
+      }
+      .panel-header-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary-text-color);
+        flex: 1;
+        min-width: 0;
+      }
+
+      .row,
+      .side-by-side {
+        display: flex;
+        gap: 12px;
+      }
+      .row > *,
+      .side-by-side > * { flex: 1; min-width: 0; }
+
+      /* DO NOT force display:block on these. HA's ha-textfield uses
+         :host { display: inline-flex } internally; overriding it breaks its
+         internal layout and collapses the field to 0 height when used as a
+         flex child of .row / .side-by-side. Flex-column parents already
+         stretch their direct children to full width via align-items:stretch. */
+      .panel-body > ha-textfield,
+      .panel-body > ha-input,
+      .panel-body > ha-entity-picker,
+      .panel-body > ha-icon-picker,
+      .panel-body > ha-select,
+      .panel-body > ha-form,
+      .entity-options > ha-textfield,
+      .entity-options > ha-input,
+      .entity-options > ha-entity-picker,
+      .entity-options > ha-icon-picker,
+      .entity-options > ha-select,
+      .entity-options > ha-form { width: 100%; }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 4px 0;
+        cursor: pointer;
+        user-select: none;
+      }
+      .toggle-row ha-switch { flex-shrink: 0; }
+      .toggle-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+      .toggle-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary-text-color);
+      }
+      .toggle-desc {
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--secondary-text-color);
+        margin-top: 2px;
+      }
+
+      .hint {
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--secondary-text-color);
+        margin: 0;
+      }
+      .hint code {
+        background: rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.08);
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+
+      .subsection-title {
+        font-weight: 600;
+        margin-top: 4px;
+        margin-bottom: -4px;
+        color: var(--primary-text-color);
+        font-size: 0.9rem;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--divider-color);
+        margin: 4px 0;
+      }
+
+      .storage-info {
+        padding: 12px;
+        background: rgba(var(--rgb-primary-text-color), 0.02);
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .storage-label { font-size: 0.9rem; color: var(--primary-text-color); }
+      .storage-description { color: var(--secondary-text-color); font-size: 0.8rem; line-height: 1.2; }
+
+      .no-entities {
+        text-align: center;
+        color: var(--secondary-text-color);
+        padding: 16px;
+        font-style: italic;
+        border: 2px dashed var(--divider-color);
+        border-radius: 8px;
+      }
+
+      .entity-editor {
+        border: 1px solid var(--divider-color);
+        border-radius: 8px;
+        padding: 12px;
+        position: relative;
+      }
+      .entity-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .remove-entity {
+        position: absolute;
+        top: 6px;
+        inset-inline-end: 6px;
+        background: var(--error-color, #f44336);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+      }
+
+      .add-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 14px;
+        background: var(--primary-color);
+        color: var(--text-primary-color, #fff);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 500;
+        align-self: flex-start;
+      }
+      .add-button:hover { filter: brightness(1.08); }
+      .add-button ha-icon { --mdc-icon-size: 18px; }
+
+      .helper-text {
+        font-size: 11px;
+        color: var(--secondary-text-color);
+        margin-top: 4px;
+        margin-inline-start: 4px;
+      }
+    `;
+  }
+}
+
+if (!customElements.get("va-simple-timer-card")) customElements.define("va-simple-timer-card", VASimpleTimerCard);
+const stcRegisterEditor = () => { if (!customElements.get("va-simple-timer-card-editor"))
+customElements.define("va-simple-timer-card-editor", VASimpleTimerCardEditor); };
+stcRegisterEditor();
+window.addEventListener("location-changed", () => { setTimeout(stcRegisterEditor, 100); });
+
+VASimpleTimerCard.getConfigElement = function () {
+  stcRegisterEditor();
+  if (customElements.get("va-simple-timer-card-editor")) return document.createElement("va-simple-timer-card-editor");
+  const placeholder = document.createElement("div");
+  placeholder.innerHTML = "Loading editor...";
+  const checkInterval = setInterval(() => {
+    if (customElements.get("va-simple-timer-card-editor")) {
+      clearInterval(checkInterval);
+      const editor = document.createElement("va-simple-timer-card-editor");
+      placeholder.replaceWith(editor);
+      if (placeholder._config) editor.setConfig(placeholder._config);
+      if (placeholder._hass) editor.hass = placeholder._hass;
+    }
+  }, 100);
+  const originalSetConfig = placeholder.setConfig;
+  placeholder.setConfig = function (config) {
+    placeholder._config = config;
+    if (originalSetConfig) originalSetConfig.call(placeholder, config);
+  };
+  Object.defineProperty(placeholder, "hass", {
+    set: function (hass) { placeholder._hass = hass; },
+    get: function () { return placeholder._hass; }
+  });
+  return placeholder;
+};
+
+setTimeout(() => {
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "va-simple-timer-card",
+    name: "Simple Timer Card",
+    preview: true,
+    description: "Pick a layout (horizontal/vertical) and a style (progress bar/background fill). Uses HA theme & native elements.",
+    editor: "va-simple-timer-card-editor",
+  });
+}, 0);
